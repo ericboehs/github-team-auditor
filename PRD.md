@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD)
-# RailsStarter
+# GitHub Team Auditor
 
 **Version**: 0.1  
 **Date**: June 2025  
@@ -7,11 +7,11 @@
 
 ## Executive Summary
 
-RailsStarter is a Rails application create a new Rails project.
+GitHub Team Auditor is a Rails application create a new Rails project.
 
 ## Project Status
 
-RailsStarter is currently in the foundation phase, with a complete authentication system and modern Rails application infrastructure. The application provides a secure, tested foundation for future integration and features.
+GitHub Team Auditor is currently in the foundation phase, with a complete authentication system and modern Rails application infrastructure. The application provides a secure, tested foundation for future integration and features.
 
 ## Implemented Features
 
@@ -92,7 +92,7 @@ RailsStarter is currently in the foundation phase, with a complete authenticatio
 
 ## Conclusion
 
-RailsStarter has established a solid foundation with a complete authentication system and modern Rails infrastructure. The application currently provides:
+GitHub Team Auditor has established a solid foundation with a complete authentication system and modern Rails infrastructure. The application currently provides:
 
 - **Secure user management** with industry-standard authentication
 - **Modern component architecture** for maintainable UI development  
