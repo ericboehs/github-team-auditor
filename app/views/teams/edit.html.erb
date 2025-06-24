@@ -90,7 +90,7 @@
 
               <div class="flex items-center justify-between pt-6">
                 <div>
-                  <%= link_to "Delete", team_path(@team),
+                  <%= link_to t('buttons.delete'), team_path(@team),
                               data: {
                                 "turbo-method": "delete",
                                 "turbo-confirm": t("teams.form.delete_confirm")

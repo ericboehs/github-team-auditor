@@ -40,13 +40,6 @@ class StatusBadgeComponent < ViewComponent::Base
   end
 
   def status_text
-    case status
-    when "government"
-      "Gov"
-    when "maintainer"
-      "Maintainer"
-    else
-      status.capitalize
-    end
+    I18n.t("status_badges.#{status}", default: status.capitalize)
   end
 end

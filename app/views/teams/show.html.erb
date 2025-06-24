@@ -32,7 +32,7 @@
                   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
                   </svg>
-                  View
+                  <%= t('buttons.view') %>
                 </a>
                 <%= form_with url: sync_team_path(@team), method: :post, local: true, class: "inline" do %>
                   <%= render ButtonComponent.new(
@@ -40,14 +40,14 @@
                       concat(content_tag(:svg, class: "h-4 w-4 mr-2", fill: "currentColor", viewBox: "0 0 24 24") do
                         content_tag(:path, "", d: "M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22")
                       end)
-                      concat("Sync")
+                      concat(t('buttons.sync'))
                     end.html_safe,
                     type: :submit,
                     variant: :secondary,
                     include_flex: true
                   ) %>
                 <% end %>
-                <%= render LinkButtonComponent.new(text: "Edit", url: edit_team_path(@team), variant: :secondary) %>
+                <%= render LinkButtonComponent.new(text: t('buttons.edit'), url: edit_team_path(@team), variant: :secondary) %>
                 <%= render LinkButtonComponent.new(text: t("teams.show.new_audit"), url: new_audit_path(team_id: @team.id), variant: :primary) %>
               </div>
               <div class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400">
@@ -56,10 +56,10 @@
                 </svg>
                 <% if @last_synced_at %>
                   <span title="<%= @last_synced_at.iso8601 %>">
-                    Synced <%= time_ago_in_words(@last_synced_at) %> ago
+                    <%= t('sync.synced_ago', time: time_ago_in_words(@last_synced_at)) %>
                   </span>
                 <% else %>
-                  Never synced
+                  <%= t('sync.never_synced') %>
                 <% end %>
               </div>
             </div>
@@ -92,7 +92,7 @@
                 </svg>
               </div>
               <div class="ml-4 min-w-0 flex-1">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Validated</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.validated') %></p>
                 <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1"><%= @validated_members_count %></p>
               </div>
             </div>
@@ -107,7 +107,7 @@
                 </svg>
               </div>
               <div class="ml-4 min-w-0 flex-1">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Maintainers</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.maintainers') %></p>
                 <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1"><%= @maintainer_members_count %></p>
               </div>
             </div>
@@ -122,7 +122,7 @@
                 </svg>
               </div>
               <div class="ml-4 min-w-0 flex-1">
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Audits</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('teams.show.stats.total_audits') %></p>
                 <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
                   <%= link_to @team.audit_sessions.count, audits_path(team_id: @team.id), class: "hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" %>
                 </p>
@@ -140,22 +140,22 @@
                 <thead>
                   <tr>
                     <th class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
-                      Member
+                      <%= t('common.member') %>
                     </th>
                     <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Role
+                      <%= t('common.role') %>
                     </th>
                     <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Status
+                      <%= t('common.status') %>
                     </th>
                     <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Issues
+                      <%= t('common.issues') %>
                     </th>
                     <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      First Seen
+                      <%= t('common.first_seen') %>
                     </th>
                     <th class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Last Seen
+                      <%= t('common.last_seen') %>
                     </th>
                   </tr>
                 </thead>
@@ -178,17 +178,17 @@
                       <td class="px-3 py-4 text-sm whitespace-nowrap">
                         <% if member.maintainer_role? %>
                           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
-                            Maintainer
+                            <%= t('status_badges.maintainer') %>
                           </span>
                         <% else %>
                           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                            Member
+                            <%= t('status_badges.member') %>
                           </span>
                         <% end %>
                       </td>
                       <td class="px-3 py-4 text-sm whitespace-nowrap">
                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
-                          Current
+                          <%= t('status_badges.current') %>
                         </span>
                       </td>
                       <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
@@ -212,8 +212,8 @@
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No team members</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No audit data available for this team yet.</p>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white"><%= t('empty_states.no_team_members') %></h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t('empty_states.no_audit_data') %></p>
               </div>
             <% end %>
           </div>

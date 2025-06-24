@@ -33,7 +33,7 @@
             <svg class="h-4 w-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <span>Due: <%= @audit_session.due_date.strftime('%B %d, %Y') %></span>
+            <span><%= t('due_date.due_label') %> <%= @audit_session.due_date.strftime('%B %d, %Y') %></span>
           </div>
         <% end %>
       </div>
@@ -43,8 +43,8 @@
             concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
               content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
             end)
-            concat(content_tag(:span, @audit_session.due_date ? "Edit Due Date" : "Set Due Date", class: "hidden sm:inline"))
-            concat(content_tag(:span, @audit_session.due_date ? "Edit" : "Due Date", class: "sm:hidden"))
+            concat(content_tag(:span, @audit_session.due_date ? t('due_date.edit_due_date') : t('due_date.set_due_date'), class: "hidden sm:inline"))
+            concat(content_tag(:span, @audit_session.due_date ? t('buttons.edit') : t('common.due_date'), class: "sm:hidden"))
           end.html_safe,
           type: :button,
           variant: :secondary,
@@ -62,7 +62,7 @@
                   content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
                 end
               end)
-              concat(@audit_session.status == 'completed' ? 'Mark Active' : 'Mark Complete')
+              concat(@audit_session.status == 'completed' ? t('actions.mark_active') : t('actions.mark_complete'))
             end.html_safe,
             type: :submit,
             variant: @audit_session.status == 'completed' ? :primary : :success,
@@ -70,13 +70,13 @@
             class: "flex-shrink-0"
           ) %>
         <% end %>
-        <%= form_with url: audit_path(@audit_session), method: :delete, local: true, data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this audit session? This action cannot be undone." }, class: "inline-block" do |form| %>
+        <%= form_with url: audit_path(@audit_session), method: :delete, local: true, data: { turbo_method: :delete, turbo_confirm: t('confirmations.delete_audit') }, class: "inline-block" do |form| %>
           <%= render ButtonComponent.new(
             text: content_tag(:span, class: "inline-flex items-center") do
               concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
                 content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
               end)
-              concat("Delete")
+              concat(t('buttons.delete'))
             end.html_safe,
             type: :submit,
             variant: :danger,
@@ -91,10 +91,10 @@
   <!-- Due Date Form (Hidden by default) -->
   <div id="due-date-form" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md mx-auto">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Due Date</h3>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t('common.due_date') %></h3>
       <%= form_with model: @audit_session, url: audit_path(@audit_session), method: :patch, local: true, class: "space-y-4" do |form| %>
         <div>
-          <%= form.label :due_date, "Due Date", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <%= form.label :due_date, t('common.due_date'), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
           <div class="relative">
             <%= form.date_field :due_date,
                 placeholder: "YYYY-MM-DD",
@@ -109,13 +109,13 @@
         </div>
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-2">
           <%= render ButtonComponent.new(
-            text: "Cancel",
+            text: t('buttons.cancel'),
             type: :button,
             variant: :secondary,
             onclick: "toggleDueDateForm()"
           ) %>
           <%= render ButtonComponent.new(
-            text: "Save",
+            text: t('buttons.save'),
             type: :submit,
             variant: :primary
           ) %>
@@ -135,7 +135,7 @@
           </svg>
         </div>
         <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Members</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.total_members') %></p>
           <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @team_members.count %></p>
         </div>
       </div>
@@ -150,7 +150,7 @@
           </svg>
         </div>
         <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Validated</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.validated') %></p>
           <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @team_members.validated.count %></p>
         </div>
       </div>
@@ -165,7 +165,7 @@
           </svg>
         </div>
         <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Maintainers</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.maintainers') %></p>
           <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @audit_session.maintainer_members.count %></p>
         </div>
       </div>
@@ -181,7 +181,7 @@
           </svg>
         </div>
         <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Progress</p>
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.progress') %></p>
           <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @progress.round %>%</p>
         </div>
       </div>
@@ -198,22 +198,22 @@
         <thead>
           <tr>
             <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
-              Member
+              <%= t('common.member') %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Role
+              <%= t('common.role') %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Status
+              <%= t('common.status') %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Issues
+              <%= t('common.issues') %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              First Seen
+              <%= t('common.first_seen') %>
             </th>
             <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Last Seen
+              <%= t('common.last_seen') %>
             </th>
           </tr>
         </thead>
@@ -259,7 +259,7 @@
                     </div>
                   <% end %>
                 <% else %>
-                  <span class="text-gray-400 dark:text-gray-500">No issues</span>
+                  <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
                 <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
@@ -281,8 +281,8 @@
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" data-slot="icon">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No team members</h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Sync team members from GitHub to get started.</p>
+        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white"><%= t('empty_states.no_team_members') %></h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t('empty_states.sync_to_get_started') %></p>
       </div>
     <% end %>
   </div>
@@ -291,7 +291,7 @@
   <% if @audit_session.notes.present? %>
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-8">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Notes</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t('common.notes') %></h3>
       </div>
       <div class="px-6 py-4">
         <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line"><%= @audit_session.notes %></div>
