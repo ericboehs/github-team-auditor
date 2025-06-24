@@ -10,7 +10,7 @@
   <% end %>
 
   <div class="py-6">
-    <main>
+    <main id="main-content">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
   <!-- Header -->
   <div class="mb-8">
@@ -125,7 +125,7 @@
   </div>
 
   <!-- Status Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-live="polite" aria-atomic="false">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0">
@@ -195,6 +195,7 @@
     <div class="flow-root">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <caption class="sr-only">Team members audit data for <%= @audit_session.name %></caption>
         <thead>
           <tr>
             <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
@@ -239,7 +240,7 @@
                     <%= render StatusBadgeComponent.new(status: "maintainer", class: "w-fit") %>
                   <% end %>
                   <% if member.government_employee? %>
-                    <%= render StatusBadgeComponent.new(status: "government") %>
+                    <%= render StatusBadgeComponent.new(status: "government", class: "w-fit") %>
                   <% end %>
                 </div>
               </td>

@@ -81,6 +81,16 @@
   </head>
 
   <body class="h-full bg-white dark:bg-gray-900">
+    <!-- Skip navigation links for accessibility -->
+    <div class="sr-only focus-within:not-sr-only">
+      <a href="#main-content" class="absolute top-4 left-4 z-50 bg-emerald-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+        Skip to main content
+      </a>
+    </div>
+    
+    <!-- Hidden live regions for dynamic content announcements -->
+    <div id="live-region-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="live-region-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
     <%= yield %>
   </body>
 </html>

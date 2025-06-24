@@ -10,7 +10,7 @@
   <% end %>
 
   <div class="py-6">
-    <main>
+    <main id="main-content">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-4">
@@ -50,7 +50,7 @@
                 <%= render LinkButtonComponent.new(text: t('buttons.edit'), url: edit_team_path(@team), variant: :secondary) %>
                 <%= render LinkButtonComponent.new(text: t("teams.show.new_audit"), url: new_audit_path(team_id: @team.id), variant: :primary) %>
               </div>
-              <div class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400">
+              <div class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
                 <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
@@ -67,7 +67,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-live="polite" aria-atomic="false">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="flex items-start">
               <div class="flex-shrink-0">
@@ -137,24 +137,25 @@
             <% if @team_members.any? %>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <caption class="sr-only">Members of the <%= @team.name %> team</caption>
                 <thead>
                   <tr>
-                    <th class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
+                    <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
                       <%= t('common.member') %>
                     </th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <%= t('common.role') %>
                     </th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <%= t('common.status') %>
                     </th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <%= t('common.issues') %>
                     </th>
-                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <%= t('common.first_seen') %>
                     </th>
-                    <th class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <%= t('common.last_seen') %>
                     </th>
                   </tr>
