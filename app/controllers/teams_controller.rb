@@ -1,8 +1,5 @@
 class TeamsController < ApplicationController
-  include LoadsOrganizations
-
   before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync ]
-  before_action :load_organizations, only: [ :new, :create, :edit, :update ]
 
   def index
     @teams = Team.includes(:organization, :audit_sessions).order(:name)
@@ -20,6 +17,7 @@ class TeamsController < ApplicationController
 
   def new
     @team = Team.new
+    @organizations = Organization.all
 
     # Default to Department of Veterans Affairs organization
     @default_organization = @organizations.find_by(github_login: "department-of-veterans-affairs")
@@ -32,17 +30,20 @@ class TeamsController < ApplicationController
     if @team.save
       redirect_to @team, notice: t("flash.teams.created")
     else
+      @organizations = Organization.all
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
+    @organizations = Organization.all
   end
 
   def update
     if @team.update(team_params)
       redirect_to @team, notice: t("flash.teams.updated")
     else
+      @organizations = Organization.all
       render :edit, status: :unprocessable_entity
     end
   end

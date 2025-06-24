@@ -266,6 +266,9 @@ en:
     sessions:
       rate_limit: "Try again later."
 
+  aria_labels:
+    view_github_profile: "View %{name}'s GitHub profile (opens in new tab)"
+
   mailer:
     password_reset:
       body_html: "You can reset your password within the next 15 minutes on"

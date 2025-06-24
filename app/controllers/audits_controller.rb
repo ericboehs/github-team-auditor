@@ -1,8 +1,5 @@
 class AuditsController < ApplicationController
-  include LoadsOrganizations
-
   before_action :set_audit_session, only: [ :show, :update, :destroy, :toggle_status ]
-  before_action :load_organizations, only: [ :index, :new, :create ]
 
   def index
     @audit_sessions = AuditSession.includes(:organization, :team, :user)
@@ -14,18 +11,21 @@ class AuditsController < ApplicationController
     end
 
     @audit_sessions = @audit_sessions.recent.limit(20)
+    @organizations = Organization.all
   end
 
   def show
-    @team_members = @audit_session.audit_members
-                                .includes(:audit_notes)
-                                .order(:github_login)
+    @team_members =
+      @audit_session.audit_members
+                    .includes(:audit_notes)
+                    .order(:github_login)
     @progress = @audit_session.progress_percentage
     @compliance_status = @audit_session.compliance_ready?
   end
 
   def new
     @audit_session = AuditSession.new
+    @organizations = Organization.all
 
     # If team_id is provided, pre-select the team and its organization
     if params[:team_id].present?
@@ -47,6 +47,7 @@ class AuditsController < ApplicationController
     if @audit_session.save
       redirect_to audit_path(@audit_session), notice: t("flash.audits.created")
     else
+      @organizations = Organization.all
       @teams = @audit_session.organization ? @audit_session.organization.teams : []
       render :new, status: :unprocessable_entity
     end
@@ -66,16 +67,17 @@ class AuditsController < ApplicationController
   end
 
   def toggle_status
-    new_status = case @audit_session.status
-    when "active"
-                  "completed"
-    when "completed"
-                  "active"
-    when "draft"
-                  "active"
-    else
-                  "active"
-    end
+    new_status =
+      case @audit_session.status
+      when "active"
+        "completed"
+      when "completed"
+        "active"
+      when "draft"
+        "active"
+      else
+        "active"
+      end
 
     if @audit_session.update(status: new_status, completed_at: new_status == "completed" ? Time.current : nil)
       notice_key = new_status == "completed" ? "marked_complete" : "marked_active"
