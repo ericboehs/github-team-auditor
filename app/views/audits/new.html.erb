@@ -68,7 +68,7 @@
                 prompt: t("audits.form.team_prompt"),
                 help_text: "Select an organization first to see available teams.",
                 required: true,
-                data: { audit_form_target: "teamSelect" }
+                data: { audit_form_target: "teamSelect", placeholder: t("audits.form.team_prompt") }
               ) %>
 
               <%= render InputComponent.new(

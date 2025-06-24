@@ -37,7 +37,7 @@
           </div>
         <% end %>
       </div>
-      <div class="flex flex-wrap gap-2" data-controller="due-date">
+      <div class="flex flex-wrap gap-2" data-controller="toggle">
         <%= render ButtonComponent.new(
           text: content_tag(:span, class: "inline-flex items-center") do
             concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
@@ -49,7 +49,7 @@
           type: :button,
           variant: :secondary,
           include_flex: true,
-          data: { action: "click->due-date#toggleForm" },
+          data: { action: "click->toggle#toggle" },
           class: "flex-shrink-0"
         ) %>
         <%= form_with url: toggle_status_audit_path(@audit_session), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
@@ -86,7 +86,7 @@
         <% end %>
 
         <!-- Due Date Form (Hidden by default) -->
-        <div id="due-date-form" data-due-date-target="form" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div id="due-date-form" data-toggle-target="toggleable" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md mx-auto">
       <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t('common.due_date') %></h3>
       <%= form_with model: @audit_session, url: audit_path(@audit_session), method: :patch, local: true, class: "space-y-4" do |form| %>
@@ -95,9 +95,9 @@
           <div class="relative">
             <%= form.date_field :due_date,
                 placeholder: "YYYY-MM-DD",
-                data: { due_date_target: "field", action: "input->due-date#toggleClearButton" },
+                data: { toggle_target: "field", action: "input->toggle#toggleClearButton" },
                 class: "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
-            <button type="button" data-due-date-target="clearButton" data-action="click->due-date#clearDate" class="absolute inset-y-0 right-0 flex items-center pr-3 <%= @audit_session.due_date ? '' : 'hidden' %>">
+            <button type="button" data-toggle-target="clearButton" data-action="click->toggle#clearField" class="absolute inset-y-0 right-0 flex items-center pr-3 <%= @audit_session.due_date ? '' : 'hidden' %>">
               <svg class="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
@@ -109,7 +109,7 @@
             text: t('buttons.cancel'),
             type: :button,
             variant: :secondary,
-            data: { action: "click->due-date#toggleForm" }
+            data: { action: "click->toggle#toggle" }
           ) %>
           <%= render ButtonComponent.new(
             text: t('buttons.save'),

@@ -26,31 +26,17 @@ export default class extends Controller {
 
   clearTeams() {
     const teamSelect = this.teamSelectTarget
-    teamSelect.innerHTML = '<option value="">Select a team</option>'
+    teamSelect.innerHTML = `<option value="">${teamSelect.dataset.placeholder}</option>`
     teamSelect.disabled = true
   }
 
   populateTeamsBasedOnOrganization(organizationId, teamSelect) {
     // Clear existing options
-    teamSelect.innerHTML = '<option value="">Select a team</option>'
+    teamSelect.innerHTML = `<option value="">${teamSelect.dataset.placeholder}</option>`
 
-    // This is a simplified version - in production you'd fetch via AJAX
-    const teams = {
-      "34184513": [ // Department of Veterans Affairs
-        { id: "15455700", name: "Platform Security", slug: "platform-security" },
-        { id: "259099539", name: "Backend Tools", slug: "backend-tools" }
-      ]
-    }
+    // TODO: Implement AJAX call to fetch teams for the selected organization
+    // For now, teams are loaded via the Rails form helper
 
-    const orgTeams = teams[organizationId] || []
-
-    orgTeams.forEach(team => {
-      const option = document.createElement('option')
-      option.value = team.id
-      option.textContent = `${team.name} (${team.slug})`
-      teamSelect.appendChild(option)
-    })
-
-    teamSelect.disabled = orgTeams.length === 0
+    teamSelect.disabled = true
   }
 }
