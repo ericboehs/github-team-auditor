@@ -16,9 +16,10 @@ class AuditsController < ApplicationController
 
   def show
     @team_members =
-      @audit_session.audit_members
-                    .includes(:audit_notes)
-                    .order(:github_login)
+      @audit_session
+        .audit_members
+        .includes(:audit_notes)
+        .order(:github_login)
     @progress = @audit_session.progress_percentage
     @compliance_status = @audit_session.compliance_ready?
   end
