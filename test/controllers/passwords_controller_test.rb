@@ -62,4 +62,19 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_password_url(token: token)
     assert_equal "Passwords did not match.", flash[:alert]
   end
+
+  test "should redirect with invalid token on edit" do
+    get edit_password_url(token: "invalid_token")
+    assert_redirected_to new_password_url
+    assert_equal "Password reset link is invalid or has expired.", flash[:alert]
+  end
+
+  test "should redirect with invalid token on update" do
+    patch password_url(token: "invalid_token"), params: {
+      password: "newpassword123",
+      password_confirmation: "newpassword123"
+    }
+    assert_redirected_to new_password_url
+    assert_equal "Password reset link is invalid or has expired.", flash[:alert]
+  end
 end

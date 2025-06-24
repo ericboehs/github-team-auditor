@@ -34,6 +34,8 @@ en:
 
   navigation:
     dashboard: "Dashboard"
+    audits: "Audits"
+    teams: "Teams"
     mobile_menu:
       open: "Open main menu"
     user_menu:
@@ -42,9 +44,28 @@ en:
       sign_out: "Sign out"
 
   dashboard:
-    welcome_title: "Welcome to GitHub Team Auditor"
+    welcome_title: "Dashboard"
     section_title: "Dashboard"
     welcome_message: "Welcome to GitHub Team Auditor! Features will be available here soon."
+    stats:
+      teams: "Teams"
+      organizations: "Organizations"
+      active_members: "Active Members"
+      recent_audits: "Recent Audits"
+    recent_audits:
+      title: "Recent Audits"
+      none: "No recent audits found"
+      view_all: "View all audits"
+    teams_needing_sync:
+      title: "Teams Needing Sync"
+      none: "All teams are up to date"
+      sync_now: "Sync Now"
+      view_all: "View all teams"
+    quick_actions:
+      title: "Quick Actions"
+      new_audit: "New Audit"
+      view_teams: "View Teams"
+      view_audits: "View Audits"
 
   users:
     show:
@@ -71,6 +92,123 @@ en:
   alerts:
     validation_errors_header: "Please correct the following errors:"
     dismiss: "Dismiss"
+
+  teams:
+    index:
+      title: "Teams"
+      new_button: "New Team"
+      empty_state:
+        title: "No teams found"
+        message: "Get started by adding some teams to your organizations."
+        stats:
+          github_team: "GitHub Team"
+          audit:
+            one: "%{count} audit"
+            other: "%{count} audits"
+    show:
+      view_github: "View on GitHub"
+      edit_team: "Edit Team"
+      new_audit: "New Audit"
+      last_synced: "Last synced %{time} ago"
+      never_synced: "Never synced"
+      stats:
+        members: "Members"
+        total_audits: "Total Audits"
+        recent_audits: "Recent Audits"
+        recent_audits_period: "Last 30 days"
+        privacy: "Privacy"
+        github_team: "GitHub Team"
+      recent_audits:
+        title: "Audits"
+        audit_session: "Audit Session"
+        status: "Status"
+        created_by: "Created By"
+        created: "Created"
+        view: "View"
+        empty_state:
+          title: "No audits yet"
+          message: "Get started by creating your first audit for this team."
+          create_button: "Create Audit"
+    new:
+      title: "Create New Team"
+      subtitle: "Add a new GitHub team to track and audit"
+    edit:
+      title: "Edit Team"
+      subtitle: "Update team information"
+      breadcrumb: "Edit"
+    form:
+      organization_label: "Organization"
+      organization_prompt: "Select an organization"
+      name_label: "Team Name"
+      name_placeholder: "e.g., Platform Security"
+      github_slug_label: "GitHub Slug"
+      github_slug_placeholder: "e.g., platform-security"
+      github_slug_help: "The team slug as it appears in GitHub URLs"
+      description_label: "Description"
+      description_placeholder: "Brief description of the team's purpose..."
+      create_button: "Create Team"
+      update_button: "Update Team"
+      delete_button: "Delete Team"
+      delete_confirm: "Are you sure you want to delete this team? This action cannot be undone."
+
+  audits:
+    index:
+      title: "Audits"
+      subtitle: "Recent Audit Sessions"
+      new_button: "New Audit"
+      empty_state:
+        title: "No audit sessions"
+        message: "Get started by creating your first audit session."
+      due_date:
+        overdue:
+          one: "Overdue by %{count} day"
+          other: "Overdue by %{count} days"
+        due_today: "Due today"
+        due_soon:
+          one: "Due in %{count} day"
+          other: "Due in %{count} days"
+        no_due_date: "No due date"
+      member:
+        one: "%{count} member"
+        other: "%{count} members"
+      actions:
+        delete: "Delete"
+        delete_confirm: "Are you sure you want to delete this audit session? This action cannot be undone."
+    show:
+      title: "Audit Session"
+    new:
+      title: "New Audit Session"
+      subtitle: "Create a new audit session for a team"
+    form:
+      organization_label: "Organization"
+      organization_prompt: "Select an organization"
+      team_label: "Team"
+      team_prompt: "Select a team"
+      create_button: "Create Audit Session"
+
+  flash:
+    teams:
+      created: "Team was successfully created."
+      updated: "Team was successfully updated."
+      deleted: "Team was successfully deleted."
+      sync_started: "Team sync started successfully."
+    audits:
+      created: "Audit session created successfully"
+      updated: "Audit session updated successfully"
+      deleted: "Audit session was successfully deleted."
+      sync_started: "Team member sync started in background"
+      marked_complete: "Audit session marked as completed"
+      marked_active: "Audit session marked as active"
+    users:
+      created: "Account created successfully! Please sign in."
+      updated: "Profile updated successfully."
+    passwords:
+      reset_sent: "Password reset instructions sent (if user with that email address exists)."
+      reset_success: "Password has been reset."
+      reset_mismatch: "Passwords did not match."
+      reset_invalid: "Password reset link is invalid or has expired."
+    sessions:
+      rate_limit: "Try again later."
 
   mailer:
     password_reset:

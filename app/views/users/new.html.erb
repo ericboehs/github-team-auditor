@@ -1,7 +1,9 @@
 <%= render Auth::FormContainerComponent.new(
   title_key: "auth.sign_up.title"
 ) do %>
-  <%= render 'shared/flash_messages' %>
+  <% if flash[:alert] || flash[:notice] %>
+    <%= render 'shared/flash_messages' %>
+  <% end %>
 
   <%= form_with model: @user, local: true, class: "space-y-6" do |form| %>
     <% if @user.errors.any? %>

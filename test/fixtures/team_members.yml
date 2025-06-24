@@ -1,0 +1,17 @@
+john_doe_team_member:
+  team: platform_security
+  github_login: "john_doe"
+  name: "John Doe"
+  avatar_url: "https://github.com/john_doe.png"
+  maintainer_role: true
+  government_employee: true
+  active: true
+
+jane_smith_team_member:
+  team: platform_security
+  github_login: "jane_smith"
+  name: "Jane Smith"
+  avatar_url: "https://github.com/jane_smith.png"
+  maintainer_role: false
+  government_employee: false
+  active: true

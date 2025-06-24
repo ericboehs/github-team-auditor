@@ -1,7 +1,9 @@
 <%= render Auth::FormContainerComponent.new(
   title_key: "auth.sign_in.title"
 ) do %>
-  <%= render 'shared/flash_messages' %>
+  <% if flash[:alert] || flash[:notice] %>
+    <%= render 'shared/flash_messages' %>
+  <% end %>
 
   <%= form_with url: session_path, local: true, class: "space-y-6" do |form| %>
     <%= render Auth::InputComponent.new(

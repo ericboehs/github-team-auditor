@@ -36,7 +36,48 @@
         --color-emerald-950: #022c22;
       }
     </style>
+    <style>
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        background-color: black;
+        color: #fff;
+        min-width: 110px;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+    </style>
     <%= javascript_importmap_tags %>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('a[tooltip]').forEach(link => {
+          const tooltipText = link.getAttribute('tooltip');
+          if (!tooltipText) return;
+          const tooltipSpan = document.createElement('span');
+          tooltipSpan.classList.add('tooltiptext');
+          tooltipSpan.innerText = tooltipText;
+          link.classList.add('tooltip');
+          link.appendChild(tooltipSpan);
+        });
+      });
+    </script>
   </head>
 
   <body class="h-full bg-white dark:bg-gray-900">

@@ -1,0 +1,19 @@
+john_doe:
+  audit_session: q1_2025_audit
+  github_login: "john_doe"
+  name: "John Doe"
+  avatar_url: "https://github.com/john_doe.png"
+  access_validated: true
+  maintainer_role: true
+  government_employee: true
+  removed: false
+
+jane_smith:
+  audit_session: q1_2025_audit
+  github_login: "jane_smith"
+  name: "Jane Smith"
+  avatar_url: "https://github.com/jane_smith.png"
+  access_validated: false
+  maintainer_role: false
+  government_employee: false
+  removed: false

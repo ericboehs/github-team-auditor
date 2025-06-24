@@ -1,0 +1,97 @@
+<% content_for :title, t("teams.new.title") %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main>
+      <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("teams.new.title") %></h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400"><%= t("teams.new.subtitle") %></p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-8">
+            <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
+              <% if @team.errors.any? %>
+                <div class="rounded-md bg-red-50 dark:bg-red-900/50 p-4">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <!-- Heroicons: x-circle -->
+                      <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                        There were problems with your submission:
+                      </h3>
+                      <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                        <ul class="list-disc list-inside space-y-1">
+                          <% @team.errors.full_messages.each do |message| %>
+                            <li><%= message %></li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <%= render Form::SelectComponent.new(
+                    form: form,
+                    field: :organization_id,
+                    options: options_from_collection_for_select(@organizations, :id, :name, @team.organization_id),
+                    label_key: "teams.form.organization_label",
+                    prompt: t("teams.form.organization_prompt"),
+                    required: true
+                  ) %>
+
+              <%= render Auth::InputComponent.new(
+                    form: form,
+                    field: :name,
+                    type: :text,
+                    label: t("teams.form.name_label"),
+                    placeholder: t("teams.form.name_placeholder"),
+                    required: true,
+                    autofocus: true
+                  ) %>
+
+              <%= render Auth::InputComponent.new(
+                    form: form,
+                    field: :github_slug,
+                    type: :text,
+                    label: t("teams.form.github_slug_label"),
+                    placeholder: t("teams.form.github_slug_placeholder"),
+                    help_text: t("teams.form.github_slug_help")
+                  ) %>
+
+
+              <%= render Auth::TextareaComponent.new(
+                    form: form,
+                    field: :description,
+                    label: t("teams.form.description_label"),
+                    placeholder: t("teams.form.description_placeholder"),
+                    rows: 3
+                  ) %>
+
+              <div class="flex items-center justify-between pt-6">
+                <%= render Auth::LinkButtonComponent.new(text: t("buttons.cancel"), url: teams_path, variant: :secondary) %>
+                <%= render Auth::ButtonComponent.new(text: t("teams.form.create_button"), type: :submit, variant: :primary) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

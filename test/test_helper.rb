@@ -1,8 +1,10 @@
 # Start SimpleCov before loading Rails
 require "simplecov"
 
-# SimpleCov configuration
 SimpleCov.start "rails" do
+  # Silence verbose coverage output during test runs
+  SimpleCov.print_error_status = false
+
   # Enable coverage for branches (Ruby 2.5+) - must come before minimum_coverage
   enable_coverage :branch
 
@@ -10,7 +12,7 @@ SimpleCov.start "rails" do
   minimum_coverage line: 95, branch: 95
 
   # Set coverage percentage precision
-  minimum_coverage_by_file 80
+  minimum_coverage_by_file 95
 
   # Add filters for files/directories to exclude from coverage
   add_filter "/spec/"
@@ -36,9 +38,7 @@ SimpleCov.start "rails" do
   track_files "{app,lib}/**/*.rb"
 
   # Set up formatters
-  formatter SimpleCov::Formatter::MultiFormatter.new([
-    SimpleCov::Formatter::HTMLFormatter
-  ])
+  formatter SimpleCov::Formatter::HTMLFormatter
 
   # Refuse to run tests if coverage drops below threshold
   refuse_coverage_drop :line, :branch
@@ -68,6 +68,9 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
-    # Add more helper methods to be used by all tests here...
+    # Shared authentication helper for controller tests
+    def sign_in_as(user)
+      post session_url, params: { email_address: user.email_address, password: "password123" }
+    end
   end
 end

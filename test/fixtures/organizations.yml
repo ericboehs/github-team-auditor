@@ -1,0 +1,11 @@
+va:
+  name: "Department of Veterans Affairs"
+  github_login: "department-of-veterans-affairs"
+  api_token: "fake-token-123"
+  settings: '{}'
+
+test_org:
+  name: "Test Organization"
+  github_login: "test-org"
+  api_token: "fake-token-456"
+  settings: '{}'

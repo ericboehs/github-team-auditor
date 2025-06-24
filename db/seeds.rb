@@ -13,3 +13,77 @@ if Rails.env.development?
   puts "Password: password"
   puts "Admin: #{admin_user.admin?}"
 end
+
+# Create sample organizations and teams for development
+if Rails.env.development?
+  puts "\nCreating sample organizations and teams for development..."
+
+  va_org = Organization.find_or_create_by!(github_login: "department-of-veterans-affairs") do |org|
+    org.name = "Department of Veterans Affairs"
+    # org.api_token = Rails.application.credentials.github_token || "ghp_example_token_here"
+  end
+
+  # Create sample teams
+  platform_security_team = va_org.teams.find_or_create_by!(github_slug: "platform-security") do |team|
+    team.name = "Platform Security"
+    team.description = "VA.gov Platform Security Team"
+  end
+
+  backend_tools_team = va_org.teams.find_or_create_by!(github_slug: "backend-tools") do |team|
+    team.name = "Backend Tools"
+    team.description = "Backend development tools team"
+  end
+
+  # Create sample audit sessions
+  if User.any?
+    first_user = User.first
+
+    # Completed audit session
+    completed_audit = AuditSession.find_or_create_by!(
+      name: "Q4 2024 Platform Security Audit",
+      organization: va_org,
+      team: platform_security_team,
+      user: first_user
+    ) do |session|
+      session.status = "completed"
+      session.started_at = 3.months.ago
+      session.completed_at = 2.months.ago
+    end
+
+    # Active audit session
+    active_audit = AuditSession.find_or_create_by!(
+      name: "Q1 2025 Platform Security Audit",
+      organization: va_org,
+      team: platform_security_team,
+      user: first_user
+    ) do |session|
+      session.status = "active"
+      session.started_at = 1.week.ago
+    end
+
+    # Create some sample audit members for the active session
+    sample_members = [
+      { github_login: "john_doe", name: "John Doe", access_validated: true, maintainer_role: true, government_employee: true },
+      { github_login: "jane_smith", name: "Jane Smith", access_validated: false, maintainer_role: false, government_employee: false },
+      { github_login: "bob_wilson", name: "Bob Wilson", access_validated: true, maintainer_role: false, government_employee: true }
+    ]
+
+    sample_members.each do |member_data|
+      active_audit.audit_members.find_or_create_by!(github_login: member_data[:github_login]) do |member|
+        member.name = member_data[:name]
+        member.avatar_url = "https://github.com/#{member_data[:github_login]}.png"
+        member.access_validated = member_data[:access_validated]
+        member.maintainer_role = member_data[:maintainer_role]
+        member.government_employee = member_data[:government_employee]
+        member.removed = false
+        member.first_seen_at = 1.month.ago
+        member.last_seen_at = 3.days.ago
+      end
+    end
+
+    puts "✅ Created sample audit sessions with members"
+  end
+
+  puts "✅ Created #{Organization.count} organizations with #{Team.count} teams"
+  puts "✅ Created #{AuditSession.count} audit sessions with #{AuditMember.count} audit members"
+end

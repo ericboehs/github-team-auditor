@@ -1,0 +1,219 @@
+<% content_for :title, @team.name %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main>
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-4">
+          <div class="flex flex-col space-y-4 lg:flex-row lg:items-start lg:justify-between lg:space-y-0">
+            <div class="flex-1">
+              <div class="flex items-center mb-4">
+                <img class="h-8 w-8 rounded-full mr-3" src="https://github.com/<%= @team.organization.github_login %>.png" alt="<%= @team.organization.name %>">
+                <div>
+                  <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @team.name %></h1>
+                  <% if @team.description.present? %>
+                    <p class="text-gray-600 dark:text-gray-400"><%= @team.description %></p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="flex flex-wrap gap-2 sm:gap-4">
+                <a href="<%= @team.github_url %>" target="_blank" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
+                  <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                  </svg>
+                  View
+                </a>
+                <%= form_with url: sync_team_path(@team), method: :post, local: true, class: "inline" do %>
+                  <button type="submit" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
+                    <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                    </svg>
+                    Sync
+                  </button>
+                <% end %>
+                <%= render Auth::LinkButtonComponent.new(text: "Edit", url: edit_team_path(@team), variant: :secondary) %>
+                <%= render Auth::LinkButtonComponent.new(text: t("teams.show.new_audit"), url: new_audit_path(team_id: @team.id), variant: :primary) %>
+              </div>
+              <div class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400">
+                <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <% if @last_synced_at %>
+                  <span title="<%= @last_synced_at.iso8601 %>">
+                    Synced <%= time_ago_in_words(@last_synced_at) %> ago
+                  </span>
+                <% else %>
+                  Never synced
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <!-- Heroicons: user-group -->
+                <svg class="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg>
+              </div>
+              <div class="ml-4 min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t("teams.show.stats.members") %></p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1"><%= @total_members_count %></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <!-- Heroicons: check-badge -->
+                <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                </svg>
+              </div>
+              <div class="ml-4 min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Validated</p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1"><%= @validated_members_count %></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <!-- Heroicons: wrench-screwdriver -->
+                <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+                </svg>
+              </div>
+              <div class="ml-4 min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Maintainers</p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1"><%= @maintainer_members_count %></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <!-- Heroicons: shield-check -->
+                <svg class="h-8 w-8 text-orange-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
+              </div>
+              <div class="ml-4 min-w-0 flex-1">
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Audits</p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+                  <%= link_to @team.audit_sessions.count, audits_path(team_id: @team.id), class: "hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Members -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="flow-root">
+            <% if @team_members.any? %>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead>
+                  <tr>
+                    <th class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
+                      Member
+                    </th>
+                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Issues
+                    </th>
+                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      First Seen
+                    </th>
+                    <th class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Last Seen
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                  <% @team_members.each do |member| %>
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap sm:pl-6">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0 h-10 w-10">
+                            <img class="h-10 w-10 rounded-full" src="<%= member.avatar_url %>" alt="<%= member.display_name %>">
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                              <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300") %>
+                            </div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-3 py-4 text-sm whitespace-nowrap">
+                        <% if member.maintainer_role? %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
+                            Maintainer
+                          </span>
+                        <% else %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                            Member
+                          </span>
+                        <% end %>
+                      </td>
+                      <td class="px-3 py-4 text-sm whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+                          Current
+                        </span>
+                      </td>
+                      <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        -
+                      </td>
+                      <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                        -
+                      </td>
+                      <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+                        -
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+                  </table>
+                </div>
+              </div>
+            <% else %>
+              <div class="text-center py-12">
+                <!-- Heroicons: user-group -->
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No team members</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">No audit data available for this team yet.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
