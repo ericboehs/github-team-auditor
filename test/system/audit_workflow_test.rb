@@ -24,11 +24,14 @@ class AuditWorkflowTest < ApplicationSystemTestCase
     fill_in "Name", with: "Test Audit Session"
     select @organization.name, from: "audit_session_organization_id"
 
-    # Wait for teams to be populated by JavaScript
-    using_wait_time(10) do
-      assert_selector "select#audit_session_team_id option", text: @team.name_with_slug
-    end
-    select @team.name_with_slug, from: "audit_session_team_id"
+    # The team select should now be disabled as teams are not auto-populated
+    # Navigate directly to the form with team_id to test the full flow
+    visit new_audit_path(team_id: @team.id)
+
+    fill_in "Name", with: "Test Audit Session"
+    # Organization and team should be pre-selected
+    assert_selector "select#audit_session_organization_id option[selected]", text: @organization.name
+    assert_selector "select#audit_session_team_id option[selected]", text: @team.name_with_slug
 
     fill_in "Notes", with: "Test notes for audit"
 

@@ -38,5 +38,4 @@ class MemberEnrichmentJob < ApplicationJob
 
     Rails.logger.info "Member enrichment completed: #{enriched_count}/#{members_to_enrich.count} members enriched"
   end
-
 end
