@@ -1,5 +1,8 @@
 class AuditsController < ApplicationController
+  include LoadsOrganizations
+
   before_action :set_audit_session, only: [ :show, :update, :destroy, :toggle_status ]
+  before_action :load_organizations, only: [ :index, :new, :create ]
 
   def index
     @audit_sessions = AuditSession.includes(:organization, :team, :user)
@@ -11,7 +14,6 @@ class AuditsController < ApplicationController
     end
 
     @audit_sessions = @audit_sessions.recent.limit(20)
-    @organizations = Organization.all
   end
 
   def show
@@ -24,7 +26,6 @@ class AuditsController < ApplicationController
 
   def new
     @audit_session = AuditSession.new
-    @organizations = Organization.all
 
     # If team_id is provided, pre-select the team and its organization
     if params[:team_id].present?
@@ -46,7 +47,6 @@ class AuditsController < ApplicationController
     if @audit_session.save
       redirect_to audit_path(@audit_session), notice: t("flash.audits.created")
     else
-      @organizations = Organization.all
       @teams = @audit_session.organization ? @audit_session.organization.teams : []
       render :new, status: :unprocessable_entity
     end
