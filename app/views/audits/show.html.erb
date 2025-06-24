@@ -18,7 +18,7 @@
       <div class="flex-1">
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @audit_session.name %></h1>
         <div class="flex items-center mt-2 text-gray-600 dark:text-gray-400">
-          <%= link_to @audit_session.organization.github_url, target: "_blank", class: "inline-block" do %>
+          <%= link_to @audit_session.organization.github_url, target: "_blank", "aria-label": "View #{@audit_session.organization.name} organization on GitHub (opens in new tab)", class: "inline-block" do %>
             <img class="h-5 w-5 rounded-full mr-2" src="https://github.com/<%= @audit_session.organization.github_login %>.png" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
           <% end %>
           <%= link_to team_path(@audit_session.team), class: "font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 inline-flex items-center" do %>
@@ -255,7 +255,7 @@
                   <% member.open_issues.limit(2).each do |issue| %>
                     <div class="mb-1">
                       <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
-                                  target: "_blank", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
+                                  target: "_blank", "aria-label": "View GitHub issue ##{issue.github_issue_number} (opens in new tab)", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
                     </div>
                   <% end %>
                 <% else %>
@@ -276,14 +276,11 @@
     </div>
 
     <% if @team_members.empty? %>
-      <div class="text-center py-12">
-        <!-- Heroicons: user-group -->
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" data-slot="icon">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white"><%= t('empty_states.no_team_members') %></h3>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t('empty_states.sync_to_get_started') %></p>
-      </div>
+      <%= render EmptyStateComponent.new(
+        title: t('empty_states.no_team_members'),
+        message: t('empty_states.sync_to_get_started'),
+        icon_name: :members
+      ) %>
     <% end %>
   </div>
 

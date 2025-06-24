@@ -28,7 +28,7 @@
             </div>
             <div class="flex flex-col gap-2">
               <div class="flex flex-wrap gap-2 sm:gap-4">
-                <a href="<%= @team.github_url %>" target="_blank" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
+                <a href="<%= @team.github_url %>" target="_blank" aria-label="View <%= @team.name %> team on GitHub (opens in new tab)" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
                   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
                   </svg>
@@ -169,7 +169,7 @@
                           </div>
                           <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
-                              <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300") %>
+                              <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": "View #{member.display_name}'s GitHub profile (opens in new tab)", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300") %>
                             </div>
                             <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
                           </div>
@@ -207,14 +207,11 @@
                 </div>
               </div>
             <% else %>
-              <div class="text-center py-12">
-                <!-- Heroicons: user-group -->
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-                </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white"><%= t('empty_states.no_team_members') %></h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t('empty_states.no_audit_data') %></p>
-              </div>
+              <%= render EmptyStateComponent.new(
+                title: t('empty_states.no_team_members'),
+                message: t('empty_states.no_audit_data'),
+                icon_name: :members
+              ) %>
             <% end %>
           </div>
         </div>

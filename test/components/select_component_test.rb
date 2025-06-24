@@ -233,11 +233,13 @@ class SelectComponentTest < ViewComponent::TestCase
     )
 
     classes = component.send(:select_classes)
-    assert_includes classes, "border-gray-300 dark:border-gray-600"
-    assert_includes classes, "bg-white dark:bg-gray-700"
-    assert_includes classes, "focus:border-emerald-500"
+    assert_includes classes, "outline-gray-300 dark:outline-gray-600"
+    assert_includes classes, "bg-white"
+    assert_includes classes, "dark:bg-gray-700"
+    assert_includes classes, "focus:outline-emerald-600"
+    assert_includes classes, "appearance-none"
     assert_includes classes, "extra-class"
-    refute_includes classes, "border-red-300"
+    refute_includes classes, "outline-red-300"
   end
 
   def test_select_classes_with_errors
@@ -251,11 +253,11 @@ class SelectComponentTest < ViewComponent::TestCase
     )
 
     classes = component.send(:select_classes)
-    assert_includes classes, "border-red-300 dark:border-red-600"
+    assert_includes classes, "outline-red-300 dark:outline-red-600"
     assert_includes classes, "text-red-900 dark:text-red-100"
-    assert_includes classes, "focus:ring-red-500"
+    assert_includes classes, "focus:outline-red-500"
     assert_includes classes, "extra-class"
-    refute_includes classes, "border-gray-300"
+    refute_includes classes, "outline-gray-300"
   end
 
   def test_label_classes_without_errors
@@ -321,7 +323,7 @@ class SelectComponentTest < ViewComponent::TestCase
 
     attrs = component.send(:select_attributes)
     assert_equal "user_email_address", attrs[:id]
-    assert_includes attrs[:class], "border-gray-300"
+    assert_includes attrs[:class], "outline-gray-300"
     refute attrs.key?(:required)
     refute attrs.key?(:autofocus)
     refute attrs.key?(:"aria-invalid")

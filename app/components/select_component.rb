@@ -39,13 +39,13 @@ class SelectComponent < ViewComponent::Base
   end
 
   def select_classes
-    base_classes = "mt-1 block w-full rounded-md shadow-sm transition-colors duration-200"
+    base_classes = "col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 transition-colors duration-200 sm:text-sm/6"
 
     if has_errors?
-      error_classes = "border-red-300 dark:border-red-600 text-red-900 dark:text-red-100 placeholder-red-300 dark:placeholder-red-400 focus:ring-red-500 focus:border-red-500"
+      error_classes = "outline-red-300 dark:outline-red-600 text-red-900 dark:text-red-100 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 dark:bg-red-50"
       "#{base_classes} #{error_classes} #{extra_classes}".strip
     else
-      normal_classes = "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-emerald-500 focus:ring-emerald-500"
+      normal_classes = "outline-gray-300 dark:outline-gray-600 dark:bg-gray-700 dark:text-white focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600"
       "#{base_classes} #{normal_classes} #{extra_classes}".strip
     end
   end

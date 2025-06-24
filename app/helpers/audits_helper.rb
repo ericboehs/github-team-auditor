@@ -7,6 +7,7 @@ module AuditsHelper
     return member.display_name unless url&.start_with?("https://github.com/")
 
     link_to member.display_name, url, target: "_blank",
+            "aria-label": "View #{member.display_name}'s GitHub profile (opens in new tab)",
             class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
   end
 end

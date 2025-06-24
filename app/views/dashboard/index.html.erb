@@ -88,8 +88,12 @@
                   </li>
                 <% end %>
               <% else %>
-                <li class="px-4 py-4 sm:px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= t('dashboard.recent_audits.none') %>
+                <li>
+                  <%= render EmptyStateComponent.new(
+                    title: "", # Not used in simple variant
+                    message: t('dashboard.recent_audits.none'),
+                    variant: :simple
+                  ) %>
                 </li>
               <% end %>
             </ul>
@@ -127,8 +131,12 @@
                   </li>
                 <% end %>
               <% else %>
-                <li class="px-4 py-4 sm:px-6 text-sm text-gray-500 dark:text-gray-400">
-                  <%= t('dashboard.teams_needing_sync.none') %>
+                <li>
+                  <%= render EmptyStateComponent.new(
+                    title: "", # Not used in simple variant
+                    message: t('dashboard.teams_needing_sync.none'),
+                    variant: :simple
+                  ) %>
                 </li>
               <% end %>
             </ul>
