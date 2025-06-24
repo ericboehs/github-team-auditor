@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class Form::SelectComponentTest < ViewComponent::TestCase
+class SelectComponentTest < ViewComponent::TestCase
   def setup
     @user = User.new
     @form = ActionView::Helpers::FormBuilder.new(:user, @user, vc_test_controller.view_context, {})
@@ -10,7 +10,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_component_initializes_correctly
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -34,19 +34,19 @@ class Form::SelectComponentTest < ViewComponent::TestCase
     assert_equal "custom-class", component.instance_variable_get(:@extra_classes)
   end
 
-  def test_includes_button_styling_module
-    component = Form::SelectComponent.new(
+  def test_component_initializes_with_label_parameter
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
-      options: @options
+      options: @options,
+      label: "Custom Label"
     )
 
-    # Test that the component includes the ButtonStyling module
-    assert component.class.ancestors.include?(ButtonStyling)
+    assert_equal "Custom Label", component.instance_variable_get(:@label)
   end
 
   def test_field_id_method
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -56,7 +56,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_has_errors_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -68,7 +68,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_has_errors_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -78,7 +78,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_error_messages_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -91,7 +91,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
     @user.errors.add(:email_address, "is required")
     @user.errors.add(:email_address, "is invalid")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -102,7 +102,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_error_id_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -114,7 +114,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_error_id_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -124,7 +124,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_help_id_without_help_text
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -134,7 +134,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_help_id_with_help_text
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -145,7 +145,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_describedby_ids_without_help_or_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -155,7 +155,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_describedby_ids_with_help_text_only
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -168,7 +168,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_describedby_ids_with_errors_only
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -180,7 +180,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_describedby_ids_with_help_text_and_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -190,8 +190,19 @@ class Form::SelectComponentTest < ViewComponent::TestCase
     assert_equal "user_email_address_help user_email_address_error", component.send(:describedby_ids)
   end
 
+  def test_label_text_with_explicit_label
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options,
+      label: "Explicit Label"
+    )
+
+    assert_equal "Explicit Label", component.send(:label_text)
+  end
+
   def test_label_text_with_label_key
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -204,7 +215,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_label_text_with_default_label
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -214,7 +225,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_select_classes_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -232,7 +243,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_select_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -248,21 +259,21 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   end
 
   def test_label_classes_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
     )
 
     classes = component.send(:label_classes)
-    assert_includes classes, "text-gray-700 dark:text-gray-300"
+    assert_includes classes, "text-gray-900 dark:text-gray-300"
     refute_includes classes, "text-red-700"
   end
 
   def test_label_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -270,11 +281,11 @@ class Form::SelectComponentTest < ViewComponent::TestCase
 
     classes = component.send(:label_classes)
     assert_includes classes, "text-red-700 dark:text-red-300"
-    refute_includes classes, "text-gray-700"
+    refute_includes classes, "text-gray-900"
   end
 
   def test_help_text_classes_without_errors
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -282,14 +293,14 @@ class Form::SelectComponentTest < ViewComponent::TestCase
     )
 
     classes = component.send(:help_text_classes)
-    assert_includes classes, "text-gray-500 dark:text-gray-400"
+    assert_includes classes, "text-gray-600 dark:text-gray-400"
     refute_includes classes, "text-red-600"
   end
 
   def test_help_text_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
@@ -298,11 +309,11 @@ class Form::SelectComponentTest < ViewComponent::TestCase
 
     classes = component.send(:help_text_classes)
     assert_includes classes, "text-red-600 dark:text-red-400"
-    refute_includes classes, "text-gray-500"
+    refute_includes classes, "text-gray-600"
   end
 
   def test_select_attributes_minimal
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options
@@ -320,7 +331,7 @@ class Form::SelectComponentTest < ViewComponent::TestCase
   def test_select_attributes_with_all_options
     @user.errors.add(:email_address, "is required")
 
-    component = Form::SelectComponent.new(
+    component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,

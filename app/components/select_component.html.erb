@@ -1,9 +1,10 @@
 <div>
   <%= form.label field, label_text, class: label_classes %>
-
-  <%= form.select field, options,
-                  { prompt: prompt },
-                  select_attributes %>
+  <div class="mt-2">
+    <%= form.select field, options,
+                    { prompt: prompt },
+                    select_attributes %>
+  </div>
 
   <% if help_text.present? %>
     <p id="<%= help_id %>" class="<%= help_text_classes %>">
@@ -12,7 +13,7 @@
   <% end %>
 
   <% if has_errors? %>
-    <div id="<%= error_id %>" class="mt-1">
+    <div id="<%= error_id %>" class="mt-2">
       <% error_messages.each do |message| %>
         <p class="text-sm text-red-600 dark:text-red-400">
           <%= message %>

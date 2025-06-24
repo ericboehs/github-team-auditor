@@ -23,31 +23,13 @@
           <div class="px-6 py-8">
             <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
               <% if @team.errors.any? %>
-                <div class="rounded-md bg-red-50 dark:bg-red-900/50 p-4">
-                  <div class="flex">
-                    <div class="flex-shrink-0">
-                      <!-- Heroicons: x-circle -->
-                      <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                    <div class="ml-3">
-                      <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                        There were problems with your submission:
-                      </h3>
-                      <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                        <ul class="list-disc list-inside space-y-1">
-                          <% @team.errors.full_messages.each do |message| %>
-                            <li><%= message %></li>
-                          <% end %>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <%= render AlertComponent.new(
+                  messages: @team.errors.full_messages,
+                  type: :error
+                ) %>
               <% end %>
 
-              <%= render Form::SelectComponent.new(
+              <%= render SelectComponent.new(
                     form: form,
                     field: :organization_id,
                     options: options_from_collection_for_select(@organizations, :id, :name, @team.organization_id),
@@ -56,7 +38,7 @@
                     required: true
                   ) %>
 
-              <%= render Auth::InputComponent.new(
+              <%= render InputComponent.new(
                     form: form,
                     field: :name,
                     type: :text,
@@ -66,7 +48,7 @@
                     autofocus: true
                   ) %>
 
-              <%= render Auth::InputComponent.new(
+              <%= render InputComponent.new(
                     form: form,
                     field: :github_slug,
                     type: :text,
@@ -76,7 +58,7 @@
                   ) %>
 
 
-              <%= render Auth::TextareaComponent.new(
+              <%= render TextareaComponent.new(
                     form: form,
                     field: :description,
                     label: t("teams.form.description_label"),
@@ -85,8 +67,8 @@
                   ) %>
 
               <div class="flex items-center justify-between pt-6">
-                <%= render Auth::LinkButtonComponent.new(text: t("buttons.cancel"), url: teams_path, variant: :secondary) %>
-                <%= render Auth::ButtonComponent.new(text: t("teams.form.create_button"), type: :submit, variant: :primary) %>
+                <%= render LinkButtonComponent.new(text: t("buttons.cancel"), url: teams_path, variant: :secondary) %>
+                <%= render ButtonComponent.new(text: t("teams.form.create_button"), type: :submit, variant: :primary) %>
               </div>
             <% end %>
           </div>

@@ -1,4 +1,4 @@
-class Auth::LinkComponent < ViewComponent::Base
+class LinkComponent < ViewComponent::Base
   def initialize(text:, url:, centered: true)
     @text = text
     @url = url

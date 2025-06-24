@@ -126,7 +126,7 @@ The GitHub Team Auditor specifically supports VA.gov Platform Security teams in 
 
 ### Frontend Technologies
 - **Tailwind CSS** - Utility-first styling framework with dark mode support
-- **Alpine.js** - Lightweight JavaScript framework for interactivity
+- **Stimulus** - Modern JavaScript framework for enhanced interactivity
 - **ImportMap** - Modern JavaScript imports without build steps
 - **Responsive Design** - Mobile-first approach with adaptive layouts
 

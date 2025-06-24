@@ -1,28 +1,31 @@
 # frozen_string_literal: true
 
-class Auth::TextareaComponent < ViewComponent::Base
-  def initialize(form:, field:, label: nil, placeholder: nil, help_text: nil, required: false, autofocus: false, rows: 3, class: "")
+class SelectComponent < ViewComponent::Base
+  def initialize(form:, field:, options:, label: nil, label_key: nil, prompt: nil, help_text: nil, required: false, autofocus: false, class: "", **html_options)
     @form = form
     @field = field
+    @options = options
     @label = label
-    @placeholder = placeholder
+    @label_key = label_key
+    @prompt = prompt
     @help_text = help_text
     @required = required
     @autofocus = autofocus
-    @rows = rows
     @extra_classes = binding.local_variable_get(:class)
+    @html_options = html_options
   end
 
   private
 
-  attr_reader :form, :field, :label, :placeholder, :help_text, :required, :autofocus, :rows, :extra_classes
+  attr_reader :form, :field, :options, :label, :label_key, :prompt, :help_text, :required, :autofocus, :extra_classes, :html_options
 
   def field_id
     "#{form.object_name}_#{field}"
   end
 
   def label_text
-    return label if label.present?
+    return @label if @label.present?
+    return t(label_key) if label_key.present?
     form.object.class.human_attribute_name(field)
   end
 
@@ -35,14 +38,14 @@ class Auth::TextareaComponent < ViewComponent::Base
     error_messages.any?
   end
 
-  def textarea_classes
-    base_classes = "block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 placeholder:text-gray-400 transition-colors duration-200 sm:text-sm/6"
+  def select_classes
+    base_classes = "mt-1 block w-full rounded-md shadow-sm transition-colors duration-200"
 
     if has_errors?
-      error_classes = "bg-white dark:bg-gray-700 text-red-900 dark:text-red-100 outline-red-300 dark:outline-red-600 placeholder:text-red-300 dark:placeholder:text-red-400 focus:outline-2 focus:-outline-offset-2 focus:outline-red-600"
+      error_classes = "border-red-300 dark:border-red-600 text-red-900 dark:text-red-100 placeholder-red-300 dark:placeholder-red-400 focus:ring-red-500 focus:border-red-500"
       "#{base_classes} #{error_classes} #{extra_classes}".strip
     else
-      normal_classes = "bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-gray-300 dark:outline-gray-600 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600 dark:focus:outline-emerald-500"
+      normal_classes = "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-emerald-500 focus:ring-emerald-500"
       "#{base_classes} #{normal_classes} #{extra_classes}".strip
     end
   end
@@ -82,19 +85,18 @@ class Auth::TextareaComponent < ViewComponent::Base
     ids.compact.join(" ").presence
   end
 
-  def textarea_attributes
+  def select_attributes
     attrs = {
-      class: textarea_classes,
-      id: field_id,
-      rows: rows
+      class: select_classes,
+      id: field_id
     }
 
-    attrs[:placeholder] = placeholder if placeholder.present?
     attrs[:required] = true if required
     attrs[:autofocus] = true if autofocus
     attrs[:"aria-invalid"] = "true" if has_errors?
     attrs[:"aria-describedby"] = describedby_ids if describedby_ids.present?
 
-    attrs
+    # Merge any additional HTML options
+    attrs.merge(html_options)
   end
 end

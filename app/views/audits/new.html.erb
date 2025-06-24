@@ -34,83 +34,72 @@
           <div class="p-6">
             <%= form_with model: @audit_session, url: audits_path, class: "space-y-6", data: { controller: "audit-form" } do |form| %>
               <% if @audit_session.errors.any? %>
-                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
-                  <div class="flex">
-                    <div class="flex-shrink-0">
-                      <!-- Heroicons: x-circle (mini) -->
-                      <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                    <div class="ml-3">
-                      <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                        There were <%= pluralize(@audit_session.errors.count, "error") %> with your submission:
-                      </h3>
-                      <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                        <ul class="list-disc list-inside space-y-1">
-                          <% @audit_session.errors.full_messages.each do |message| %>
-                            <li><%= message %></li>
-                          <% end %>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <%= render AlertComponent.new(
+                  messages: @audit_session.errors.full_messages,
+                  type: :error
+                ) %>
               <% end %>
 
-              <!-- Audit Session Name -->
-              <div>
-                <%= form.label :name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-                <%= form.text_field :name,
-                    placeholder: "Q2 2025 Platform Security Audit",
-                    class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
-              </div>
+              <%= render InputComponent.new(
+                form: form,
+                field: :name,
+                label: t("audits.form.name_label"),
+                type: :text,
+                placeholder: "Q2 2025 Platform Security Audit",
+                required: true,
+                error: @audit_session.errors[:name].first
+              ) %>
 
-              <!-- Organization -->
-              <div>
-                <%= form.label :organization_id, t("audits.form.organization_label"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-                <%= form.select :organization_id,
-                    options_from_collection_for_select(@organizations, :id, :name, @audit_session.organization_id),
-                    { prompt: t("audits.form.organization_prompt") },
-                    { class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm",
-                      data: { action: "change->audit-form#loadTeams" } } %>
-              </div>
+              <%= render SelectComponent.new(
+                form: form,
+                field: :organization_id,
+                options: options_from_collection_for_select(@organizations, :id, :name, @audit_session.organization_id),
+                label_key: "audits.form.organization_label",
+                prompt: t("audits.form.organization_prompt"),
+                required: true,
+                data: { action: "change->audit-form#loadTeams" }
+              ) %>
 
-              <!-- Team -->
-              <div>
-                <%= form.label :team_id, t("audits.form.team_label"), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-                <%= form.select :team_id,
-                    options_from_collection_for_select(@teams, :id, :name_with_slug, @audit_session.team_id),
-                    { prompt: t("audits.form.team_prompt") },
-                    { class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm",
-                      data: { audit_form_target: "teamSelect" } } %>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Select an organization first to see available teams.</p>
-              </div>
+              <%= render SelectComponent.new(
+                form: form,
+                field: :team_id,
+                options: options_from_collection_for_select(@teams, :id, :name_with_slug, @audit_session.team_id),
+                label_key: "audits.form.team_label",
+                prompt: t("audits.form.team_prompt"),
+                help_text: "Select an organization first to see available teams.",
+                required: true,
+                data: { audit_form_target: "teamSelect" }
+              ) %>
 
-              <!-- Due Date -->
-              <div>
-                <%= form.label :due_date, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-                <%= form.date_field :due_date,
-                    placeholder: "YYYY-MM-DD",
-                    class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Optional: Set a due date for this audit session.</p>
-              </div>
+              <%= render InputComponent.new(
+                form: form,
+                field: :due_date,
+                label: t("audits.form.due_date_label"),
+                type: :date,
+                placeholder: "YYYY-MM-DD",
+                help_text: "Optional: Set a due date for this audit session.",
+                error: @audit_session.errors[:due_date].first
+              ) %>
 
-              <!-- Notes -->
-              <div>
-                <%= form.label :notes, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-                <%= form.text_area :notes,
-                    rows: 4,
-                    placeholder: "Optional notes about this audit session...",
-                    class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
-              </div>
+              <%= render TextareaComponent.new(
+                form: form,
+                field: :notes,
+                label: t("audits.form.notes_label"),
+                rows: 4,
+                placeholder: "Optional notes about this audit session..."
+              ) %>
 
-              <!-- Submit buttons -->
               <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <%= link_to t("buttons.cancel"), audits_path,
-                    class: "px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500" %>
-                <%= form.submit t("audits.form.create_button"),
-                    class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500" %>
+                <%= render LinkButtonComponent.new(
+                  text: t("buttons.cancel"),
+                  url: audits_path,
+                  variant: :secondary
+                ) %>
+                <%= render ButtonComponent.new(
+                  text: t("audits.form.create_button"),
+                  type: :submit,
+                  variant: :primary
+                ) %>
               </div>
             <% end %>
           </div>

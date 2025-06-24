@@ -1,4 +1,4 @@
-<%= render Auth::FormContainerComponent.new(
+<%= render FormContainerComponent.new(
   title_key: "auth.sign_in.title"
 ) do %>
   <% if flash[:alert] || flash[:notice] %>
@@ -6,7 +6,7 @@
   <% end %>
 
   <%= form_with url: session_path, local: true, class: "space-y-6" do |form| %>
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :email_address,
       label: t("auth.sign_in.email_label"),
@@ -18,7 +18,7 @@
       value: params[:email_address]
     ) %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password,
       label: t("auth.sign_in.password_label"),
@@ -35,7 +35,7 @@
     </div>
 
     <div>
-      <%= render Auth::ButtonComponent.new(
+      <%= render ButtonComponent.new(
         text: t("auth.sign_in.submit_button"),
         type: :submit,
         variant: :primary,

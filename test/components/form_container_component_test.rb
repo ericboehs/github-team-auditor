@@ -2,9 +2,9 @@
 
 require "test_helper"
 
-class Auth::FormContainerComponentTest < ViewComponent::TestCase
+class FormContainerComponentTest < ViewComponent::TestCase
   def test_renders_with_title_key
-    component = Auth::FormContainerComponent.new(title_key: "auth.sign_in.title")
+    component = FormContainerComponent.new(title_key: "auth.sign_in.title")
     render_inline(component) { "Form content" }
 
     assert_selector "h2", text: "Sign in to your account"
@@ -13,7 +13,7 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_with_title_and_subtitle
-    component = Auth::FormContainerComponent.new(
+    component = FormContainerComponent.new(
       title_key: "auth.sign_in.title",
       title: "Custom Title",
       subtitle: "Custom Subtitle"
@@ -25,14 +25,14 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_logo
-    component = Auth::FormContainerComponent.new(title_key: "auth.sign_in.title")
+    component = FormContainerComponent.new(title_key: "auth.sign_in.title")
     render_inline(component) { "Form content" }
 
     assert_selector "img[alt='GitHub Team Auditor']"
   end
 
   def test_renders_with_title_key_only
-    component = Auth::FormContainerComponent.new(title_key: "auth.sign_up.title")
+    component = FormContainerComponent.new(title_key: "auth.sign_up.title")
     render_inline(component) { "Form content" }
 
     assert_selector "h2", text: "Create your account"
@@ -40,7 +40,7 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_with_subtitle_key
-    component = Auth::FormContainerComponent.new(
+    component = FormContainerComponent.new(
       title_key: "auth.sign_in.title",
       subtitle_key: "auth.sign_in.subtitle"
     )
@@ -51,7 +51,7 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_with_nil_title_key
-    component = Auth::FormContainerComponent.new(
+    component = FormContainerComponent.new(
       title_key: nil,
       title: "Custom Title"
     )
@@ -62,7 +62,7 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_with_falsy_title_and_nil_title_key
-    component = Auth::FormContainerComponent.new(
+    component = FormContainerComponent.new(
       title_key: nil,
       title: ""
     )
@@ -74,7 +74,7 @@ class Auth::FormContainerComponentTest < ViewComponent::TestCase
   end
 
   def test_renders_with_falsy_title_key_returns_nil
-    component = Auth::FormContainerComponent.new(
+    component = FormContainerComponent.new(
       title_key: false,
       title: nil
     )

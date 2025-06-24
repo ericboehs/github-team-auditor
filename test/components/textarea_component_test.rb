@@ -2,14 +2,14 @@
 
 require "test_helper"
 
-class Auth::TextareaComponentTest < ViewComponent::TestCase
+class TextareaComponentTest < ViewComponent::TestCase
   def setup
     @user = User.new
     @form = ActionView::Helpers::FormBuilder.new(:user, @user, vc_test_controller.view_context, {})
   end
 
   def test_component_initializes_correctly
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       label: "Test Label",
@@ -34,7 +34,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_field_id_method
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -43,7 +43,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_has_errors_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -54,7 +54,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_has_errors_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -63,7 +63,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_error_messages_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -75,7 +75,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
     @user.errors.add(:email_address, "is required")
     @user.errors.add(:email_address, "is invalid")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -85,7 +85,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_error_id_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -96,7 +96,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_error_id_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -105,7 +105,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_help_id_without_help_text
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -114,7 +114,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_help_id_with_help_text
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       help_text: "Help text"
@@ -124,7 +124,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_describedby_ids_without_help_or_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -133,7 +133,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_describedby_ids_with_help_text_only
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       help_text: "Help text"
@@ -145,7 +145,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_describedby_ids_with_errors_only
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -156,7 +156,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_describedby_ids_with_help_text_and_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       help_text: "Help text"
@@ -166,7 +166,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_label_text_with_custom_label
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       label: "Custom Label"
@@ -176,7 +176,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_label_text_with_default_label
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -185,7 +185,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_textarea_classes_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       class: "extra-class"
@@ -202,7 +202,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_textarea_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       class: "extra-class"
@@ -217,7 +217,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_label_classes_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -230,7 +230,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_label_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -241,7 +241,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_help_text_classes_without_errors
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       help_text: "Help text"
@@ -255,7 +255,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_help_text_classes_with_errors
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       help_text: "Help text"
@@ -267,7 +267,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   end
 
   def test_textarea_attributes_minimal
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address
     )
@@ -286,7 +286,7 @@ class Auth::TextareaComponentTest < ViewComponent::TestCase
   def test_textarea_attributes_with_all_options
     @user.errors.add(:email_address, "is required")
 
-    component = Auth::TextareaComponent.new(
+    component = TextareaComponent.new(
       form: @form,
       field: :email_address,
       placeholder: "Enter text...",

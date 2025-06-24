@@ -38,28 +38,51 @@
         <% end %>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button onclick="toggleDueDateForm()" class="inline-flex items-center justify-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex-shrink-0">
-          <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-          <span class="hidden sm:inline"><%= @audit_session.due_date ? "Edit Due Date" : "Set Due Date" %></span>
-          <span class="sm:hidden"><%= @audit_session.due_date ? "Edit" : "Due Date" %></span>
-        </button>
-        <%= button_to toggle_status_audit_path(@audit_session), method: :patch, form: { data: { turbo_method: :patch } }, class: "inline-flex items-center justify-center px-3 py-2 border #{@audit_session.status == 'completed' ? 'border-blue-300 dark:border-blue-600' : 'border-green-300 dark:border-green-600'} rounded-md shadow-sm text-sm font-medium #{@audit_session.status == 'completed' ? 'text-blue-700 dark:text-blue-300 bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'text-green-700 dark:text-green-300 bg-white dark:bg-gray-700 hover:bg-green-50 dark:hover:bg-green-900/20'} focus:outline-none focus:ring-2 focus:ring-offset-2 #{@audit_session.status == 'completed' ? 'focus:ring-blue-500' : 'focus:ring-green-500'} flex-shrink-0" do %>
-          <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <% if @audit_session.status == 'completed' %>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-            <% else %>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            <% end %>
-          </svg>
-          <%= @audit_session.status == 'completed' ? 'Mark Active' : 'Mark Complete' %>
+        <%= render ButtonComponent.new(
+          text: content_tag(:span, class: "inline-flex items-center") do
+            concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+              content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
+            end)
+            concat(content_tag(:span, @audit_session.due_date ? "Edit Due Date" : "Set Due Date", class: "hidden sm:inline"))
+            concat(content_tag(:span, @audit_session.due_date ? "Edit" : "Due Date", class: "sm:hidden"))
+          end.html_safe,
+          type: :button,
+          variant: :secondary,
+          include_flex: true,
+          onclick: "toggleDueDateForm()",
+          class: "flex-shrink-0"
+        ) %>
+        <%= form_with url: toggle_status_audit_path(@audit_session), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
+          <%= render ButtonComponent.new(
+            text: content_tag(:span, class: "inline-flex items-center") do
+              concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+                if @audit_session.status == 'completed'
+                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15")
+                else
+                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                end
+              end)
+              concat(@audit_session.status == 'completed' ? 'Mark Active' : 'Mark Complete')
+            end.html_safe,
+            type: :submit,
+            variant: @audit_session.status == 'completed' ? :primary : :success,
+            include_flex: true,
+            class: "flex-shrink-0"
+          ) %>
         <% end %>
-        <%= button_to audit_path(@audit_session), method: :delete, data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this audit session? This action cannot be undone." }, class: "inline-flex items-center justify-center px-3 py-2 border border-red-300 dark:border-red-600 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-300 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 flex-shrink-0" do %>
-          <svg class="-ml-1 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-          </svg>
-          Delete
+        <%= form_with url: audit_path(@audit_session), method: :delete, local: true, data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this audit session? This action cannot be undone." }, class: "inline-block" do |form| %>
+          <%= render ButtonComponent.new(
+            text: content_tag(:span, class: "inline-flex items-center") do
+              concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+                content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+              end)
+              concat("Delete")
+            end.html_safe,
+            type: :submit,
+            variant: :danger,
+            include_flex: true,
+            class: "flex-shrink-0"
+          ) %>
         <% end %>
       </div>
     </div>
@@ -85,10 +108,17 @@
           </div>
         </div>
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-2">
-          <button type="button" onclick="toggleDueDateForm()" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
-            Cancel
-          </button>
-          <%= form.submit "Save", class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500" %>
+          <%= render ButtonComponent.new(
+            text: "Cancel",
+            type: :button,
+            variant: :secondary,
+            onclick: "toggleDueDateForm()"
+          ) %>
+          <%= render ButtonComponent.new(
+            text: "Save",
+            type: :submit,
+            variant: :primary
+          ) %>
         </div>
       <% end %>
     </div>
@@ -206,30 +236,18 @@
               <td class="px-3 py-4 text-sm whitespace-nowrap">
                 <div class="flex flex-col space-y-1">
                   <% if member.maintainer_role? %>
-                    <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-600 dark:text-white w-fit">
-                      Maintainer
-                    </span>
+                    <%= render StatusBadgeComponent.new(status: "maintainer", class: "w-fit") %>
                   <% end %>
                   <% if member.government_employee? %>
-                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200">
-                      Gov
-                    </span>
+                    <%= render StatusBadgeComponent.new(status: "government") %>
                   <% end %>
                 </div>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap">
                 <% if member.removed? %>
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                    Removed
-                  </span>
+                  <%= render StatusBadgeComponent.new(status: "removed") %>
                 <% else %>
-                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                    <%= case member.validation_status
-                        when 'validated' then 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200'
-                        else 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200'
-                        end %>">
-                    <%= member.validation_status.capitalize %>
-                  </span>
+                  <%= render StatusBadgeComponent.new(status: member.validation_status) %>
                 <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">

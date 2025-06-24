@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Auth::FormContainerComponent < ViewComponent::Base
+class FormContainerComponent < ViewComponent::Base
   def initialize(title_key:, subtitle_key: nil, title: nil, subtitle: nil)
     @title_key = title_key
     @subtitle_key = subtitle_key

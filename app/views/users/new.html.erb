@@ -1,4 +1,4 @@
-<%= render Auth::FormContainerComponent.new(
+<%= render FormContainerComponent.new(
   title_key: "auth.sign_up.title"
 ) do %>
   <% if flash[:alert] || flash[:notice] %>
@@ -15,7 +15,7 @@
       </div>
     <% end %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :email_address,
       label: t("auth.sign_up.email_label"),
@@ -27,7 +27,7 @@
       error: @user.errors[:email_address].first
     ) %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password,
       label: t("auth.sign_up.password_label"),
@@ -38,7 +38,7 @@
       error: @user.errors[:password].first
     ) %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password_confirmation,
       label: t("auth.sign_up.password_confirmation_label"),
@@ -50,7 +50,7 @@
     ) %>
 
     <div>
-      <%= render Auth::ButtonComponent.new(
+      <%= render ButtonComponent.new(
         text: t("auth.sign_up.submit_button"),
         type: :submit,
         variant: :primary,

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class Auth::InputComponent < ViewComponent::Base
-  def initialize(form:, field:, label: nil, type: :text, required: false, autocomplete: nil, placeholder: nil, error: nil, forgot_password_link: nil, **options)
+class InputComponent < ViewComponent::Base
+  def initialize(form:, field:, label: nil, type: :text, required: false, autocomplete: nil, placeholder: nil, error: nil, forgot_password_link: nil, help_text: nil, **options)
     @form = form
     @field = field
     @label = label
@@ -11,12 +11,13 @@ class Auth::InputComponent < ViewComponent::Base
     @placeholder = placeholder
     @error = error
     @forgot_password_link = forgot_password_link
+    @help_text = help_text
     @options = options
   end
 
   private
 
-  attr_reader :form, :field, :label, :type, :required, :autocomplete, :placeholder, :error, :forgot_password_link, :options
+  attr_reader :form, :field, :label, :type, :required, :autocomplete, :placeholder, :error, :forgot_password_link, :help_text, :options
 
   def input_classes
     base_classes = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600 sm:text-sm/6"
@@ -30,10 +31,11 @@ class Auth::InputComponent < ViewComponent::Base
   end
 
   def field_id
-    "#{field}_#{object_id}"
+    "#{form.object_name}_#{field}"
   end
 
   def label_text
-    label || t("auth.sign_in.#{field}_label", default: field.to_s.humanize)
+    return label if label.present?
+    form.object.class.human_attribute_name(field)
   end
 end

@@ -1,4 +1,4 @@
-<%= render Auth::FormContainerComponent.new(
+<%= render FormContainerComponent.new(
   title_key: "auth.reset_password.title"
 ) do %>
   <% if flash[:alert] || flash[:notice] %>
@@ -6,7 +6,7 @@
   <% end %>
 
   <%= form_with url: password_path(params[:token]), method: :put, local: true, class: "space-y-6" do |form| %>
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password,
       label: t("auth.reset_password.password_label"),
@@ -18,7 +18,7 @@
       autofocus: true
     ) %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password_confirmation,
       label: t("auth.reset_password.password_confirmation_label"),
@@ -30,7 +30,7 @@
     ) %>
 
     <div>
-      <%= render Auth::ButtonComponent.new(
+      <%= render ButtonComponent.new(
         text: t("auth.reset_password.submit_button"),
         type: :submit,
         variant: :primary,
@@ -38,7 +38,7 @@
       ) %>
     </div>
 
-    <%= render Auth::LinkComponent.new(
+    <%= render LinkComponent.new(
       text: t("auth.reset_password.back_to_sign_in"),
       url: new_session_path
     ) %>

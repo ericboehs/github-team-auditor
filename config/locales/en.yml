@@ -184,6 +184,9 @@ en:
       organization_prompt: "Select an organization"
       team_label: "Team"
       team_prompt: "Select a team"
+      name_label: "Name"
+      due_date_label: "Due Date"
+      notes_label: "Notes"
       create_button: "Create Audit Session"
 
   flash:

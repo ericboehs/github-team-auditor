@@ -2,10 +2,10 @@
 
 require "test_helper"
 
-class Auth::InputComponentTest < ViewComponent::TestCase
+class InputComponentTest < ViewComponent::TestCase
   def test_renders_email_input
     form = ActionView::Helpers::FormBuilder.new(:user, User.new, vc_test_controller.view_context, {})
-    component = Auth::InputComponent.new(
+    component = InputComponent.new(
       form: form,
       field: :email_address,
       label: "Email",
@@ -21,7 +21,7 @@ class Auth::InputComponentTest < ViewComponent::TestCase
 
   def test_renders_password_input
     form = ActionView::Helpers::FormBuilder.new(:user, User.new, vc_test_controller.view_context, {})
-    component = Auth::InputComponent.new(
+    component = InputComponent.new(
       form: form,
       field: :password,
       label: "Password",
