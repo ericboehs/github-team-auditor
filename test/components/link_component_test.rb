@@ -12,7 +12,7 @@ class LinkComponentTest < ViewComponent::TestCase
 
     assert_selector "a[href='/test-url']", text: "Test Link"
     assert_selector "a.font-semibold"
-    assert_selector "a.text-emerald-600"
+    assert_selector "a.text-vads-primary"
   end
 
   def test_renders_link_with_text

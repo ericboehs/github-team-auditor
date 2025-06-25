@@ -12,18 +12,18 @@ module ButtonStyling
   def button_variant_classes(variant)
     case variant
     when :primary
-      "bg-emerald-600 dark:bg-emerald-500 text-white hover:bg-emerald-500 dark:hover:bg-emerald-400 focus-visible:outline-emerald-600 dark:focus-visible:outline-emerald-500"
+      "bg-vads-primary dark:bg-vads-primary-dark text-white hover:bg-blue-700 dark:hover:bg-blue-500 focus-visible:outline-vads-primary dark:focus-visible:outline-vads-primary-dark"
     when :secondary
-      "bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20"
+      "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-1 ring-gray-300 dark:ring-gray-600 ring-inset hover:bg-gray-50 dark:hover:bg-gray-700"
     when :danger
-      "bg-red-600 dark:bg-red-700 text-white hover:bg-red-500 dark:hover:bg-red-600 focus-visible:outline-red-600 dark:focus-visible:outline-red-700"
+      "bg-vads-error dark:bg-vads-error-dark text-white hover:bg-red-500 dark:hover:bg-red-500 focus-visible:outline-vads-error dark:focus-visible:outline-vads-error-dark"
     when :warning
-      "bg-yellow-600 dark:bg-yellow-700 text-white hover:bg-yellow-500 dark:hover:bg-yellow-600 focus-visible:outline-yellow-600 dark:focus-visible:outline-yellow-700"
+      "bg-vads-warning dark:bg-vads-warning-dark text-yellow-900 dark:text-white hover:bg-yellow-300 dark:hover:bg-yellow-400 focus-visible:outline-vads-warning dark:focus-visible:outline-vads-warning-dark"
     when :success
-      "bg-green-600 dark:bg-green-700 text-white hover:bg-green-500 dark:hover:bg-green-600 focus-visible:outline-green-600 dark:focus-visible:outline-green-700"
+      "bg-vads-success dark:bg-vads-success-dark text-white hover:bg-green-500 dark:hover:bg-green-500 focus-visible:outline-vads-success dark:focus-visible:outline-vads-success-dark"
     else
       # Fallback to secondary variant for unknown variants
-      "bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20"
+      "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-1 ring-gray-300 dark:ring-gray-600 ring-inset hover:bg-gray-50 dark:hover:bg-gray-700"
     end
   end
 

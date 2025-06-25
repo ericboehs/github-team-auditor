@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class StatsCardComponent < ViewComponent::Base
-  def initialize(title:, value:, icon_path:, icon_bg_color: "bg-emerald-100 dark:bg-emerald-900", icon_color: "text-emerald-600 dark:text-emerald-400", **options)
+  def initialize(title:, value:, icon_path:, icon_bg_color: "bg-blue-100 dark:bg-blue-900", icon_color: "text-blue-800 dark:text-blue-400", **options)
     @title = title
     @value = value
     @icon_path = icon_path

@@ -21,7 +21,7 @@
           <%= link_to @audit_session.organization.github_url, target: "_blank", "aria-label": t('accessibility.view_on_github', name: @audit_session.organization.name), class: "inline-block" do %>
             <img class="h-5 w-5 rounded-full mr-2" src="https://github.com/<%= @audit_session.organization.github_login %>.png" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
           <% end %>
-          <%= link_to team_path(@audit_session.team), class: "font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 inline-flex items-center" do %>
+          <%= link_to team_path(@audit_session.team), class: "font-medium text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500 inline-flex items-center" do %>
             <%= @audit_session.team.name %>
             <svg class="h-3 w-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -96,7 +96,7 @@
             <%= form.date_field :due_date,
                 placeholder: "YYYY-MM-DD",
                 data: { toggle_target: "field", action: "input->toggle#toggleClearButton" },
-                class: "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
+                class: "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-700 focus:border-blue-700 dark:bg-gray-700 dark:text-white sm:text-sm" %>
             <button type="button" data-toggle-target="clearButton" data-action="click->toggle#clearField" class="absolute inset-y-0 right-0 flex items-center pr-3 <%= @audit_session.due_date ? '' : 'hidden' %>">
               <svg class="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -129,7 +129,7 @@
       <div class="flex items-center">
         <div class="flex-shrink-0">
           <!-- Heroicons: user-group -->
-          <svg class="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+          <svg class="h-8 w-8 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
@@ -259,7 +259,7 @@
                   <% member.open_issues.limit(2).each do |issue| %>
                     <div class="mb-1">
                       <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
-                                  target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
+                                  target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
                     </div>
                   <% end %>
                 <% else %>

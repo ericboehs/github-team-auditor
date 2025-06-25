@@ -16,6 +16,6 @@ class LinkComponent < ViewComponent::Base
   end
 
   def link_classes
-    "font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300"
+    "font-semibold text-vads-primary dark:text-vads-primary-dark hover:text-blue-700 dark:hover:text-blue-300"
   end
 end

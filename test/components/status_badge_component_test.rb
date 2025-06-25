@@ -7,7 +7,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "active")
     render_inline(component)
 
-    assert_selector "span.bg-blue-100.text-blue-800"
+    assert_selector "span.bg-blue-100.text-blue-900"
     assert_text "Active"
   end
 
@@ -15,7 +15,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "completed")
     render_inline(component)
 
-    assert_selector "span.bg-purple-100.text-purple-800"
+    assert_selector "span.bg-purple-100.text-purple-900"
     assert_text "Completed"
   end
 
@@ -23,7 +23,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "draft")
     render_inline(component)
 
-    assert_selector "span.bg-yellow-100.text-yellow-800"
+    assert_selector "span.bg-yellow-100.text-yellow-900"
     assert_text "Draft"
   end
 
@@ -31,7 +31,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "pending")
     render_inline(component)
 
-    assert_selector "span.bg-yellow-100.text-yellow-800"
+    assert_selector "span.bg-yellow-100.text-yellow-900"
     assert_text "Pending"
   end
 
@@ -39,7 +39,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "validated")
     render_inline(component)
 
-    assert_selector "span.bg-green-100.text-green-800"
+    assert_selector "span.bg-green-100.text-green-900"
     assert_text "Validated"
   end
 
@@ -47,7 +47,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "removed")
     render_inline(component)
 
-    assert_selector "span.bg-red-100.text-red-800"
+    assert_selector "span.bg-red-100.text-red-900"
     assert_text "Removed"
   end
 
@@ -55,7 +55,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "maintainer")
     render_inline(component)
 
-    assert_selector "span.bg-purple-100.text-purple-800"
+    assert_selector "span.bg-purple-100.text-purple-900"
     assert_text "Maintainer"
   end
 
@@ -63,7 +63,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "government")
     render_inline(component)
 
-    assert_selector "span.bg-emerald-100.text-emerald-800"
+    assert_selector "span.bg-blue-100.text-blue-900"
     assert_text "Gov"
   end
 
@@ -71,7 +71,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: "unknown")
     render_inline(component)
 
-    assert_selector "span.bg-gray-100.text-gray-800"
+    assert_selector "span.bg-gray-100.text-gray-900"
     assert_text "Unknown"
   end
 
@@ -87,7 +87,7 @@ class StatusBadgeComponentTest < ViewComponent::TestCase
     component = StatusBadgeComponent.new(status: :active)
     render_inline(component)
 
-    assert_selector "span.bg-blue-100.text-blue-800"
+    assert_selector "span.bg-blue-100.text-blue-900"
     assert_text "Active"
   end
 end

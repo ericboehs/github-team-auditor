@@ -66,15 +66,15 @@ class AlertComponent < ViewComponent::Base
   def dismiss_button_classes
     case type
     when :success
-      "inline-flex rounded-md bg-green-50 dark:bg-green-900/50 p-1.5 text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-green-50 dark:focus:ring-offset-green-900/50 focus:outline-hidden"
+      "inline-flex rounded-md bg-green-50 dark:bg-green-900/50 p-1.5 text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-green-50 dark:focus:ring-offset-green-900/50 focus:outline-hidden"
     when :error, :alert
-      "inline-flex rounded-md bg-red-50 dark:bg-red-900/50 p-1.5 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-800/50 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-red-50 dark:focus:ring-offset-red-900/50 focus:outline-hidden"
+      "inline-flex rounded-md bg-red-50 dark:bg-red-900/50 p-1.5 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-red-50 dark:focus:ring-offset-red-900/50 focus:outline-hidden"
     when :warning
-      "inline-flex rounded-md bg-yellow-50 dark:bg-yellow-900/50 p-1.5 text-yellow-500 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800/50 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:focus:ring-offset-yellow-900/50 focus:outline-hidden"
+      "inline-flex rounded-md bg-yellow-50 dark:bg-yellow-900/50 p-1.5 text-yellow-500 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:focus:ring-offset-yellow-900/50 focus:outline-hidden"
     when :info
-      "inline-flex rounded-md bg-blue-50 dark:bg-blue-900/50 p-1.5 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-blue-50 dark:focus:ring-offset-blue-900/50 focus:outline-hidden"
+      "inline-flex rounded-md bg-blue-50 dark:bg-blue-900/50 p-1.5 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-blue-50 dark:focus:ring-offset-blue-900/50 focus:outline-hidden"
     else
-      "inline-flex rounded-md bg-gray-50 dark:bg-gray-900/50 p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900/50 focus:outline-hidden"
+      "inline-flex rounded-md bg-gray-50 dark:bg-gray-900/50 p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900/50 focus:outline-hidden"
     end
   end
 
