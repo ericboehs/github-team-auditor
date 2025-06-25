@@ -32,7 +32,7 @@
           </div>
 
           <div class="p-6">
-            <%= form_with model: @audit_session, url: audits_path, class: "space-y-6", data: { controller: "audit-form" } do |form| %>
+            <%= form_with model: @audit_session, url: audits_path, class: "space-y-6" do |form| %>
               <% if @audit_session.errors.any? %>
                 <%= render AlertComponent.new(
                   messages: @audit_session.errors.full_messages,
@@ -56,8 +56,7 @@
                 options: options_from_collection_for_select(@organizations, :id, :name, @audit_session.organization_id),
                 label_key: "audits.form.organization_label",
                 prompt: t("audits.form.organization_prompt"),
-                required: true,
-                data: { action: "change->audit-form#loadTeams" }
+                required: true
               ) %>
 
               <%= render SelectComponent.new(
@@ -67,8 +66,7 @@
                 label_key: "audits.form.team_label",
                 prompt: t("audits.form.team_prompt"),
                 help_text: "Select an organization first to see available teams.",
-                required: true,
-                data: { audit_form_target: "teamSelect", placeholder: t("audits.form.team_prompt") }
+                required: true
               ) %>
 
               <%= render InputComponent.new(
