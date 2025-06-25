@@ -94,9 +94,14 @@ module Github
 
     def search_issues(query, repository: nil)
       repo = repository || "#{@organization.github_login}/va.gov-team"
+      search_query = "repo:#{repo} #{query}"
+      Rails.logger.debug "Searching issues with query: #{search_query}"
+
       with_rate_limiting do
-        results = @client.search_issues("repo:#{repo} #{query}")
-        results.items.map { |issue| normalize_issue_data(issue) }
+        results = @client.search_issues(search_query)
+        normalized_results = results.items.map { |issue| normalize_issue_data(issue) }
+        Rails.logger.debug "Found #{normalized_results.length} issues"
+        normalized_results
       end
     end
 
@@ -155,13 +160,20 @@ module Github
       return unless rate_limit
 
       remaining = rate_limit.remaining
+      limit = rate_limit.limit || 5000 # Default to core API limit if nil
+      Rails.logger.debug "Rate limit check: #{remaining}/#{limit} remaining, resets at #{rate_limit.resets_at}"
 
-      if remaining < ApiConfiguration::CRITICAL_RATE_LIMIT_THRESHOLD
+      # Adjust thresholds based on API type - search API has much lower limits
+      critical_threshold = limit <= 100 ? 3 : ApiConfiguration::CRITICAL_RATE_LIMIT_THRESHOLD
+      warning_threshold = limit <= 100 ? 10 : ApiConfiguration::WARNING_RATE_LIMIT_THRESHOLD
+
+      if remaining < critical_threshold
         reset_time = rate_limit.resets_at
         sleep_time = [ reset_time - Time.now, ApiConfiguration::MIN_CRITICAL_DELAY ].max
-        Rails.logger.info "Rate limit critical (#{remaining} remaining). Sleeping for #{sleep_time}s"
+        Rails.logger.warn "Rate limit critical (#{remaining}/#{limit} remaining). Sleeping for #{sleep_time}s until #{reset_time}"
         sleep(sleep_time) if sleep_time > 0
-      elsif remaining < ApiConfiguration::WARNING_RATE_LIMIT_THRESHOLD
+      elsif remaining < warning_threshold
+        Rails.logger.debug "Rate limit warning (#{remaining}/#{limit} remaining). Sleeping for #{config.default_rate_limit_delay}s"
         sleep(config.default_rate_limit_delay)
       end
     end

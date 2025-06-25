@@ -84,4 +84,62 @@ class TeamMemberTest < ActiveSupport::TestCase
     @team_member.name = nil
     assert_equal "testuser", @team_member.display_name
   end
+
+  test "should calculate first_seen_at from earliest issue creation date" do
+    @team_member.save!
+
+    # Create issue correlations with different dates
+    @team_member.issue_correlations.create!(
+      github_issue_number: 111,
+      github_issue_url: "https://github.com/test/repo/issues/111",
+      title: "Early issue",
+      status: "open",
+      issue_created_at: 3.days.ago,
+      issue_updated_at: 1.day.ago
+    )
+    @team_member.issue_correlations.create!(
+      github_issue_number: 222,
+      github_issue_url: "https://github.com/test/repo/issues/222",
+      title: "Later issue",
+      status: "open",
+      issue_created_at: 1.day.ago,
+      issue_updated_at: 1.hour.ago
+    )
+
+    assert_equal 3.days.ago.to_date, @team_member.first_seen_at.to_date
+  end
+
+  test "should calculate last_seen_at from latest issue update date" do
+    @team_member.save!
+
+    # Create issue correlations with different dates
+    @team_member.issue_correlations.create!(
+      github_issue_number: 111,
+      github_issue_url: "https://github.com/test/repo/issues/111",
+      title: "Old issue",
+      status: "open",
+      issue_created_at: 3.days.ago,
+      issue_updated_at: 2.days.ago
+    )
+    @team_member.issue_correlations.create!(
+      github_issue_number: 222,
+      github_issue_url: "https://github.com/test/repo/issues/222",
+      title: "Updated issue",
+      status: "open",
+      issue_created_at: 2.days.ago,
+      issue_updated_at: 1.hour.ago
+    )
+
+    assert_equal 1.hour.ago.to_i, @team_member.last_seen_at.to_i, delta: 10
+  end
+
+  test "should return nil for first_seen_at when no issue correlations" do
+    @team_member.save!
+    assert_nil @team_member.first_seen_at
+  end
+
+  test "should return nil for last_seen_at when no issue correlations" do
+    @team_member.save!
+    assert_nil @team_member.last_seen_at
+  end
 end

@@ -88,4 +88,43 @@ class TeamTest < ActiveSupport::TestCase
     destroyed_members = TeamMember.where(team_id: @team.id)
     assert_empty destroyed_members
   end
+
+  test "effective_search_terms should return search_terms when present" do
+    @team.search_terms = "platform access"
+    assert_equal "platform access", @team.effective_search_terms
+  end
+
+  test "effective_search_terms should return default when blank" do
+    @team.search_terms = ""
+    assert_equal "access", @team.effective_search_terms
+
+    @team.search_terms = nil
+    assert_equal "access", @team.effective_search_terms
+  end
+
+  test "effective_exclusion_terms should return exclusion_terms when present" do
+    @team.exclusion_terms = "temporary"
+    assert_equal "temporary", @team.effective_exclusion_terms
+  end
+
+  test "effective_exclusion_terms should return empty string when blank" do
+    @team.exclusion_terms = ""
+    assert_equal "", @team.effective_exclusion_terms
+
+    @team.exclusion_terms = nil
+    assert_equal "", @team.effective_exclusion_terms
+  end
+
+  test "effective_search_repository should return search_repository when present" do
+    @team.search_repository = "custom-org/custom-repo"
+    assert_equal "custom-org/custom-repo", @team.effective_search_repository
+  end
+
+  test "effective_search_repository should return default when blank" do
+    @team.search_repository = ""
+    assert_equal "#{@team.organization.github_login}/va.gov-team", @team.effective_search_repository
+
+    @team.search_repository = nil
+    assert_equal "#{@team.organization.github_login}/va.gov-team", @team.effective_search_repository
+  end
 end

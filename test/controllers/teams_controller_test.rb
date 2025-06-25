@@ -110,4 +110,21 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     get teams_url
     assert_redirected_to new_session_url
   end
+
+  test "should find issue correlations" do
+    sign_in_as(@user)
+    assert_enqueued_jobs 1, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    assert_equal I18n.t("flash.teams.issue_correlation_started"), flash[:notice]
+  end
+
+  test "should poll for updates" do
+    sign_in_as(@user)
+    get poll_team_path(@team), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html; charset=utf-8", response.content_type
+  end
 end

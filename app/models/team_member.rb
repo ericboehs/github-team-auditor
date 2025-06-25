@@ -26,4 +26,12 @@ class TeamMember < ApplicationRecord
   def display_name
     name.presence || github_login
   end
+
+  def first_seen_at
+    issue_correlations.minimum(:issue_created_at)
+  end
+
+  def last_seen_at
+    issue_correlations.maximum(:issue_updated_at)
+  end
 end

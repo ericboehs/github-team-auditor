@@ -6,6 +6,19 @@ class Team < ApplicationRecord
   validates :name, presence: true
   validates :github_slug, presence: true, uniqueness: { scope: :organization_id }
 
+  # Default search configuration
+  def effective_search_terms
+    search_terms.presence || "access"
+  end
+
+  def effective_exclusion_terms
+    exclusion_terms.presence || ""
+  end
+
+  def effective_search_repository
+    search_repository.presence || "#{organization.github_login}/va.gov-team"
+  end
+
   scope :recently_synced, -> { order(last_synced_at: :desc) }
 
   def github_url

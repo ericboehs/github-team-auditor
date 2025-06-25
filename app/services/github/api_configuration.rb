@@ -6,6 +6,10 @@ module Github
     CRITICAL_RATE_LIMIT_THRESHOLD = 50
     WARNING_RATE_LIMIT_THRESHOLD = 200
 
+    # Search API specific thresholds (search has 30/min limit)
+    SEARCH_CRITICAL_THRESHOLD = 3
+    SEARCH_WARNING_THRESHOLD = 10
+
     # Retry configuration
     MAX_RETRIES = 3
     RETRY_BACKOFF_BASE = 2

@@ -129,13 +129,21 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
 
     # Create existing members
     present_member = @team.team_members.create!(
-      github_login: "present",
-      last_seen_at: Time.current
+      github_login: "present"
     )
 
     absent_member = @team.team_members.create!(
-      github_login: "absent",
-      last_seen_at: Time.current
+      github_login: "absent"
+    )
+
+    # Create issue correlations to ensure last_seen_at has data
+    present_member.issue_correlations.create!(
+      github_issue_number: 123,
+      github_issue_url: "https://github.com/test/repo/issues/123",
+      title: "Test issue for present member",
+      status: "open",
+      issue_created_at: 2.hours.ago,
+      issue_updated_at: 30.seconds.ago
     )
 
     # Mock API that only returns present member

@@ -83,6 +83,33 @@
                     i18n_scope: "teams.form"
                   ) %>
 
+              <!-- Issue Search Configuration -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Issue Search Configuration</h3>
+                <div class="space-y-6">
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :search_terms,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
+
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :exclusion_terms,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
+
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :search_repository,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
+                </div>
+              </div>
+
               <div class="flex items-center justify-between pt-6">
                 <div>
                   <%= render LinkButtonComponent.new(

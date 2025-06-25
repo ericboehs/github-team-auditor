@@ -1,5 +1,5 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync ]
+  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations, :poll ]
 
   def index
     @teams = Team.includes(:organization, :audit_sessions).order(:name)
@@ -60,6 +60,26 @@ class TeamsController < ApplicationController
     redirect_to team_path(@team), notice: t("flash.teams.sync_started")
   end
 
+  def find_issue_correlations
+    # Find issue correlations for team members in background using team's configuration
+    IssueCorrelationFinderJob.perform_later(@team.id)
+
+    redirect_to team_path(@team), notice: t("flash.teams.issue_correlation_started")
+  end
+
+  def poll
+    # Get updated team data for polling
+    @team_members = @team.team_members.current.order(:github_login)
+    @total_members_count = @team_members.count
+    @validated_members_count = 0 # Not applicable for team-level view
+    @maintainer_members_count = @team_members.where(maintainer_role: true).count
+    @last_synced_at = @team.last_synced_at
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
   private
 
   def set_team
@@ -67,6 +87,6 @@ class TeamsController < ApplicationController
   end
 
   def team_params
-    params.require(:team).permit(:name, :github_slug, :description, :organization_id)
+    params.require(:team).permit(:name, :github_slug, :description, :organization_id, :search_terms, :exclusion_terms, :search_repository)
   end
 end

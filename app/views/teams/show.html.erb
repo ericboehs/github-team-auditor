@@ -1,6 +1,6 @@
 <% content_for :title, @team.name %>
 
-<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+<div class="min-h-full bg-gray-50 dark:bg-gray-900" data-controller="team-poll" data-team-poll-url-value="<%= poll_team_path(@team) %>" data-team-poll-interval-value="5000">
   <%= render 'shared/navbar' %>
 
   <% if flash[:alert] || flash[:notice] %>
@@ -47,10 +47,23 @@
                     include_flex: true
                   ) %>
                 <% end %>
+                <%= form_with url: find_issue_correlations_team_path(@team), method: :post, local: true, class: "inline" do %>
+                  <%= render ButtonComponent.new(
+                    text: content_tag(:span, class: "inline-flex items-center") do
+                      concat(content_tag(:svg, class: "h-4 w-4 mr-2", fill: "currentColor", viewBox: "0 0 24 24") do
+                        content_tag(:path, "", d: "M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22")
+                      end)
+                      concat(t('buttons.find_issues'))
+                    end.html_safe,
+                    type: :submit,
+                    variant: :secondary,
+                    include_flex: true
+                  ) %>
+                <% end %>
                 <%= render LinkButtonComponent.new(text: t('buttons.edit'), url: edit_team_path(@team), variant: :secondary) %>
                 <%= render LinkButtonComponent.new(text: t("teams.show.new_audit"), url: new_audit_path(team_id: @team.id), variant: :primary) %>
               </div>
-              <div class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+              <div id="last-synced" class="flex items-center justify-start sm:justify-end text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
                 <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                 </svg>
@@ -67,7 +80,7 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-live="polite" aria-atomic="false">
+        <div id="team-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-live="polite" aria-atomic="false">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="flex items-start">
               <div class="flex-shrink-0">
@@ -132,7 +145,7 @@
         </div>
 
         <!-- Team Members -->
-        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+        <div id="team-members-table" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
           <div class="flow-root">
             <% if @team_members.any? %>
               <div class="overflow-x-auto">
@@ -193,13 +206,87 @@
                         </span>
                       </td>
                       <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                        -
+                        <% if member.issue_correlations.any? %>
+                          <div data-controller="issue-list">
+                            <!-- Summary view (first 2 issues) -->
+                            <div data-issue-list-target="summary">
+                              <% member.issue_correlations.order(issue_updated_at: :desc).limit(2).each do |issue| %>
+                                <div class="mb-1 flex items-center gap-1">
+                                  <% if issue.resolved? %>
+                                    <!-- Heroicons: check-circle outline (purple for resolved) -->
+                                    <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                  <% else %>
+                                    <!-- Heroicons: exclamation-circle outline (green for open) -->
+                                    <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                    </svg>
+                                  <% end %>
+                                  <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
+                                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                                </div>
+                              <% end %>
+                              <% if member.issue_correlations.count > 2 %>
+                                <button
+                                  type="button"
+                                  class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                                  data-action="click->issue-list#toggle"
+                                  data-issue-list-target="toggleButton"
+                                  data-expand-text="+<%= member.issue_correlations.count - 2 %> more"
+                                  data-collapse-text="Show less">
+                                  +<%= member.issue_correlations.count - 2 %> more
+                                </button>
+                              <% end %>
+                            </div>
+
+                            <!-- Expanded view (all issues) -->
+                            <div data-issue-list-target="expanded" hidden>
+                              <% member.issue_correlations.order(issue_updated_at: :desc).each do |issue| %>
+                                <div class="mb-1 flex items-center gap-1">
+                                  <% if issue.resolved? %>
+                                    <!-- Heroicons: check-circle outline (purple for resolved) -->
+                                    <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                    </svg>
+                                  <% else %>
+                                    <!-- Heroicons: exclamation-circle outline (green for open) -->
+                                    <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                    </svg>
+                                  <% end %>
+                                  <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
+                                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                                </div>
+                              <% end %>
+                              <button
+                                type="button"
+                                class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                                data-action="click->issue-list#toggle"
+                                data-issue-list-target="toggleButton"
+                                data-expand-text="+<%= member.issue_correlations.count - 2 %> more"
+                                data-collapse-text="Show less">
+                                Show less
+                              </button>
+                            </div>
+                          </div>
+                        <% else %>
+                          <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
+                        <% end %>
                       </td>
                       <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                        -
+                        <% if member.first_seen_at %>
+                          <%= time_ago_in_words(member.first_seen_at) %> ago
+                        <% else %>
+                          -
+                        <% end %>
                       </td>
                       <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
-                        -
+                        <% if member.last_seen_at %>
+                          <%= time_ago_in_words(member.last_seen_at) %> ago
+                        <% else %>
+                          -
+                        <% end %>
                       </td>
                     </tr>
                   <% end %>
