@@ -124,6 +124,7 @@ class TextareaComponentTest < ViewComponent::TestCase
       field: :email_address,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help", component.send(:help_id)
   end
@@ -143,6 +144,7 @@ class TextareaComponentTest < ViewComponent::TestCase
       field: :email_address,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help", component.send(:describedby_ids)
   end
@@ -166,6 +168,7 @@ class TextareaComponentTest < ViewComponent::TestCase
       field: :email_address,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help user_email_address_error", component.send(:describedby_ids)
   end
@@ -368,5 +371,19 @@ class TextareaComponentTest < ViewComponent::TestCase
     # Should fall back to humanized attribute name
     assert_selector "label", text: "Email address"
     assert_no_selector "textarea[placeholder]"
+  end
+
+  def test_infers_help_text_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_help: "Textarea help from i18n" } })
+
+    component = TextareaComponent.new(
+      form: @form,
+      field: :email_address,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "p", text: "Textarea help from i18n"
   end
 end

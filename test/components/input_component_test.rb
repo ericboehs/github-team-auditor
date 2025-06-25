@@ -83,4 +83,20 @@ class InputComponentTest < ViewComponent::TestCase
     assert_selector "label", text: "Explicit Label"
     assert_selector "input[placeholder='Explicit Placeholder']"
   end
+
+  def test_infers_help_text_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_help: "Help text from i18n" } })
+
+    form = ActionView::Helpers::FormBuilder.new(:user, User.new, vc_test_controller.view_context, {})
+    component = InputComponent.new(
+      form: form,
+      field: :email_address,
+      type: :text,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "p", text: "Help text from i18n"
+  end
 end

@@ -140,6 +140,7 @@ class SelectComponentTest < ViewComponent::TestCase
       options: @options,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help", component.send(:help_id)
   end
@@ -161,6 +162,7 @@ class SelectComponentTest < ViewComponent::TestCase
       options: @options,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help", component.send(:describedby_ids)
   end
@@ -186,6 +188,7 @@ class SelectComponentTest < ViewComponent::TestCase
       options: @options,
       help_text: "Help text"
     )
+    render_inline(component)
 
     assert_equal "user_email_address_help user_email_address_error", component.send(:describedby_ids)
   end
@@ -197,21 +200,24 @@ class SelectComponentTest < ViewComponent::TestCase
       options: @options,
       label: "Explicit Label"
     )
+    render_inline(component)
 
-    assert_equal "Explicit Label", component.send(:label_text)
+    assert_selector "label", text: "Explicit Label"
   end
 
   def test_label_text_with_label_key
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { label: "Custom Label from Key" })
+
     component = SelectComponent.new(
       form: @form,
       field: :email_address,
       options: @options,
       label_key: "test.label"
     )
+    render_inline(component)
 
-    # Mock the translation method to avoid ViewComponent render dependency
-    component.define_singleton_method(:t) { |key| "Custom Label" }
-    assert_equal "Custom Label", component.send(:label_text)
+    assert_selector "label", text: "Custom Label from Key"
   end
 
   def test_label_text_with_default_label
@@ -220,8 +226,9 @@ class SelectComponentTest < ViewComponent::TestCase
       field: :email_address,
       options: @options
     )
+    render_inline(component)
 
-    assert_equal "Email address", component.send(:label_text)
+    assert_selector "label", text: "Email address"
   end
 
   def test_select_classes_without_errors
@@ -341,12 +348,79 @@ class SelectComponentTest < ViewComponent::TestCase
       required: true,
       autofocus: true
     )
+    render_inline(component)
 
-    attrs = component.send(:select_attributes)
-    assert_equal "user_email_address", attrs[:id]
-    assert_equal true, attrs[:required]
-    assert_equal true, attrs[:autofocus]
-    assert_equal "true", attrs[:"aria-invalid"]
-    assert_equal "user_email_address_help user_email_address_error", attrs[:"aria-describedby"]
+    assert_selector "select[id='user_email_address']"
+    assert_selector "select[required]"
+    assert_selector "select[autofocus]"
+    assert_selector "select[aria-invalid='true']"
+    assert_selector "select[aria-describedby='user_email_address_help user_email_address_error']"
+  end
+
+  def teardown
+    # Clear test translations to prevent interference between tests
+    I18n.backend.store_translations(:en, test: nil)
+  end
+
+  def test_infers_label_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_label: "Select Email Label" } })
+
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "label", text: "Select Email Label"
+  end
+
+  def test_infers_prompt_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_prompt: "Choose an email" } })
+
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    # Check that the prompt text is included in the select
+    assert_match /Choose an email/, rendered_content
+  end
+
+  def test_infers_help_text_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_help: "Select help from i18n" } })
+
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "p", text: "Select help from i18n"
+  end
+
+  def test_falls_back_when_i18n_key_does_not_exist
+    # Clear any existing test translations
+    I18n.backend.store_translations(:en, test: { form: {} })
+
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    # Should fall back to humanized attribute name
+    assert_selector "label", text: "Email address"
   end
 end

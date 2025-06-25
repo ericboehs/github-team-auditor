@@ -4,9 +4,9 @@
     <%= form.text_area field, textarea_attributes %>
   </div>
 
-  <% if help_text.present? %>
+  <% if help_text_value.present? %>
     <p id="<%= help_id %>" class="<%= help_text_classes %>">
-      <%= help_text %>
+      <%= help_text_value %>
     </p>
   <% end %>
 

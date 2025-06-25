@@ -38,6 +38,7 @@ class InputComponent < ViewComponent::Base
   def before_render
     @resolved_label = resolve_label
     @resolved_placeholder = resolve_placeholder
+    @resolved_help_text = resolve_help_text
   end
 
   def label_text
@@ -46,6 +47,10 @@ class InputComponent < ViewComponent::Base
 
   def placeholder_text
     @resolved_placeholder
+  end
+
+  def help_text_value
+    @resolved_help_text
   end
 
   private
@@ -59,6 +64,12 @@ class InputComponent < ViewComponent::Base
   def resolve_placeholder
     return placeholder if placeholder.present?
     return inferred_i18n("placeholder") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_placeholder")
+    nil
+  end
+
+  def resolve_help_text
+    return help_text if help_text.present?
+    return inferred_i18n("help") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_help")
     nil
   end
 

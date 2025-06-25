@@ -20,8 +20,8 @@
           "aria-describedby": error ? "#{field_id}-error" : nil,
           **options) %>
   </div>
-  <% if help_text %>
-    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= help_text %></p>
+  <% if help_text_value %>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= help_text_value %></p>
   <% end %>
   <% if error %>
     <p class="mt-2 text-sm text-red-600 dark:text-red-400 inline-flex items-center" id="<%= field_id %>-error">

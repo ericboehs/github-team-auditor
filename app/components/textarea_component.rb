@@ -25,6 +25,7 @@ class TextareaComponent < ViewComponent::Base
   def before_render
     @resolved_label = resolve_label
     @resolved_placeholder = resolve_placeholder
+    @resolved_help_text = resolve_help_text
   end
 
   def label_text
@@ -33,6 +34,10 @@ class TextareaComponent < ViewComponent::Base
 
   def placeholder_text
     @resolved_placeholder
+  end
+
+  def help_text_value
+    @resolved_help_text
   end
 
   private
@@ -46,6 +51,12 @@ class TextareaComponent < ViewComponent::Base
   def resolve_placeholder
     return placeholder if placeholder.present?
     return inferred_i18n("placeholder") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_placeholder")
+    nil
+  end
+
+  def resolve_help_text
+    return help_text if help_text.present?
+    return inferred_i18n("help") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_help")
     nil
   end
 
@@ -103,12 +114,12 @@ class TextareaComponent < ViewComponent::Base
   end
 
   def help_id
-    "#{field_id}_help" if help_text.present?
+    "#{field_id}_help" if help_text_value.present?
   end
 
   def describedby_ids
     ids = []
-    ids << help_id if help_text.present?
+    ids << help_id if help_text_value.present?
     ids << error_id if has_errors?
     ids.compact.join(" ").presence
   end

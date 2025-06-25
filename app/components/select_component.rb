@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SelectComponent < ViewComponent::Base
-  def initialize(form:, field:, options:, label: nil, label_key: nil, prompt: nil, help_text: nil, required: false, autofocus: false, class: "", **html_options)
+  def initialize(form:, field:, options:, label: nil, label_key: nil, prompt: nil, help_text: nil, required: false, autofocus: false, class: "", i18n_scope: nil, **html_options)
     @form = form
     @field = field
     @options = options
@@ -12,21 +12,63 @@ class SelectComponent < ViewComponent::Base
     @required = required
     @autofocus = autofocus
     @extra_classes = binding.local_variable_get(:class)
+    @i18n_scope = i18n_scope
     @html_options = html_options
   end
 
   private
 
-  attr_reader :form, :field, :options, :label, :label_key, :prompt, :help_text, :required, :autofocus, :extra_classes, :html_options
+  attr_reader :form, :field, :options, :label, :label_key, :prompt, :help_text, :required, :autofocus, :extra_classes, :html_options, :i18n_scope
 
   def field_id
     "#{form.object_name}_#{field}"
   end
 
+  def before_render
+    @resolved_label = resolve_label
+    @resolved_prompt = resolve_prompt
+    @resolved_help_text = resolve_help_text
+  end
+
   def label_text
-    return @label if @label.present?
-    return t(label_key) if label_key.present?
-    form.object.class.human_attribute_name(field)
+    @resolved_label || form.object.class.human_attribute_name(field)
+  end
+
+  def prompt_text
+    @resolved_prompt
+  end
+
+  def help_text_value
+    @resolved_help_text
+  end
+
+  private
+
+  def resolve_label
+    return label if label.present?
+    return helpers.t(label_key) if label_key.present?
+    return inferred_i18n("label") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_label")
+    nil
+  end
+
+  def resolve_prompt
+    return prompt if prompt.present?
+    return inferred_i18n("prompt") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_prompt")
+    nil
+  end
+
+  def resolve_help_text
+    return help_text if help_text.present?
+    return inferred_i18n("help") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_help")
+    nil
+  end
+
+  def inferred_i18n(suffix)
+    helpers.t("#{i18n_scope}.#{field}_#{suffix}")
+  end
+
+  def i18n_key_exists?(key)
+    I18n.exists?(key)
   end
 
   def error_messages
@@ -75,12 +117,12 @@ class SelectComponent < ViewComponent::Base
   end
 
   def help_id
-    "#{field_id}_help" if help_text.present?
+    "#{field_id}_help" if help_text_value.present?
   end
 
   def describedby_ids
     ids = []
-    ids << help_id if help_text.present?
+    ids << help_id if help_text_value.present?
     ids << error_id if has_errors?
     ids.compact.join(" ").presence
   end
