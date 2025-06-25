@@ -1,0 +1,160 @@
+<% content_for :title, t("audits.index.title") %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main id="main-content">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("audits.index.title") %></h1>
+      <% if @filtered_team %>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">
+          <%= t("audits.index.filtered_by_team") %>
+          <%= link_to @filtered_team.name, team_path(@filtered_team), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
+          • <%= link_to t("audits.index.show_all_audits"), audits_path, class: "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm" %>
+        </p>
+      <% end %>
+    </div>
+    <%= render LinkButtonComponent.new(text: t("audits.index.new_button"), url: new_audit_path, variant: :primary) %>
+  </div>
+
+  <!-- Organizations Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <% @organizations.each do |org| %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <img class="h-10 w-10 rounded-full" src="https://github.com/<%= org.github_login %>.png" alt="<%= org.name %>">
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= org.name %></h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">@<%= org.github_login %></p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="text-sm text-gray-600 dark:text-gray-300">
+            <span class="font-medium"><%= org.teams.count %></span> <%= t("audits.index.teams_count", count: org.teams.count) %>
+            •
+            <span class="font-medium"><%= org.audit_sessions.count %></span> <%= t("audits.index.audits_count", count: org.audit_sessions.count) %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Recent Audit Sessions -->
+  <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="flow-root">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <caption class="sr-only"><%= t("audits.index.table.caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
+              <%= t("audits.index.table.audit_session") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t("audits.index.table.team") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t("audits.index.table.status") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t("audits.index.table.progress") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t("audits.index.table.started") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t("audits.index.table.due_date") %>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% @audit_sessions.each do |session| %>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap sm:pl-6">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  <%= link_to session.name, audit_path(session), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400"><%= session.organization.name %></div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <div class="text-sm text-gray-900 dark:text-white"><%= session.team.name %></div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">@<%= session.team.github_slug %></div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <%= render StatusBadgeComponent.new(status: session.status) %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2 mr-2" role="progressbar" aria-valuenow="<%= session.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= t('accessibility.audit_progress') %>">
+                    <div class="bg-emerald-600 dark:bg-emerald-500 h-2 rounded-full" style="width: <%= session.progress_percentage %>%"></div>
+                  </div>
+                  <span class="text-sm text-gray-600 dark:text-gray-300" aria-live="polite"><%= session.progress_percentage.round %>%</span>
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <%= t("audits.index.member", count: session.audit_members.count) %>
+                </div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                <%= session.started_at&.strftime('%b %d, %Y') %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+                <% if session.due_date %>
+                  <% days_until_due = (session.due_date - Date.current).to_i %>
+                  <% if days_until_due < 0 %>
+                    <span class="text-red-600 dark:text-red-400 font-medium inline-flex items-center" aria-live="assertive">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                      </svg>
+                      <%= t("audits.index.due_date.overdue", count: -days_until_due) %>
+                    </span>
+                  <% elsif days_until_due == 0 %>
+                    <span class="text-yellow-600 dark:text-yellow-400 font-medium inline-flex items-center" aria-live="assertive">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" />
+                      </svg>
+                      <%= t("audits.index.due_date.due_today") %>
+                    </span>
+                  <% elsif days_until_due <= 7 %>
+                    <span class="text-yellow-600 dark:text-yellow-400 font-medium inline-flex items-center" aria-live="polite">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+                      </svg>
+                      <%= t("audits.index.due_date.due_soon", count: days_until_due) %>
+                    </span>
+                  <% else %>
+                    <span aria-live="polite"><%= session.due_date.strftime('%b %d, %Y') %></span>
+                  <% end %>
+                <% else %>
+                  <span class="text-gray-400 dark:text-gray-500" aria-live="polite"><%= t("audits.index.due_date.no_due_date") %></span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <% if @audit_sessions.empty? %>
+      <%= render EmptyStateComponent.new(
+        title: t("audits.index.empty_state.title"),
+        message: t("audits.index.empty_state.message"),
+        icon_name: :audits
+      ) %>
+    <% end %>
+      </div>
+    </main>
+  </div>
+</div>

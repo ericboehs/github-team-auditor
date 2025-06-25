@@ -1,0 +1,306 @@
+<% content_for :title, @audit_session.name %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main id="main-content">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex flex-col space-y-4 lg:flex-row lg:items-start lg:justify-between lg:space-y-0">
+      <div class="flex-1">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @audit_session.name %></h1>
+        <div class="flex items-center mt-2 text-gray-600 dark:text-gray-400">
+          <%= link_to @audit_session.organization.github_url, target: "_blank", "aria-label": t('accessibility.view_on_github', name: @audit_session.organization.name), class: "inline-block" do %>
+            <img class="h-5 w-5 rounded-full mr-2" src="https://github.com/<%= @audit_session.organization.github_login %>.png" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
+          <% end %>
+          <%= link_to team_path(@audit_session.team), class: "font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 inline-flex items-center" do %>
+            <%= @audit_session.team.name %>
+            <svg class="h-3 w-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          <% end %>
+        </div>
+        <% if @audit_session.due_date %>
+          <div class="flex items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <svg class="h-4 w-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span><%= t('due_date.due_label') %> <%= @audit_session.due_date.strftime('%B %d, %Y') %></span>
+          </div>
+        <% end %>
+      </div>
+      <div class="flex flex-wrap gap-2" data-controller="toggle">
+        <%= render ButtonComponent.new(
+          text: content_tag(:span, class: "inline-flex items-center") do
+            concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+              content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
+            end)
+            concat(content_tag(:span, @audit_session.due_date ? t('due_date.edit_due_date') : t('due_date.set_due_date'), class: "hidden sm:inline"))
+            concat(content_tag(:span, @audit_session.due_date ? t('buttons.edit') : t('common.due_date'), class: "sm:hidden"))
+          end.html_safe,
+          type: :button,
+          variant: :secondary,
+          include_flex: true,
+          data: { action: "click->toggle#toggle" },
+          class: "flex-shrink-0"
+        ) %>
+        <%= form_with url: toggle_status_audit_path(@audit_session), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
+          <%= render ButtonComponent.new(
+            text: content_tag(:span, class: "inline-flex items-center") do
+              concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+                if @audit_session.status == 'completed'
+                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15")
+                else
+                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                end
+              end)
+              concat(@audit_session.status == 'completed' ? t('actions.mark_active') : t('actions.mark_complete'))
+            end.html_safe,
+            type: :submit,
+            variant: @audit_session.status == 'completed' ? :primary : :success,
+            include_flex: true,
+            class: "flex-shrink-0"
+          ) %>
+        <% end %>
+        <%= form_with url: audit_path(@audit_session), method: :delete, local: true, data: { turbo_method: :delete, turbo_confirm: t('confirmations.delete_audit') }, class: "inline-block" do |form| %>
+          <%= render ButtonComponent.new(
+            text: content_tag(:span, class: "inline-flex items-center") do
+              concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+                content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+              end)
+              concat(t('buttons.delete'))
+            end.html_safe,
+            type: :submit,
+            variant: :danger,
+            include_flex: true,
+            class: "flex-shrink-0"
+          ) %>
+        <% end %>
+
+        <!-- Due Date Form (Hidden by default) -->
+        <div id="due-date-form" data-toggle-target="toggleable" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md mx-auto">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t('common.due_date') %></h3>
+      <%= form_with model: @audit_session, url: audit_path(@audit_session), method: :patch, local: true, class: "space-y-4" do |form| %>
+        <div>
+          <%= form.label :due_date, t('common.due_date'), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <div class="relative">
+            <%= form.date_field :due_date,
+                placeholder: "YYYY-MM-DD",
+                data: { toggle_target: "field", action: "input->toggle#toggleClearButton" },
+                class: "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white sm:text-sm" %>
+            <button type="button" data-toggle-target="clearButton" data-action="click->toggle#clearField" class="absolute inset-y-0 right-0 flex items-center pr-3 <%= @audit_session.due_date ? '' : 'hidden' %>">
+              <svg class="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-2">
+          <%= render ButtonComponent.new(
+            text: t('buttons.cancel'),
+            type: :button,
+            variant: :secondary,
+            data: { action: "click->toggle#toggle" }
+          ) %>
+          <%= render ButtonComponent.new(
+            text: t('buttons.save'),
+            type: :submit,
+            variant: :primary
+          ) %>
+        </div>
+        <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-8" aria-live="polite" aria-atomic="false">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <!-- Heroicons: user-group -->
+          <svg class="h-8 w-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.total_members') %></p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @team_members.count %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <!-- Heroicons: check-circle -->
+          <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.validated') %></p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @team_members.validated.count %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <!-- Heroicons: shield-check -->
+          <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.maintainers') %></p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @audit_session.maintainer_members.count %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <!-- Heroicons: chart-pie -->
+          <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+          </svg>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500 dark:text-gray-400"><%= t('common.progress') %></p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white"><%= @progress.round %>%</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- Team Members Table -->
+  <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="flow-root">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <caption class="sr-only"><%= t('accessibility.team_members_table', audit_name: @audit_session.name) %></caption>
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
+              <%= t('common.member') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.role') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.status') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.issues') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.first_seen') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.last_seen') %>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% @team_members.each do |member| %>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap sm:pl-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <img class="h-10 w-10 rounded-full" src="<%= member.avatar_url %>" alt="<%= member.display_name %>">
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      <%= safe_github_link(member) %>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <div class="flex flex-col space-y-1">
+                  <% if member.maintainer_role? %>
+                    <%= render StatusBadgeComponent.new(status: "maintainer", class: "w-fit") %>
+                  <% end %>
+                  <% if member.government_employee? %>
+                    <%= render StatusBadgeComponent.new(status: "government", class: "w-fit") %>
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <%= form_with url: toggle_status_audit_member_path(member), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
+                  <%= button_tag type: :submit, class: "cursor-pointer border-0 bg-transparent p-0 hover:opacity-75 hover:scale-105 transition-all duration-150" do %>
+                    <% if member.removed? %>
+                      <%= render StatusBadgeComponent.new(status: "removed") %>
+                    <% else %>
+                      <%= render StatusBadgeComponent.new(status: member.validation_status) %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                <% if member.has_open_issues? %>
+                  <% member.open_issues.limit(2).each do |issue| %>
+                    <div class="mb-1">
+                      <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
+                                  target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
+                <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                <%= member.first_seen_at&.strftime('%b %d, %Y') %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+                <%= member.last_seen_at&.strftime('%b %d, %Y') %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        </table>
+      </div>
+    </div>
+
+    <% if @team_members.empty? %>
+      <%= render EmptyStateComponent.new(
+        title: t('empty_states.no_team_members'),
+        message: t('empty_states.sync_to_get_started'),
+        icon_name: :members
+      ) %>
+    <% end %>
+  </div>
+  </div>
+
+  <!-- Notes Section -->
+  <% if @audit_session.notes.present? %>
+    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-8">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t('common.notes') %></h3>
+      </div>
+      <div class="px-6 py-4">
+        <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line"><%= @audit_session.notes %></div>
+      </div>
+    </div>
+  <% end %>
+      </div>
+    </main>
+  </div>
+</div>

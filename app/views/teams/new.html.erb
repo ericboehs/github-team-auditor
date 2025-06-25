@@ -1,0 +1,74 @@
+<% content_for :title, t("teams.new.title") %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main id="main-content">
+      <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("teams.new.title") %></h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400"><%= t("teams.new.subtitle") %></p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-8">
+            <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
+              <% if @team.errors.any? %>
+                <%= render AlertComponent.new(
+                  messages: @team.errors.full_messages,
+                  type: :error
+                ) %>
+              <% end %>
+
+              <%= render SelectComponent.new(
+                    form: form,
+                    field: :organization_id,
+                    options: options_from_collection_for_select(@organizations, :id, :name, @team.organization_id),
+                    required: true,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <%= render InputComponent.new(
+                    form: form,
+                    field: :name,
+                    type: :text,
+                    required: true,
+                    autofocus: true,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <%= render InputComponent.new(
+                    form: form,
+                    field: :github_slug,
+                    type: :text,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+
+              <%= render TextareaComponent.new(
+                    form: form,
+                    field: :description,
+                    rows: 3,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <div class="flex items-center justify-between pt-6">
+                <%= render LinkButtonComponent.new(text: t("buttons.cancel"), url: teams_path, variant: :secondary) %>
+                <%= render ButtonComponent.new(text: t("teams.form.create_button"), type: :submit, variant: :primary) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

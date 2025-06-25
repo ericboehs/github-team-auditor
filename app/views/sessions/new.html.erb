@@ -1,30 +1,30 @@
-<%= render Auth::FormContainerComponent.new(
+<%= render FormContainerComponent.new(
   title_key: "auth.sign_in.title"
 ) do %>
-  <%= render 'shared/flash_messages' %>
+  <% if flash[:alert] || flash[:notice] %>
+    <%= render 'shared/flash_messages' %>
+  <% end %>
 
   <%= form_with url: session_path, local: true, class: "space-y-6" do |form| %>
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :email_address,
-      label: t("auth.sign_in.email_label"),
       type: :email,
       required: true,
       autocomplete: "username",
-      placeholder: t("auth.placeholders.email"),
       autofocus: true,
-      value: params[:email_address]
+      value: params[:email_address],
+      i18n_scope: "auth.sign_in"
     ) %>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: form,
       field: :password,
-      label: t("auth.sign_in.password_label"),
       type: :password,
       required: true,
       autocomplete: "current-password",
-      placeholder: t("auth.placeholders.password"),
-      maxlength: 72
+      maxlength: 72,
+      i18n_scope: "auth.sign_in"
     ) %>
 
     <div class="text-sm text-right">
@@ -33,7 +33,7 @@
     </div>
 
     <div>
-      <%= render Auth::ButtonComponent.new(
+      <%= render ButtonComponent.new(
         text: t("auth.sign_in.submit_button"),
         type: :submit,
         variant: :primary,

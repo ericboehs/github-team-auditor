@@ -1,4 +1,19 @@
 Rails.application.routes.draw do
+  resources :teams do
+    member do
+      post :sync
+    end
+  end
+  resources :audits, only: [ :index, :show, :new, :create, :update, :destroy ] do
+    member do
+      patch :toggle_status
+    end
+  end
+  resources :audit_members, only: [] do
+    member do
+      patch :toggle_status
+    end
+  end
   resource :user, only: [ :show, :edit, :update ]
   get "dashboard/index"
   resource :session

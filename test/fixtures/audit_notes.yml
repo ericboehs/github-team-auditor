@@ -1,0 +1,9 @@
+admin_verification:
+  audit_member: john_doe
+  user: one
+  content: "Verified as admin with government employee status"
+
+pending_review:
+  audit_member: jane_smith
+  user: one
+  content: "Pending validation - contractor role"

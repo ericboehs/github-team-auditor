@@ -1,0 +1,128 @@
+<% content_for :title, t("audits.new.title") %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <div class="py-6">
+    <main id="main-content">
+      <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <nav class="flex mb-4" aria-label="<%= t('accessibility.breadcrumb') %>">
+            <ol class="flex items-center space-x-4">
+              <li>
+                <%= link_to t("navigation.audits"), audits_path, class: "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" %>
+              </li>
+              <li>
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </li>
+              <li class="text-gray-900 dark:text-white font-medium"><%= t("audits.new.breadcrumb") %></li>
+            </ol>
+          </nav>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("audits.new.title") %></h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2"><%= t("audits.new.subtitle") %></p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t("audits.new.form.section_title") %></h3>
+          </div>
+
+          <div class="p-6">
+            <%= form_with model: @audit_session, url: audits_path, class: "space-y-6" do |form| %>
+              <% if @audit_session.errors.any? %>
+                <%= render AlertComponent.new(
+                  messages: @audit_session.errors.full_messages,
+                  type: :error
+                ) %>
+              <% end %>
+
+              <%= render InputComponent.new(
+                form: form,
+                field: :name,
+                type: :text,
+                required: true,
+                autofocus: true,
+                error: @audit_session.errors[:name].first,
+                i18n_scope: "audits.form"
+              ) %>
+
+              <%= render SelectComponent.new(
+                form: form,
+                field: :organization_id,
+                options: options_from_collection_for_select(@organizations, :id, :name, @audit_session.organization_id),
+                required: true,
+                i18n_scope: "audits.form"
+              ) %>
+
+              <%= render SelectComponent.new(
+                form: form,
+                field: :team_id,
+                options: options_from_collection_for_select(@teams, :id, :name_with_slug, @audit_session.team_id),
+                required: true,
+                i18n_scope: "audits.form"
+              ) %>
+
+              <%= render InputComponent.new(
+                form: form,
+                field: :due_date,
+                type: :date,
+                error: @audit_session.errors[:due_date].first,
+                i18n_scope: "audits.form"
+              ) %>
+
+              <%= render TextareaComponent.new(
+                form: form,
+                field: :notes,
+                rows: 4,
+                i18n_scope: "audits.form"
+              ) %>
+
+              <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <%= render LinkButtonComponent.new(
+                  text: t("buttons.cancel"),
+                  url: audits_path,
+                  variant: :secondary
+                ) %>
+                <%= render ButtonComponent.new(
+                  text: t("audits.form.create_button"),
+                  type: :submit,
+                  variant: :primary
+                ) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <!-- Heroicons: information-circle (mini) -->
+              <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                <%= t("audits.new.help.title") %>
+              </h3>
+              <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <p><%= t("audits.new.help.description") %></p>
+                <ul class="list-disc list-inside mt-1 space-y-1">
+                  <li><%= t("audits.new.help.steps.sync_members") %></li>
+                  <li><%= t("audits.new.help.steps.review_access") %></li>
+                  <li><%= t("audits.new.help.steps.track_compliance") %></li>
+                  <li><%= t("audits.new.help.steps.generate_reports") %></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

@@ -14,44 +14,41 @@
       <p class="mt-2 text-sm text-gray-500 dark:text-gray-400"><%= t('users.avatar.gravatar_description') %></p>
     </div>
 
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: f,
       field: :email_address,
-      label: t('users.form.email_label'),
       type: :email,
       required: true,
       autocomplete: "username",
-      error: @user.errors[:email_address].first
+      error: @user.errors[:email_address].first,
+      i18n_scope: "users.form"
     ) %>
 
-    <div>
-      <%= render Auth::InputComponent.new(
-        form: f,
-        field: :password,
-        label: t('users.form.password_label'),
-        type: :password,
-        autocomplete: "new-password",
-        error: @user.errors[:password].first
-      ) %>
-      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400"><%= t('users.form.password_help') %></p>
-    </div>
-
-    <%= render Auth::InputComponent.new(
+    <%= render InputComponent.new(
       form: f,
-      field: :password_confirmation,
-      label: t('users.form.password_confirmation_label'),
+      field: :password,
       type: :password,
       autocomplete: "new-password",
-      error: @user.errors[:password_confirmation].first
+      error: @user.errors[:password].first,
+      i18n_scope: "users.form"
+    ) %>
+
+    <%= render InputComponent.new(
+      form: f,
+      field: :password_confirmation,
+      type: :password,
+      autocomplete: "new-password",
+      error: @user.errors[:password_confirmation].first,
+      i18n_scope: "users.form"
     ) %>
 
     <div class="flex justify-end gap-3">
-      <%= render Auth::LinkButtonComponent.new(
+      <%= render LinkButtonComponent.new(
         text: t('buttons.cancel'),
         url: user_path,
         variant: :secondary
       ) %>
-      <%= render Auth::ButtonComponent.new(
+      <%= render ButtonComponent.new(
         text: t('users.form.update_button'),
         type: :submit,
         variant: :primary

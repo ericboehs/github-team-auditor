@@ -10,7 +10,10 @@ class DashboardControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select "h1", "Welcome to GitHub Team Auditor"
+    assert_select "h1", I18n.t("dashboard.welcome_title")
+    assert_select "dt", text: /Teams/
+    assert_select "dt", text: /Organizations/
+    assert_select "dt", text: /Active Members/
   end
 
   test "should redirect to sign in when not authenticated" do

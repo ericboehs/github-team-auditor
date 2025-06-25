@@ -1,0 +1,11 @@
+platform_security:
+  organization: va
+  name: "Platform Security"
+  github_slug: "platform-security"
+  description: "VA.gov Platform Security Team"
+
+backend_tools:
+  organization: va
+  name: "Backend Tools"
+  github_slug: "backend-tools"
+  description: "Backend development tools team"

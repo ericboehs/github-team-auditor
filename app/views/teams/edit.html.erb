@@ -1,0 +1,111 @@
+<% content_for :title, "#{t('teams.edit.title')} - #{@team.name}" %>
+
+<div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= render 'shared/navbar' %>
+
+  <% if flash[:alert] || flash[:notice] %>
+    <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
+      <%= render 'shared/flash_messages' %>
+    </div>
+  <% end %>
+
+  <div class="py-6">
+    <main id="main-content">
+      <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+          <nav class="flex mb-4" aria-label="<%= t('accessibility.breadcrumb') %>">
+            <ol class="flex items-center space-x-4">
+              <li>
+                <%= link_to t("navigation.teams"), teams_path, class: "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" %>
+              </li>
+              <li>
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </li>
+              <li>
+                <%= link_to @team.name, team_path(@team), class: "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" %>
+              </li>
+              <li>
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </li>
+              <li class="text-gray-900 dark:text-white font-medium"><%= t("teams.edit.breadcrumb") %></li>
+            </ol>
+          </nav>
+
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("teams.edit.title") %></h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400"><%= t("teams.edit.subtitle") %></p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+          <div class="px-6 py-8">
+            <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
+              <% if @team.errors.any? %>
+                <%= render AlertComponent.new(
+                  messages: @team.errors.full_messages,
+                  type: :error
+                ) %>
+              <% end %>
+
+              <%= render SelectComponent.new(
+                    form: form,
+                    field: :organization_id,
+                    options: options_from_collection_for_select(@organizations, :id, :name, @team.organization_id),
+                    required: true,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <%= render InputComponent.new(
+                    form: form,
+                    field: :name,
+                    type: :text,
+                    required: true,
+                    autofocus: true,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <%= render InputComponent.new(
+                    form: form,
+                    field: :github_slug,
+                    type: :text,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+
+              <%= render TextareaComponent.new(
+                    form: form,
+                    field: :description,
+                    rows: 3,
+                    i18n_scope: "teams.form"
+                  ) %>
+
+              <div class="flex items-center justify-between pt-6">
+                <div>
+                  <%= render LinkButtonComponent.new(
+                    text: t('buttons.delete'),
+                    url: team_path(@team),
+                    variant: :danger,
+                    include_flex: false,
+                    data: {
+                      "turbo-method": "delete",
+                      "turbo-confirm": t("teams.form.delete_confirm")
+                    }
+                  ) %>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                  <%= render LinkButtonComponent.new(text: t("buttons.cancel"), url: team_path(@team), variant: :secondary) %>
+                  <%= render ButtonComponent.new(text: t("teams.form.update_button"), type: :submit, variant: :primary) %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

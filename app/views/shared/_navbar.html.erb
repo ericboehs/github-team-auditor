@@ -23,13 +23,31 @@
           <% end %>
         </div>
         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-          <!-- Current: "border-emerald-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
+          <!-- Dashboard -->
           <% if current_page?(root_path) %>
             <%= link_to root_path, class: "inline-flex items-center border-b-2 border-emerald-500 px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white hover:no-underline", "aria-current": "page" do %>
               <%= t('navigation.dashboard') %>
             <% end %>
           <% else %>
             <%= link_to t('navigation.dashboard'), root_path, class: "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" %>
+          <% end %>
+
+          <!-- Teams -->
+          <% if request.path.start_with?('/teams') %>
+            <%= link_to teams_path, class: "inline-flex items-center border-b-2 border-emerald-500 px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white hover:no-underline", "aria-current": "page" do %>
+              <%= t('navigation.teams') %>
+            <% end %>
+          <% else %>
+            <%= link_to t('navigation.teams'), teams_path, class: "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" %>
+          <% end %>
+
+          <!-- Audits -->
+          <% if request.path.start_with?('/audits') %>
+            <%= link_to audits_path, class: "inline-flex items-center border-b-2 border-emerald-500 px-1 pt-1 text-sm font-medium text-gray-900 dark:text-white hover:no-underline", "aria-current": "page" do %>
+              <%= t('navigation.audits') %>
+            <% end %>
+          <% else %>
+            <%= link_to t('navigation.audits'), audits_path, class: "inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white" %>
           <% end %>
         </div>
       </div>
@@ -58,13 +76,31 @@
   <!-- Mobile menu, show/hide based on menu state. -->
   <div class="hidden sm:hidden" id="mobile-menu" data-navbar-target="mobileMenu">
     <div class="space-y-1 px-2 pt-2 pb-3">
-      <!-- Light mode: "bg-emerald-50 border-emerald-500 text-emerald-700", Dark mode: "bg-gray-900 text-white" -->
+      <!-- Dashboard -->
       <% if current_page?(root_path) %>
         <%= link_to root_path, class: "block border-l-4 border-emerald-500 bg-emerald-50 dark:bg-gray-900 py-2 pl-3 pr-4 text-base font-medium text-emerald-700 dark:text-white dark:border-none dark:rounded-md hover:bg-emerald-50 dark:hover:bg-gray-900" do %>
           <%= t('navigation.dashboard') %>
         <% end %>
       <% else %>
         <%= link_to t('navigation.dashboard'), root_path, class: "block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white" %>
+      <% end %>
+
+      <!-- Teams -->
+      <% if request.path.start_with?('/teams') %>
+        <%= link_to teams_path, class: "block border-l-4 border-emerald-500 bg-emerald-50 dark:bg-gray-900 py-2 pl-3 pr-4 text-base font-medium text-emerald-700 dark:text-white dark:border-none dark:rounded-md hover:bg-emerald-50 dark:hover:bg-gray-900" do %>
+          <%= t('navigation.teams') %>
+        <% end %>
+      <% else %>
+        <%= link_to t('navigation.teams'), teams_path, class: "block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white" %>
+      <% end %>
+
+      <!-- Audits -->
+      <% if request.path.start_with?('/audits') %>
+        <%= link_to audits_path, class: "block border-l-4 border-emerald-500 bg-emerald-50 dark:bg-gray-900 py-2 pl-3 pr-4 text-base font-medium text-emerald-700 dark:text-white dark:border-none dark:rounded-md hover:bg-emerald-50 dark:hover:bg-gray-900" do %>
+          <%= t('navigation.audits') %>
+        <% end %>
+      <% else %>
+        <%= link_to t('navigation.audits'), audits_path, class: "block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white" %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,13 @@
+john_doe:
+  audit_session: q1_2025_audit
+  team_member: john_doe_team_member
+  access_validated: true
+  removed: false
+  comment: "Needs access review for platform security tools"
+
+jane_smith:
+  audit_session: q1_2025_audit
+  team_member: jane_smith_team_member
+  access_validated: false
+  removed: false
+  comment: "New team member - pending validation"

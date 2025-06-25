@@ -1,0 +1,9 @@
+va:
+  name: "Department of Veterans Affairs"
+  github_login: "department-of-veterans-affairs"
+  settings: '{}'
+
+test_org:
+  name: "Test Organization"
+  github_login: "test-org"
+  settings: '{}'

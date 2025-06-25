@@ -1,0 +1,29 @@
+q1_2025_audit:
+  organization: va
+  user: one
+  team: platform_security
+  name: "Q1 2025 Platform Security Audit"
+  status: "active"
+  started_at: <%= 1.week.ago %>
+  completed_at:
+  notes: "Quarterly access review"
+
+q2_2025_platform_security:
+  organization: va
+  user: one
+  team: platform_security
+  name: "Q2 2025 Platform Security Audit"
+  status: "active"
+  started_at: <%= 1.week.ago %>
+  completed_at:
+  notes: "Quarterly access review"
+
+q1_2025_backend_tools:
+  organization: va
+  user: two
+  team: backend_tools
+  name: "Q1 2025 Backend Tools Audit"
+  status: "completed"
+  started_at: <%= 2.months.ago %>
+  completed_at: <%= 1.month.ago %>
+  notes: "Completed quarterly review"

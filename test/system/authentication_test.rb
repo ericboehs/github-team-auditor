@@ -20,7 +20,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Password", with: "password123"
 
     # Submit the form
-    click_button "Sign in"
+    click_button I18n.t("auth.sign_in.submit_button")
 
     # Should be redirected after successful sign in
     # Note: The exact redirect location depends on the authentication setup
@@ -35,7 +35,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     fill_in "Password", with: "wrongpassword"
 
     # Submit the form
-    click_button "Sign in"
+    click_button I18n.t("auth.sign_in.submit_button")
 
     # Should remain on sign-in page with error
     assert_current_path new_session_path
