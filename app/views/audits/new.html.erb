@@ -18,17 +18,17 @@
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </li>
-              <li class="text-gray-900 dark:text-white font-medium">New Audit</li>
+              <li class="text-gray-900 dark:text-white font-medium"><%= t("audits.new.breadcrumb") %></li>
             </ol>
           </nav>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">New Audit Session</h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-2">Create a new GitHub team access audit session</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("audits.new.title") %></h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2"><%= t("audits.new.subtitle") %></p>
         </div>
 
         <!-- Form -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
           <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Audit Session Details</h3>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= t("audits.new.form.section_title") %></h3>
           </div>
 
           <div class="p-6">
@@ -45,7 +45,7 @@
                 field: :name,
                 label: t("audits.form.name_label"),
                 type: :text,
-                placeholder: "Q2 2025 Platform Security Audit",
+                placeholder: t("audits.form.name_placeholder"),
                 required: true,
                 autofocus: true,
                 error: @audit_session.errors[:name].first
@@ -66,7 +66,7 @@
                 options: options_from_collection_for_select(@teams, :id, :name_with_slug, @audit_session.team_id),
                 label_key: "audits.form.team_label",
                 prompt: t("audits.form.team_prompt"),
-                help_text: "Select an organization first to see available teams.",
+                help_text: t("audits.form.team_help"),
                 required: true
               ) %>
 
@@ -75,8 +75,8 @@
                 field: :due_date,
                 label: t("audits.form.due_date_label"),
                 type: :date,
-                placeholder: "YYYY-MM-DD",
-                help_text: "Optional: Set a due date for this audit session.",
+                placeholder: t("audits.form.due_date_placeholder"),
+                help_text: t("audits.form.due_date_help"),
                 error: @audit_session.errors[:due_date].first
               ) %>
 
@@ -85,7 +85,7 @@
                 field: :notes,
                 label: t("audits.form.notes_label"),
                 rows: 4,
-                placeholder: "Optional notes about this audit session..."
+                placeholder: t("audits.form.notes_placeholder")
               ) %>
 
               <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -115,15 +115,15 @@
             </div>
             <div class="ml-3">
               <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                Next Steps
+                <%= t("audits.new.help.title") %>
               </h3>
               <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
-                <p>After creating the audit session, you'll be able to:</p>
+                <p><%= t("audits.new.help.description") %></p>
                 <ul class="list-disc list-inside mt-1 space-y-1">
-                  <li>Sync team members from GitHub</li>
-                  <li>Review and validate team member access</li>
-                  <li>Track compliance with admin and government employee requirements</li>
-                  <li>Generate reports for eMASS documentation</li>
+                  <li><%= t("audits.new.help.steps.sync_members") %></li>
+                  <li><%= t("audits.new.help.steps.review_access") %></li>
+                  <li><%= t("audits.new.help.steps.track_compliance") %></li>
+                  <li><%= t("audits.new.help.steps.generate_reports") %></li>
                 </ul>
               </div>
             </div>

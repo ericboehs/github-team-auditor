@@ -32,6 +32,9 @@ en:
     title: "GitHub Team Auditor"
     logo_alt: "GitHub Team Auditor"
 
+  accessibility:
+    skip_to_main: "Skip to main content"
+
   navigation:
     dashboard: "Dashboard"
     audits: "Audits"
@@ -247,15 +250,31 @@ en:
       title: "Audit Session"
     new:
       title: "New Audit Session"
-      subtitle: "Create a new audit session for a team"
+      subtitle: "Create a new GitHub team access audit session"
+      breadcrumb: "New Audit"
+      form:
+        section_title: "Audit Session Details"
+      help:
+        title: "Next Steps"
+        description: "After creating the audit session, you'll be able to:"
+        steps:
+          sync_members: "Sync team members from GitHub"
+          review_access: "Review and validate team member access"
+          track_compliance: "Track compliance with admin and government employee requirements"
+          generate_reports: "Generate reports for eMASS documentation"
     form:
       organization_label: "Organization"
       organization_prompt: "Select an organization"
       team_label: "Team"
       team_prompt: "Select a team"
+      team_help: "Select an organization first to see available teams."
       name_label: "Name"
+      name_placeholder: "Q2 2025 Platform Security Audit"
       due_date_label: "Due Date"
+      due_date_placeholder: "YYYY-MM-DD"
+      due_date_help: "Optional: Set a due date for this audit session."
       notes_label: "Notes"
+      notes_placeholder: "Optional notes about this audit session..."
       create_button: "Create Audit Session"
 
   flash:
