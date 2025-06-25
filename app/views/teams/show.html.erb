@@ -28,7 +28,7 @@
             </div>
             <div class="flex flex-col gap-2">
               <div class="flex flex-wrap gap-2 sm:gap-4">
-                <a href="<%= @team.github_url %>" target="_blank" aria-label="View <%= @team.name %> team on GitHub (opens in new tab)" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
+                <a href="<%= @team.github_url %>" target="_blank" aria-label="<%= t('accessibility.view_on_github', name: @team.name) %>" class="inline-flex items-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-white dark:bg-white/10 text-gray-900 dark:text-white ring-1 ring-gray-300 dark:ring-white/20 ring-inset hover:bg-gray-50 dark:hover:bg-white/20">
                   <svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
                   </svg>
@@ -137,7 +137,7 @@
             <% if @team_members.any? %>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <caption class="sr-only">Members of the <%= @team.name %> team</caption>
+                  <caption class="sr-only"><%= t('accessibility.organization_members_table', team_name: @team.name) %></caption>
                 <thead>
                   <tr>
                     <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
@@ -170,7 +170,7 @@
                           </div>
                           <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
-                              <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": "View #{member.display_name}'s GitHub profile (opens in new tab)", class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300") %>
+                              <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": t('accessibility.view_github_profile', name: member.display_name), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300") %>
                             </div>
                             <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
                           </div>

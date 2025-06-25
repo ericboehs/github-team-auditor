@@ -96,7 +96,7 @@
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2 mr-2" role="progressbar" aria-valuenow="<%= session.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100" aria-label="Audit progress">
+                  <div class="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2 mr-2" role="progressbar" aria-valuenow="<%= session.progress_percentage.round %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= t('accessibility.audit_progress') %>">
                     <div class="bg-emerald-600 dark:bg-emerald-500 h-2 rounded-full" style="width: <%= session.progress_percentage %>%"></div>
                   </div>
                   <span class="text-sm text-gray-600 dark:text-gray-300" aria-live="polite"><%= session.progress_percentage.round %>%</span>

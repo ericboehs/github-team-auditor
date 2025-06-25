@@ -34,6 +34,13 @@ en:
 
   accessibility:
     skip_to_main: "Skip to main content"
+    breadcrumb: "Breadcrumb"
+    audit_progress: "Audit progress"
+    view_on_github: "View %{name} on GitHub (opens in new tab)"
+    view_github_profile: "View %{name}'s GitHub profile (opens in new tab)"
+    view_github_issue: "View GitHub issue #%{number} (opens in new tab)"
+    team_members_table: "Team members audit data for %{audit_name}"
+    organization_members_table: "Members of the %{team_name} team"
 
   navigation:
     dashboard: "Dashboard"
