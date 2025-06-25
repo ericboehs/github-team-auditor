@@ -50,8 +50,6 @@ module Github
           maintainer_role: member_data[:maintainer_role],
           government_employee: existing_member&.government_employee || false, # Preserve existing or default
           active: true, # Mark as active since they're in the current GitHub response
-          first_seen_at: existing_member&.first_seen_at || current_time, # Preserve existing or set new
-          last_seen_at: current_time, # Always update
           created_at: existing_member&.created_at || current_time, # Preserve existing or set new
           updated_at: current_time # Always update
         }
