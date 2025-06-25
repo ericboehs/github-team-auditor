@@ -32,4 +32,13 @@ class AuditSession < ApplicationRecord
   def compliance_ready?
     maintainer_members.count >= 2 && government_employee_maintainers.any?
   end
+
+  def sync_team_members!
+    team.team_members.current.find_each do |team_member|
+      audit_members.find_or_create_by!(team_member: team_member) do |audit_member|
+        audit_member.access_validated = nil
+        audit_member.removed = false
+      end
+    end
+  end
 end

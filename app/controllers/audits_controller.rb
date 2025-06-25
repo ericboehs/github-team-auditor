@@ -36,7 +36,17 @@ class AuditsController < ApplicationController
       @audit_session.organization = @selected_team.organization
       @teams = @selected_team.organization.teams
     else
-      @teams = []
+      # Auto-select the first organization if there's only one
+      if @organizations.count == 1
+        @audit_session.organization = @organizations.first
+        @teams = @audit_session.organization.teams.recently_synced
+
+        # Pre-select the most recently synced team
+        most_recent_team = @teams.where.not(last_synced_at: nil).first
+        @audit_session.team = most_recent_team if most_recent_team
+      else
+        @teams = []
+      end
     end
   end
 
@@ -47,10 +57,17 @@ class AuditsController < ApplicationController
     @audit_session.started_at = Time.current
 
     if @audit_session.save
+      @audit_session.sync_team_members!
       redirect_to audit_path(@audit_session), notice: t("flash.audits.created")
     else
       @organizations = Organization.all
-      @teams = @audit_session.organization ? @audit_session.organization.teams : []
+      if @audit_session.organization
+        @teams = @audit_session.organization.teams.recently_synced
+      elsif @organizations.count == 1
+        @teams = @organizations.first.teams.recently_synced
+      else
+        @teams = []
+      end
       render :new, status: :unprocessable_entity
     end
   end

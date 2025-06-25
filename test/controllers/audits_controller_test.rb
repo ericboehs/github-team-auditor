@@ -189,4 +189,77 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "active", @audit_session.status
     assert_redirected_to audit_path(@audit_session)
   end
+
+  test "should auto-select organization when there's only one" do
+    sign_in_as(@user)
+    # Delete other organizations to ensure only one exists
+    Organization.where.not(id: @organization.id).destroy_all
+
+    get new_audit_url
+    assert_response :success
+
+    # Check that the organization was auto-selected
+    assert_select "select[name='audit_session[organization_id]'] option[selected]", text: @organization.name
+  end
+
+  test "should pre-select most recently synced team" do
+    sign_in_as(@user)
+    # Ensure only one organization exists
+    Organization.where.not(id: @organization.id).destroy_all
+
+    # Set up a team with recent sync date
+    recent_team = @organization.teams.create!(
+      name: "Recently Synced Team",
+      github_slug: "recent-team",
+      last_synced_at: 1.hour.ago
+    )
+
+    get new_audit_url
+    assert_response :success
+
+    # Check that the most recently synced team was pre-selected
+    assert_select "select[name='audit_session[team_id]'] option[selected]", text: recent_team.name_with_slug
+  end
+
+  test "should handle create failure with single organization" do
+    sign_in_as(@user)
+    # Ensure only one organization exists
+    Organization.where.not(id: @organization.id).destroy_all
+
+    assert_no_difference("AuditSession.count") do
+      post audits_url, params: {
+        audit_session: {
+          name: "",  # Invalid name
+          organization_id: nil,  # No organization selected
+          team_id: @team.id
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    # Verify teams are still populated for the single organization
+    assert_select "select[name='audit_session[team_id]'] option"
+  end
+
+  test "should handle toggle status failure" do
+    sign_in_as(@user)
+
+    # Create an invalid audit session that will fail validation
+    @audit_session.name = ""
+    @audit_session.save!(validate: false)  # Save invalid state without validation
+
+    patch toggle_status_audit_path(@audit_session)
+
+    assert_redirected_to audit_path(@audit_session)
+    assert_equal "Name can't be blank", flash[:alert]
+  end
+
+  private
+
+  def sign_in_as(user)
+    post session_path, params: {
+      email_address: user.email_address,
+      password: "password123"
+    }
+  end
 end

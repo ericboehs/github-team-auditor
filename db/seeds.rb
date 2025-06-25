@@ -69,15 +69,18 @@ if Rails.env.development?
     ]
 
     sample_members.each do |member_data|
-      active_audit.audit_members.find_or_create_by!(github_login: member_data[:github_login]) do |member|
-        member.name = member_data[:name]
-        member.avatar_url = "https://github.com/#{member_data[:github_login]}.png"
-        member.access_validated = member_data[:access_validated]
-        member.maintainer_role = member_data[:maintainer_role]
-        member.government_employee = member_data[:government_employee]
-        member.removed = false
-        member.first_seen_at = 1.month.ago
-        member.last_seen_at = 3.days.ago
+      # First create or find the team member
+      team_member = platform_security_team.team_members.find_or_create_by!(github_login: member_data[:github_login]) do |tm|
+        tm.name = member_data[:name]
+        tm.avatar_url = "https://github.com/#{member_data[:github_login]}.png"
+        tm.maintainer_role = member_data[:maintainer_role]
+        tm.government_employee = member_data[:government_employee]
+      end
+
+      # Then create the audit member referencing the team member
+      active_audit.audit_members.find_or_create_by!(team_member: team_member) do |audit_member|
+        audit_member.access_validated = member_data[:access_validated]
+        audit_member.removed = false
       end
     end
 

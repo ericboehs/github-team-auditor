@@ -9,6 +9,11 @@ Rails.application.routes.draw do
       patch :toggle_status
     end
   end
+  resources :audit_members, only: [] do
+    member do
+      patch :toggle_status
+    end
+  end
   resource :user, only: [ :show, :edit, :update ]
   get "dashboard/index"
   resource :session

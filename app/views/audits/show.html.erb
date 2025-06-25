@@ -124,7 +124,7 @@
   </div>
 
   <!-- Status Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" aria-live="polite" aria-atomic="false">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-8" aria-live="polite" aria-atomic="false">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0">
@@ -244,10 +244,14 @@
                 </div>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap">
-                <% if member.removed? %>
-                  <%= render StatusBadgeComponent.new(status: "removed") %>
-                <% else %>
-                  <%= render StatusBadgeComponent.new(status: member.validation_status) %>
+                <%= form_with url: toggle_status_audit_member_path(member), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
+                  <%= button_tag type: :submit, class: "cursor-pointer border-0 bg-transparent p-0 hover:opacity-75 hover:scale-105 transition-all duration-150" do %>
+                    <% if member.removed? %>
+                      <%= render StatusBadgeComponent.new(status: "removed") %>
+                    <% else %>
+                      <%= render StatusBadgeComponent.new(status: member.validation_status) %>
+                    <% end %>
+                  <% end %>
                 <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">

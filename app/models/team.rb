@@ -6,6 +6,8 @@ class Team < ApplicationRecord
   validates :name, presence: true
   validates :github_slug, presence: true, uniqueness: { scope: :organization_id }
 
+  scope :recently_synced, -> { order(last_synced_at: :desc) }
+
   def github_url
     "https://github.com/orgs/#{organization.github_login}/teams/#{github_slug}"
   end

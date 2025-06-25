@@ -39,7 +39,11 @@ class AuditWorkflowTest < ApplicationSystemTestCase
 
     assert_text "Test Audit Session"
     assert_text "Test notes for audit"
-    assert_text "No team members"
+
+    # Now that we auto-sync team members, we should see them
+    assert_text "Total Members"
+    assert_text "Jane Smith"
+    assert_text "John Doe"
   end
 
   test "user can navigate audit session details" do
