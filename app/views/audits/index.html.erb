@@ -17,9 +17,9 @@
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white"><%= t("audits.index.title") %></h1>
       <% if @filtered_team %>
         <p class="text-gray-600 dark:text-gray-400 mt-1">
-          Filtered by team:
+          <%= t("audits.index.filtered_by_team") %>
           <%= link_to @filtered_team.name, team_path(@filtered_team), class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300" %>
-          • <%= link_to "Show all audits", audits_path, class: "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm" %>
+          • <%= link_to t("audits.index.show_all_audits"), audits_path, class: "text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm" %>
         </p>
       <% end %>
     </div>
@@ -41,9 +41,9 @@
         </div>
         <div class="mt-4">
           <div class="text-sm text-gray-600 dark:text-gray-300">
-            <span class="font-medium"><%= org.teams.count %></span> teams
+            <span class="font-medium"><%= org.teams.count %></span> <%= t("audits.index.teams_count", count: org.teams.count) %>
             •
-            <span class="font-medium"><%= org.audit_sessions.count %></span> audits
+            <span class="font-medium"><%= org.audit_sessions.count %></span> <%= t("audits.index.audits_count", count: org.audit_sessions.count) %>
           </div>
         </div>
       </div>
@@ -55,26 +55,26 @@
     <div class="flow-root">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <caption class="sr-only">List of audit sessions with their status and progress</caption>
+          <caption class="sr-only"><%= t("audits.index.table.caption") %></caption>
         <thead>
           <tr>
             <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
-              Audit Session
+              <%= t("audits.index.table.audit_session") %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Team
+              <%= t("audits.index.table.team") %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Status
+              <%= t("audits.index.table.status") %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Progress
+              <%= t("audits.index.table.progress") %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Started
+              <%= t("audits.index.table.started") %>
             </th>
             <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Due Date
+              <%= t("audits.index.table.due_date") %>
             </th>
           </tr>
         </thead>

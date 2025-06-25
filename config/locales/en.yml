@@ -209,6 +209,22 @@ en:
       title: "Audits"
       subtitle: "Recent Audit Sessions"
       new_button: "New Audit"
+      filtered_by_team: "Filtered by team:"
+      show_all_audits: "Show all audits"
+      teams_count:
+        one: "team"
+        other: "teams"
+      audits_count:
+        one: "audit"
+        other: "audits"
+      table:
+        caption: "List of audit sessions with their status and progress"
+        audit_session: "Audit Session"
+        team: "Team"
+        status: "Status"
+        progress: "Progress"
+        started: "Started"
+        due_date: "Due Date"
       empty_state:
         title: "No audit sessions"
         message: "Get started by creating your first audit session."
