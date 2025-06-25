@@ -24,14 +24,14 @@ if Rails.env.development?
   end
 
   # Create sample teams
-  platform_security_team = va_org.teams.find_or_create_by!(github_slug: "platform-security") do |team|
-    team.name = "Platform Security"
-    team.description = "VA.gov Platform Security Team"
+  vets_api_prod_terminal = va_org.teams.find_or_create_by!(github_slug: "dsva-vagov-vets-api-prod-rw") do |team|
+    team.name = "Vets API Prod Terminal"
+    team.description = "Vets API Production Terminal Access Team"
   end
 
-  backend_tools_team = va_org.teams.find_or_create_by!(github_slug: "backend-tools") do |team|
-    team.name = "Backend Tools"
-    team.description = "Backend development tools team"
+  vets_api_sidekiq_ui = va_org.teams.find_or_create_by!(github_slug: "va-gov-sidekiq-prod") do |team|
+    team.name = "Vets API Prod Sidekiq UI"
+    team.description = "Vets API Production Sidekiq UI Access Team"
   end
 
   # Create sample audit sessions
@@ -40,9 +40,9 @@ if Rails.env.development?
 
     # Completed audit session
     completed_audit = AuditSession.find_or_create_by!(
-      name: "Q4 2024 Platform Security Audit",
+      name: "Q4 2024 Vets API Prod Terminal Audit",
       organization: va_org,
-      team: platform_security_team,
+      team: vets_api_prod_terminal,
       user: first_user
     ) do |session|
       session.status = "completed"
@@ -52,9 +52,9 @@ if Rails.env.development?
 
     # Active audit session
     active_audit = AuditSession.find_or_create_by!(
-      name: "Q1 2025 Platform Security Audit",
+      name: "Q1 2025 Vets API Prod Terminal Audit",
       organization: va_org,
-      team: platform_security_team,
+      team: vets_api_prod_terminal,
       user: first_user
     ) do |session|
       session.status = "active"
@@ -70,7 +70,7 @@ if Rails.env.development?
 
     sample_members.each do |member_data|
       # First create or find the team member
-      team_member = platform_security_team.team_members.find_or_create_by!(github_login: member_data[:github_login]) do |tm|
+      team_member = vets_api_prod_terminal.team_members.find_or_create_by!(github_login: member_data[:github_login]) do |tm|
         tm.name = member_data[:name]
         tm.avatar_url = "https://github.com/#{member_data[:github_login]}.png"
         tm.maintainer_role = member_data[:maintainer_role]

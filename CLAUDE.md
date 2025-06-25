@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Rails 8.0.2 application called **GitHub Team Auditor** (`GithubTeamAuditor` module) built for auditing GitHub teams. The application uses modern Rails features including Solid libraries (Cache, Queue, Cable) and is configured for deployment with Kamal.
+This is a Rails 8.0.2 application called **GitHub Team Auditor** (`GithubTeamAuditor` module) built for auditing GitHub teams. The application uses modern Rails features including Solid libraries (Cache, Queue, Cable).
 
 ## Development Commands
 
@@ -61,7 +61,6 @@ The application uses separate SQLite databases:
 - `app/` - Standard Rails MVC structure (currently minimal)
 - `config/application.rb` - Main application configuration
 - `config/database.yml` - Multi-database SQLite configuration
-- `config/deploy.yml` - Kamal deployment configuration
 
 ### Development Tools
 - `bin/ci` - Comprehensive CI script with formatting, linting, security, and testing
