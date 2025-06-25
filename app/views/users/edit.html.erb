@@ -24,17 +24,14 @@
       i18n_scope: "users.form"
     ) %>
 
-    <div>
-      <%= render InputComponent.new(
-        form: f,
-        field: :password,
-        type: :password,
-        autocomplete: "new-password",
-        error: @user.errors[:password].first,
-        i18n_scope: "users.form"
-      ) %>
-      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400"><%= t('users.form.password_help') %></p>
-    </div>
+    <%= render InputComponent.new(
+      form: f,
+      field: :password,
+      type: :password,
+      autocomplete: "new-password",
+      error: @user.errors[:password].first,
+      i18n_scope: "users.form"
+    ) %>
 
     <%= render InputComponent.new(
       form: f,
