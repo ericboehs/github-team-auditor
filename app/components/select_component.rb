@@ -87,7 +87,7 @@ class SelectComponent < ViewComponent::Base
       error_classes = "outline-red-300 dark:outline-red-600 text-red-900 dark:text-red-100 focus:outline-2 focus:-outline-offset-2 focus:outline-red-500 dark:bg-red-50"
       "#{base_classes} #{error_classes} #{extra_classes}".strip
     else
-      normal_classes = "outline-gray-300 dark:outline-gray-600 dark:bg-gray-700 dark:text-white focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600"
+      normal_classes = "outline-gray-300 dark:outline-gray-600 dark:bg-gray-700 dark:text-white focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800"
       "#{base_classes} #{normal_classes} #{extra_classes}".strip
     end
   end

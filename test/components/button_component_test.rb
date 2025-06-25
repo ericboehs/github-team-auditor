@@ -9,7 +9,7 @@ class ButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "button[type='submit']"
     assert_text "Sign In"
-    assert_selector "button.bg-emerald-600"
+    assert_selector "button.bg-vads-primary"
   end
 
   def test_renders_secondary_button
@@ -34,7 +34,7 @@ class ButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "button"
     assert_text "Delete"
-    assert_selector "button.bg-red-600"
+    assert_selector "button.bg-vads-error"
   end
 
   def test_renders_warning_button
@@ -43,7 +43,7 @@ class ButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "button"
     assert_text "Warning"
-    assert_selector "button.bg-yellow-600"
+    assert_selector "button.bg-vads-warning"
   end
 
   def test_renders_success_button
@@ -52,7 +52,7 @@ class ButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "button"
     assert_text "Success"
-    assert_selector "button.bg-green-600"
+    assert_selector "button.bg-vads-success"
   end
 
   def test_renders_button_with_flex

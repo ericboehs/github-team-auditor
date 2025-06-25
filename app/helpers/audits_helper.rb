@@ -8,6 +8,6 @@ module AuditsHelper
 
     link_to member.display_name, url, target: "_blank",
             "aria-label": t("aria_labels.view_github_profile", name: member.display_name),
-            class: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
+            class: "text-blue-800 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
   end
 end

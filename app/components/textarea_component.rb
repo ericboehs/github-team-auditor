@@ -84,7 +84,7 @@ class TextareaComponent < ViewComponent::Base
       error_classes = "bg-white dark:bg-gray-700 text-red-900 dark:text-red-100 outline-red-300 dark:outline-red-600 placeholder:text-red-300 dark:placeholder:text-red-400 focus:outline-2 focus:-outline-offset-2 focus:outline-red-600"
       "#{base_classes} #{error_classes} #{extra_classes}".strip
     else
-      normal_classes = "bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-gray-300 dark:outline-gray-600 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-600 dark:focus:outline-emerald-500"
+      normal_classes = "bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-gray-300 dark:outline-gray-600 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:focus:outline-blue-600"
       "#{base_classes} #{normal_classes} #{extra_classes}".strip
     end
   end

@@ -243,7 +243,7 @@ class SelectComponentTest < ViewComponent::TestCase
     assert_includes classes, "outline-gray-300 dark:outline-gray-600"
     assert_includes classes, "bg-white"
     assert_includes classes, "dark:bg-gray-700"
-    assert_includes classes, "focus:outline-emerald-600"
+    assert_includes classes, "focus:outline-blue-800"
     assert_includes classes, "appearance-none"
     assert_includes classes, "extra-class"
     refute_includes classes, "outline-red-300"

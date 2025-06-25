@@ -24,7 +24,7 @@ class AuditsHelperTest < ActionView::TestCase
     assert_includes result, "https://github.com/johndoe"
     assert_includes result, "John Doe"
     assert_includes result, 'target="_blank"'
-    assert_includes result, "text-emerald-600"
+    assert_includes result, "text-blue-800"
   end
 
   test "safe_github_link handles url nil in second check" do

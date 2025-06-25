@@ -23,25 +23,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
       @theme {
-        --color-emerald-50: #ecfdf5;
-        --color-emerald-100: #d1fae5;
-        --color-emerald-200: #a7f3d0;
-        --color-emerald-300: #6ee7b7;
-        --color-emerald-400: #34d399;
-        --color-emerald-500: #10b981;
-        --color-emerald-600: #059669;
-        --color-emerald-700: #047857;
-        --color-emerald-800: #065f46;
-        --color-emerald-900: #064e3b;
-        --color-emerald-950: #022c22;
+        /* VADS (VA Design System) Colors */
+        --color-vads-primary: #005ea2;
+        --color-vads-primary-dark: #1a4480;
+        --color-vads-primary-darker: #162e51;
+        --color-vads-secondary: #d83933;
+        --color-vads-success: #00a91c;
+        --color-vads-success-dark: #008817;
+        --color-vads-error: #d54309;
+        --color-vads-error-dark: #b21d38;
+        --color-vads-warning: #ffbe2e;
+        --color-vads-warning-dark: #e5a000;
+        --color-vads-info: #00bde3;
+        --color-vads-base: #1b1b1b;
+        --color-vads-base-dark: #565c65;
+        --color-vads-base-light: #a9aeb1;
+        --color-vads-base-lightest: #f0f0f0;
+        --color-vads-accent: #8a7237;
+        --color-vads-header: #1c2d4e;
+        --color-vads-header-dark: #374151;
       }
     </style>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="h-full bg-white dark:bg-gray-900">
+  <body class="h-full bg-gray-50 dark:bg-vads-header">
     <!-- Skip navigation links for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-emerald-600 text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-vads-primary text-white px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
       <%= t("accessibility.skip_to_main") %>
     </a>
 

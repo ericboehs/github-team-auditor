@@ -58,7 +58,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     # Check that form elements have proper styling classes
     assert_selector "input[type='email']", class: /block w-full rounded-md/
     assert_selector "input[type='password']", class: /block w-full rounded-md/
-    assert_selector "button[type='submit']", class: /bg-emerald-600/
+    assert_selector "button[type='submit']", class: /bg-vads-primary/
 
     # Check for proper labels
     assert_selector "label", text: "Email address"

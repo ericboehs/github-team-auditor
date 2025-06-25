@@ -9,7 +9,7 @@ class LinkButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "a[href='/test']"
     assert_text "View Details"
-    assert_selector "a.bg-emerald-600"
+    assert_selector "a.bg-vads-primary"
   end
 
   def test_renders_secondary_link_button
@@ -27,7 +27,7 @@ class LinkButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "a[href='/delete']"
     assert_text "Delete"
-    assert_selector "a.bg-red-600"
+    assert_selector "a.bg-vads-error"
   end
 
   def test_renders_warning_link_button
@@ -36,7 +36,7 @@ class LinkButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "a[href='/warning']"
     assert_text "Warning"
-    assert_selector "a.bg-yellow-600"
+    assert_selector "a.bg-vads-warning"
   end
 
   def test_renders_success_link_button
@@ -45,7 +45,7 @@ class LinkButtonComponentTest < ViewComponent::TestCase
 
     assert_selector "a[href='/success']"
     assert_text "Success"
-    assert_selector "a.bg-green-600"
+    assert_selector "a.bg-vads-success"
   end
 
   def test_renders_link_button_with_flex_by_default

@@ -204,7 +204,7 @@ class TextareaComponentTest < ViewComponent::TestCase
     classes = component.send(:textarea_classes)
     assert_includes classes, "bg-white dark:bg-gray-700"
     assert_includes classes, "text-gray-900 dark:text-white"
-    assert_includes classes, "focus:outline-emerald-600"
+    assert_includes classes, "focus:outline-blue-800"
     assert_includes classes, "extra-class"
     refute_includes classes, "text-red-900"
   end
