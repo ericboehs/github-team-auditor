@@ -19,6 +19,9 @@ module Github
 
       sync_results = process_members(github_members)
 
+      # Update audit members in active audit sessions
+      sync_active_audit_members
+
       Rails.logger.info "Sync completed: #{sync_results[:total]} total, #{sync_results[:new_members]} new, #{sync_results[:updated]} updated"
       sync_results
     end
@@ -84,6 +87,40 @@ module Github
     def mark_absent_members(current_github_logins)
       absent_members = @team.team_members.where.not(github_login: current_github_logins)
       absent_members.update_all(active: false) if absent_members.any?
+    end
+
+    def sync_active_audit_members
+      # Find active and draft audit sessions for this team
+      active_audits = @team.audit_sessions.where(status: %w[active draft])
+
+      return if active_audits.empty?
+
+      Rails.logger.info "Syncing audit members for #{active_audits.count} active/draft audit sessions"
+
+      active_audits.find_each do |audit_session|
+        sync_audit_session_members(audit_session)
+      end
+    end
+
+    def sync_audit_session_members(audit_session)
+      # Add new team members to the audit session
+      current_team_members = @team.team_members.current
+
+      current_team_members.find_each do |team_member|
+        audit_session.audit_members.find_or_create_by!(team_member: team_member) do |audit_member|
+          audit_member.access_validated = nil
+          audit_member.removed = false
+        end
+      end
+
+      # Mark audit members as removed if their corresponding team member is no longer active
+      inactive_team_member_ids = @team.team_members.where(active: false).pluck(:id)
+      if inactive_team_member_ids.any?
+        audit_session.audit_members
+          .where(team_member_id: inactive_team_member_ids)
+          .where(removed: false)
+          .update_all(removed: true)
+      end
     end
   end
 end

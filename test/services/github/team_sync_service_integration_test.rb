@@ -236,4 +236,202 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
     assert_not_nil member, "Member should exist"
     assert_equal "testuser1", member.github_login
   end
+
+  test "should sync audit members in active audit sessions when team is synced" do
+    service = Github::TeamSyncService.new(@team)
+
+    # Create an active audit session with existing audit members
+    audit_session = AuditSession.create!(
+      name: "Test Audit",
+      status: "active",
+      organization: @team.organization,
+      user: users(:one),
+      team: @team
+    )
+
+    # Create existing team members and audit members
+    existing_member = @team.team_members.create!(
+      github_login: "existing_user",
+      name: "Existing User",
+      active: true
+    )
+
+    audit_session.audit_members.create!(
+      team_member: existing_member,
+      access_validated: true
+    )
+
+    # Mock API client that returns existing member plus a new one
+    mock_api_client = Object.new
+    def mock_api_client.fetch_team_members(team_slug)
+      [
+        {
+          github_login: "existing_user",
+          name: "Existing User",
+          avatar_url: "https://github.com/existing_user.png",
+          maintainer_role: false
+        },
+        {
+          github_login: "new_user",
+          name: "New User",
+          avatar_url: "https://github.com/new_user.png",
+          maintainer_role: true
+        }
+      ]
+    end
+
+    def mock_api_client.user_details(username)
+      nil
+    end
+
+    service.instance_variable_set(:@api_client, mock_api_client)
+
+    # Sync team members
+    service.sync_team_members
+
+    # Check that audit session now has both members
+    audit_session.reload
+    assert_equal 2, audit_session.audit_members.count
+
+    # Check that new audit member was created with correct defaults
+    new_audit_member = audit_session.audit_members.joins(:team_member)
+                                  .find_by(team_members: { github_login: "new_user" })
+    assert_not_nil new_audit_member
+    assert_nil new_audit_member.access_validated
+    assert_not new_audit_member.removed
+
+    # Check that existing audit member preserved its validation status
+    existing_audit_member = audit_session.audit_members.find_by(team_member: existing_member)
+    assert existing_audit_member.access_validated
+  end
+
+  test "should mark audit members as removed when team member becomes inactive" do
+    service = Github::TeamSyncService.new(@team)
+
+    # Create audit session with members
+    audit_session = AuditSession.create!(
+      name: "Test Audit",
+      status: "active",
+      organization: @team.organization,
+      user: users(:one),
+      team: @team
+    )
+
+    # Create team members - one will stay, one will be removed
+    staying_member = @team.team_members.create!(
+      github_login: "staying_user",
+      name: "Staying User",
+      active: true
+    )
+
+    leaving_member = @team.team_members.create!(
+      github_login: "leaving_user",
+      name: "Leaving User",
+      active: true
+    )
+
+    # Create corresponding audit members
+    staying_audit_member = audit_session.audit_members.create!(
+      team_member: staying_member,
+      access_validated: true,
+      removed: false
+    )
+
+    leaving_audit_member = audit_session.audit_members.create!(
+      team_member: leaving_member,
+      access_validated: false,
+      removed: false
+    )
+
+    # Mock API that only returns staying member
+    mock_api_client = Object.new
+    def mock_api_client.fetch_team_members(team_slug)
+      [
+        {
+          github_login: "staying_user",
+          name: "Staying User",
+          avatar_url: "https://github.com/staying_user.png",
+          maintainer_role: false
+        }
+      ]
+    end
+
+    def mock_api_client.user_details(username)
+      nil
+    end
+
+    service.instance_variable_set(:@api_client, mock_api_client)
+
+    # Sync team members
+    service.sync_team_members
+
+    # Check that leaving member is marked as inactive in team
+    leaving_member.reload
+    assert_not leaving_member.active
+
+    # Check that corresponding audit member is marked as removed
+    leaving_audit_member.reload
+    assert leaving_audit_member.removed
+
+    # Check that staying audit member is unchanged
+    staying_audit_member.reload
+    assert_not staying_audit_member.removed
+    assert staying_audit_member.access_validated
+  end
+
+  test "should only sync audit members for active and draft audit sessions" do
+    service = Github::TeamSyncService.new(@team)
+
+    # Create audit sessions in different statuses
+    active_audit = AuditSession.create!(
+      name: "Active Audit",
+      status: "active",
+      organization: @team.organization,
+      user: users(:one),
+      team: @team
+    )
+
+    draft_audit = AuditSession.create!(
+      name: "Draft Audit",
+      status: "draft",
+      organization: @team.organization,
+      user: users(:one),
+      team: @team
+    )
+
+    completed_audit = AuditSession.create!(
+      name: "Completed Audit",
+      status: "completed",
+      organization: @team.organization,
+      user: users(:one),
+      team: @team
+    )
+
+    # Mock API client
+    mock_api_client = Object.new
+    def mock_api_client.fetch_team_members(team_slug)
+      [
+        {
+          github_login: "test_user",
+          name: "Test User",
+          avatar_url: "https://github.com/test_user.png",
+          maintainer_role: false
+        }
+      ]
+    end
+
+    def mock_api_client.user_details(username)
+      nil
+    end
+
+    service.instance_variable_set(:@api_client, mock_api_client)
+
+    # Sync team members
+    service.sync_team_members
+
+    # Check that only active and draft audits have audit members synced
+    assert_equal 1, active_audit.audit_members.count
+    assert_equal 1, draft_audit.audit_members.count
+    assert_equal 0, completed_audit.audit_members.count
+  end
 end
