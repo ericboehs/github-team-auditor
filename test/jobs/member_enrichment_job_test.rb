@@ -73,7 +73,6 @@ class MemberEnrichmentJobTest < ActiveJob::TestCase
     assert_equal "Original Name", member.name
   end
 
-
   test "should enrich all members when no specific logins provided" do
     # Create members with missing data
     member1 = @team.team_members.create!(

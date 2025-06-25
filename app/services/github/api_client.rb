@@ -109,7 +109,6 @@ module Github
       nil
     end
 
-
     private
 
     def configure_client

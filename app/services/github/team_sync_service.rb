@@ -81,9 +81,6 @@ module Github
       }
     end
 
-
-
-
     def mark_absent_members(current_github_logins)
       absent_members = @team.team_members.where.not(github_login: current_github_logins)
       absent_members.update_all(active: false) if absent_members.any?

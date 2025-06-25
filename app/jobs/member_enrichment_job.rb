@@ -4,7 +4,6 @@ class MemberEnrichmentJob < ApplicationJob
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
   discard_on Github::ApiClient::ConfigurationError
 
-
   def perform(team_id, member_github_logins = nil)
     team = Team.find(team_id)
 

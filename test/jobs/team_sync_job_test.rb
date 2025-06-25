@@ -53,7 +53,6 @@ class TeamSyncJobTest < ActiveJob::TestCase
     assert_in_delta Time.current, @team.last_synced_at, 5.seconds
   end
 
-
   test "should be queued in default queue" do
     assert_equal "default", TeamSyncJob.queue_name
   end

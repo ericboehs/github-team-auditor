@@ -168,7 +168,6 @@ class AuditWorkflowTest < ApplicationSystemTestCase
     assert_selector "#due-date-form", visible: false
   end
 
-
   private
 
   def sign_in_as(user)

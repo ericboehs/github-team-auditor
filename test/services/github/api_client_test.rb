@@ -711,7 +711,6 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     assert_equal 456, result
   end
 
-
   test "should raise NotFound for team_id_for_slug with nonexistent team" do
     mock_client = OpenStruct.new
     def mock_client.team_by_name(org, slug)
