@@ -20,7 +20,6 @@ if Rails.env.development?
 
   va_org = Organization.find_or_create_by!(github_login: "department-of-veterans-affairs") do |org|
     org.name = "Department of Veterans Affairs"
-    # org.api_token = Rails.application.credentials.github_token || "ghp_example_token_here"
   end
 
   # Create sample teams

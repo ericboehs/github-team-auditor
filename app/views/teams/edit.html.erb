@@ -85,12 +85,16 @@
 
               <div class="flex items-center justify-between pt-6">
                 <div>
-                  <%= link_to t('buttons.delete'), team_path(@team),
-                              data: {
-                                "turbo-method": "delete",
-                                "turbo-confirm": t("teams.form.delete_confirm")
-                              },
-                              class: "text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm font-medium" %>
+                  <%= render LinkButtonComponent.new(
+                    text: t('buttons.delete'),
+                    url: team_path(@team),
+                    variant: :danger,
+                    include_flex: false,
+                    data: {
+                      "turbo-method": "delete",
+                      "turbo-confirm": t("teams.form.delete_confirm")
+                    }
+                  ) %>
                 </div>
 
                 <div class="flex items-center space-x-4">
