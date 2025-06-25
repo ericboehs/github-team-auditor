@@ -5,8 +5,6 @@ class Organization < ApplicationRecord
   validates :name, presence: true
   validates :github_login, presence: true, uniqueness: true
 
-  encrypts :api_token
-
   serialize :settings, coder: JSON
 
   def github_url

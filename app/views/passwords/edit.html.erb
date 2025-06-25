@@ -9,24 +9,22 @@
     <%= render InputComponent.new(
       form: form,
       field: :password,
-      label: t("auth.reset_password.password_label"),
       type: :password,
       required: true,
       autocomplete: "new-password",
-      placeholder: t("auth.placeholders.new_password"),
       maxlength: 72,
-      autofocus: true
+      autofocus: true,
+      i18n_scope: "auth.reset_password"
     ) %>
 
     <%= render InputComponent.new(
       form: form,
       field: :password_confirmation,
-      label: t("auth.reset_password.password_confirmation_label"),
       type: :password,
       required: true,
       autocomplete: "new-password",
-      placeholder: t("auth.placeholders.confirm_password"),
-      maxlength: 72
+      maxlength: 72,
+      i18n_scope: "auth.reset_password"
     ) %>
 
     <div>

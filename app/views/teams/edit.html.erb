@@ -55,9 +55,8 @@
                     form: form,
                     field: :organization_id,
                     options: options_from_collection_for_select(@organizations, :id, :name, @team.organization_id),
-                    label_key: "teams.form.organization_label",
-                    prompt: t("teams.form.organization_prompt"),
-                    required: true
+                    required: true,
+                    i18n_scope: "teams.form"
                   ) %>
 
               <%= render InputComponent.new(

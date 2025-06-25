@@ -9,24 +9,22 @@
     <%= render InputComponent.new(
       form: form,
       field: :email_address,
-      label: t("auth.sign_in.email_label"),
       type: :email,
       required: true,
       autocomplete: "username",
-      placeholder: t("auth.placeholders.email"),
       autofocus: true,
-      value: params[:email_address]
+      value: params[:email_address],
+      i18n_scope: "auth.sign_in"
     ) %>
 
     <%= render InputComponent.new(
       form: form,
       field: :password,
-      label: t("auth.sign_in.password_label"),
       type: :password,
       required: true,
       autocomplete: "current-password",
-      placeholder: t("auth.placeholders.password"),
-      maxlength: 72
+      maxlength: 72,
+      i18n_scope: "auth.sign_in"
     ) %>
 
     <div class="text-sm text-right">

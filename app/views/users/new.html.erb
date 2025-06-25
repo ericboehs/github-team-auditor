@@ -18,35 +18,32 @@
     <%= render InputComponent.new(
       form: form,
       field: :email_address,
-      label: t("auth.sign_up.email_label"),
       type: :email,
       required: true,
       autocomplete: "username",
-      placeholder: t("auth.placeholders.email"),
       autofocus: true,
-      error: @user.errors[:email_address].first
+      error: @user.errors[:email_address].first,
+      i18n_scope: "auth.sign_up"
     ) %>
 
     <%= render InputComponent.new(
       form: form,
       field: :password,
-      label: t("auth.sign_up.password_label"),
       type: :password,
       required: true,
       autocomplete: "new-password",
-      placeholder: t("auth.placeholders.new_password"),
-      error: @user.errors[:password].first
+      error: @user.errors[:password].first,
+      i18n_scope: "auth.sign_up"
     ) %>
 
     <%= render InputComponent.new(
       form: form,
       field: :password_confirmation,
-      label: t("auth.sign_up.password_confirmation_label"),
       type: :password,
       required: true,
       autocomplete: "new-password",
-      placeholder: t("auth.placeholders.confirm_password"),
-      error: @user.errors[:password_confirmation].first
+      error: @user.errors[:password_confirmation].first,
+      i18n_scope: "auth.sign_up"
     ) %>
 
     <div>

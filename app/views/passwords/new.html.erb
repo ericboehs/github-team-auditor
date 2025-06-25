@@ -9,13 +9,12 @@
     <%= render InputComponent.new(
       form: form,
       field: :email_address,
-      label: t("auth.forgot_password.email_label"),
       type: :email,
       required: true,
       autocomplete: "username",
-      placeholder: t("auth.placeholders.email"),
       autofocus: true,
-      value: params[:email_address]
+      value: params[:email_address],
+      i18n_scope: "auth.forgot_password"
     ) %>
 
     <div>

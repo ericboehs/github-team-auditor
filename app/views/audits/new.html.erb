@@ -54,29 +54,24 @@
                 form: form,
                 field: :organization_id,
                 options: options_from_collection_for_select(@organizations, :id, :name, @audit_session.organization_id),
-                label_key: "audits.form.organization_label",
-                prompt: t("audits.form.organization_prompt"),
-                required: true
+                required: true,
+                i18n_scope: "audits.form"
               ) %>
 
               <%= render SelectComponent.new(
                 form: form,
                 field: :team_id,
                 options: options_from_collection_for_select(@teams, :id, :name_with_slug, @audit_session.team_id),
-                label_key: "audits.form.team_label",
-                prompt: t("audits.form.team_prompt"),
-                help_text: t("audits.form.team_help"),
-                required: true
+                required: true,
+                i18n_scope: "audits.form"
               ) %>
 
               <%= render InputComponent.new(
                 form: form,
                 field: :due_date,
-                label: t("audits.form.due_date_label"),
                 type: :date,
-                placeholder: t("audits.form.due_date_placeholder"),
-                help_text: t("audits.form.due_date_help"),
-                error: @audit_session.errors[:due_date].first
+                error: @audit_session.errors[:due_date].first,
+                i18n_scope: "audits.form"
               ) %>
 
               <%= render TextareaComponent.new(

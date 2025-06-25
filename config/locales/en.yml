@@ -85,10 +85,10 @@ en:
     edit:
       title: "Edit Profile"
     form:
-      email_label: "Email address"
+      email_address_label: "Email address"
       password_label: "Password"
-      password_confirmation_label: "Password confirmation"
       password_help: "Leave blank to keep current password"
+      password_confirmation_label: "Password confirmation"
       update_button: "Update Profile"
     avatar:
       gravatar_description: "Avatar from Gravatar"
