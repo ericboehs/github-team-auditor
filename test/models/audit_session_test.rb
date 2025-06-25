@@ -73,13 +73,18 @@ class AuditSessionTest < ActiveSupport::TestCase
   end
 
   test "compliance_ready? should return true when at least 2 maintainers and 1 government employee" do
-    # Add another maintainer who is a government employee
-    @audit_session.audit_members.create!(
+    # Create a team member who is a government employee maintainer
+    team_member = @audit_session.team.team_members.create!(
       github_login: "gov_maintainer",
       name: "Gov Maintainer",
       avatar_url: "https://github.com/gov_maintainer.png",
       maintainer_role: true,
-      government_employee: true,
+      government_employee: true
+    )
+
+    # Add them to the audit
+    @audit_session.audit_members.create!(
+      team_member: team_member,
       removed: false
     )
 

@@ -12,11 +12,11 @@ class TeamMember < ApplicationRecord
   scope :current, -> { where(active: true) }
 
   def open_issues
-    issue_correlations.where(status: 'open')
+    issue_correlations.where(status: "open")
   end
 
   def resolved_issues
-    issue_correlations.where(status: 'resolved')
+    issue_correlations.where(status: "resolved")
   end
 
   def has_open_issues?

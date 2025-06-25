@@ -4,8 +4,9 @@ class AuditMember < ApplicationRecord
   has_many :audit_notes, dependent: :destroy
 
   # Delegate member data to team_member
-  delegate :github_login, :name, :avatar_url, :maintainer_role, :government_employee, 
-           :last_seen_at, :first_seen_at, :github_url, :display_name, to: :team_member
+  delegate :github_login, :name, :avatar_url, :maintainer_role, :government_employee,
+            :maintainer_role?, :government_employee?, :last_seen_at, :first_seen_at,
+            :github_url, :display_name, to: :team_member
 
   scope :validated, -> { where(access_validated: true) }
   scope :pending_validation, -> { where(access_validated: [ nil, false ]) }

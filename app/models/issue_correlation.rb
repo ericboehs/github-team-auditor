@@ -6,14 +6,14 @@ class IssueCorrelation < ApplicationRecord
   validates :title, presence: true
 
   scope :recent, -> { order(created_at: :desc) }
-  scope :open, -> { where(status: 'open') }
-  scope :resolved, -> { where(status: 'resolved') }
+  scope :open, -> { where(status: "open") }
+  scope :resolved, -> { where(status: "resolved") }
 
   def open?
-    status == 'open'
+    status == "open"
   end
 
   def resolved?
-    status == 'resolved'
+    status == "resolved"
   end
 end

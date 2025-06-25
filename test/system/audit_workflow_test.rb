@@ -51,13 +51,18 @@ class AuditWorkflowTest < ApplicationSystemTestCase
       status: "active"
     )
 
-    # Add an audit member for the audit session (separate from team members)
-    audit_member = audit_session.audit_members.create!(
+    # Create a team member first
+    team_member = @team.team_members.create!(
       github_login: "systemtestuser",
       name: "System Test User",
       avatar_url: "https://github.com/systemtestuser.png",
-      access_validated: true,
       maintainer_role: true
+    )
+
+    # Add an audit member for the audit session
+    audit_member = audit_session.audit_members.create!(
+      team_member: team_member,
+      access_validated: true
     )
 
     sign_in_as(@user)

@@ -10,21 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_22_172920) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_21_015019) do
   create_table "audit_members", force: :cascade do |t|
     t.integer "audit_session_id", null: false
-    t.string "github_login"
-    t.string "name"
-    t.string "avatar_url"
+    t.integer "team_member_id", null: false
     t.boolean "access_validated"
     t.boolean "removed"
-    t.boolean "maintainer_role"
-    t.boolean "government_employee"
-    t.datetime "first_seen_at"
-    t.datetime "last_seen_at"
+    t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["audit_session_id", "team_member_id"], name: "index_audit_members_on_session_and_member", unique: true
     t.index ["audit_session_id"], name: "index_audit_members_on_audit_session_id"
+    t.index ["team_member_id"], name: "index_audit_members_on_team_member_id"
   end
 
   create_table "audit_notes", force: :cascade do |t|
@@ -55,13 +52,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_22_172920) do
   end
 
   create_table "issue_correlations", force: :cascade do |t|
-    t.integer "audit_member_id", null: false
+    t.integer "team_member_id", null: false
     t.integer "github_issue_number"
     t.string "github_issue_url"
     t.string "title"
+    t.text "description"
+    t.string "status", default: "open"
+    t.datetime "resolved_at"
+    t.datetime "issue_created_at"
+    t.datetime "issue_updated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["audit_member_id"], name: "index_issue_correlations_on_audit_member_id"
+    t.index ["team_member_id", "github_issue_number"], name: "index_issue_correlations_on_member_and_issue", unique: true
+    t.index ["team_member_id"], name: "index_issue_correlations_on_team_member_id"
   end
 
   create_table "organizations", force: :cascade do |t|
@@ -83,21 +86,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_22_172920) do
   end
 
   create_table "team_members", force: :cascade do |t|
-    t.integer "audit_session_id"
+    t.integer "team_id", null: false
     t.string "github_login"
     t.string "name"
     t.string "avatar_url"
-    t.boolean "access_validated"
-    t.boolean "removed"
     t.boolean "maintainer_role"
     t.boolean "government_employee"
-    t.datetime "first_seen_at"
+    t.boolean "active", default: true, null: false
     t.datetime "last_seen_at"
+    t.datetime "first_seen_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "team_id", null: false
-    t.boolean "active", default: true, null: false
-    t.index ["audit_session_id"], name: "index_team_members_on_audit_session_id"
     t.index ["team_id", "github_login"], name: "index_team_members_on_team_id_and_github_login", unique: true
     t.index ["team_id"], name: "index_team_members_on_team_id"
   end
@@ -107,9 +106,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_22_172920) do
     t.string "name"
     t.string "github_slug"
     t.text "description"
+    t.datetime "last_synced_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "last_synced_at"
     t.index ["organization_id"], name: "index_teams_on_organization_id"
   end
 
@@ -123,14 +122,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_22_172920) do
   end
 
   add_foreign_key "audit_members", "audit_sessions"
+  add_foreign_key "audit_members", "team_members"
   add_foreign_key "audit_notes", "audit_members"
   add_foreign_key "audit_notes", "users"
   add_foreign_key "audit_sessions", "organizations"
   add_foreign_key "audit_sessions", "teams"
   add_foreign_key "audit_sessions", "users"
-  add_foreign_key "issue_correlations", "audit_members"
+  add_foreign_key "issue_correlations", "team_members"
   add_foreign_key "sessions", "users"
-  add_foreign_key "team_members", "audit_sessions"
   add_foreign_key "team_members", "teams"
   add_foreign_key "teams", "organizations"
 end

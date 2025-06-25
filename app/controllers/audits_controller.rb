@@ -20,7 +20,7 @@ class AuditsController < ApplicationController
         .audit_members
         .includes(:audit_notes, :team_member)
         .joins(:team_member)
-        .order('team_members.github_login')
+        .order("team_members.github_login")
     @progress = @audit_session.progress_percentage
     @compliance_status = @audit_session.compliance_ready?
   end
