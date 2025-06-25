@@ -8,6 +8,8 @@ class CreateIssueCorrelations < ActiveRecord::Migration[8.0]
       t.text :description
       t.string :status, default: 'open'
       t.datetime :resolved_at
+      t.datetime :issue_created_at
+      t.datetime :issue_updated_at
 
       t.timestamps
     end

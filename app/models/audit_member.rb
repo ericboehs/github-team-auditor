@@ -1,15 +1,17 @@
 class AuditMember < ApplicationRecord
-  include GithubUrlable
-
   belongs_to :audit_session
+  belongs_to :team_member
   has_many :audit_notes, dependent: :destroy
-  has_many :issue_correlations, dependent: :destroy
+
+  # Delegate member data to team_member
+  delegate :github_login, :name, :avatar_url, :maintainer_role, :government_employee, 
+           :last_seen_at, :first_seen_at, :github_url, :display_name, to: :team_member
 
   scope :validated, -> { where(access_validated: true) }
   scope :pending_validation, -> { where(access_validated: [ nil, false ]) }
   scope :marked_for_removal, -> { where(removed: true) }
-  scope :maintainers, -> { where(maintainer_role: true) }
-  scope :government_employees, -> { where(government_employee: true) }
+  scope :maintainers, -> { joins(:team_member).where(team_members: { maintainer_role: true }) }
+  scope :government_employees, -> { joins(:team_member).where(team_members: { government_employee: true }) }
   scope :active, -> { where(removed: [ nil, false ]) }
   scope :removed, -> { where(removed: true) }
 
@@ -32,22 +34,15 @@ class AuditMember < ApplicationRecord
     update!(removed: false)
   end
 
-  # Get issues from the corresponding team member
-  def corresponding_team_member
-    return nil unless audit_session.team
-
-    audit_session.team.team_members.find_by(github_login: github_login)
-  end
-
   def open_issues
-    corresponding_team_member&.open_issues || IssueCorrelation.none
+    team_member.open_issues
   end
 
   def resolved_issues
-    corresponding_team_member&.resolved_issues || IssueCorrelation.none
+    team_member.resolved_issues
   end
 
   def has_open_issues?
-    corresponding_team_member&.has_open_issues? || false
+    team_member.has_open_issues?
   end
 end

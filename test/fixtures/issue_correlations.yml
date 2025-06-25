@@ -1,11 +1,17 @@
 john_access_request:
-  audit_member: john_doe
+  team_member: john_doe_team_member
   github_issue_number: 111310
   github_issue_url: "https://github.com/department-of-veterans-affairs/va.gov-team/issues/111310"
   title: "Platform Security Access Q2 Review - Sidekiq"
+  status: "open"
+  issue_created_at: 2025-01-15 10:00:00
+  issue_updated_at: 2025-01-20 14:30:00
 
 jane_access_request:
-  audit_member: jane_smith
+  team_member: jane_smith_team_member
   github_issue_number: 111311
   github_issue_url: "https://github.com/department-of-veterans-affairs/va.gov-team/issues/111311"
   title: "Platform Security Access Q2 Review - VetsAPI/Argo"
+  status: "open"
+  issue_created_at: 2025-01-18 09:15:00
+  issue_updated_at: 2025-01-22 16:45:00

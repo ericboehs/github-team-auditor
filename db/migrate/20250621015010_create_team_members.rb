@@ -2,7 +2,6 @@ class CreateTeamMembers < ActiveRecord::Migration[8.0]
   def change
     create_table :team_members do |t|
       t.references :team, null: false, foreign_key: true
-      t.references :audit_session, null: true, foreign_key: true
       t.string :github_login
       t.string :name
       t.string :avatar_url
