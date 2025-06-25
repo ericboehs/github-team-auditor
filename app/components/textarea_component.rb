@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TextareaComponent < ViewComponent::Base
-  def initialize(form:, field:, label: nil, placeholder: nil, help_text: nil, required: false, autofocus: false, rows: 3, class: "")
+  def initialize(form:, field:, label: nil, placeholder: nil, help_text: nil, required: false, autofocus: false, rows: 3, class: "", i18n_scope: nil)
     @form = form
     @field = field
     @label = label
@@ -11,19 +11,50 @@ class TextareaComponent < ViewComponent::Base
     @autofocus = autofocus
     @rows = rows
     @extra_classes = binding.local_variable_get(:class)
+    @i18n_scope = i18n_scope
   end
 
   private
 
-  attr_reader :form, :field, :label, :placeholder, :help_text, :required, :autofocus, :rows, :extra_classes
+  attr_reader :form, :field, :label, :placeholder, :help_text, :required, :autofocus, :rows, :extra_classes, :i18n_scope
 
   def field_id
     "#{form.object_name}_#{field}"
   end
 
+  def before_render
+    @resolved_label = resolve_label
+    @resolved_placeholder = resolve_placeholder
+  end
+
   def label_text
+    @resolved_label || form.object.class.human_attribute_name(field)
+  end
+
+  def placeholder_text
+    @resolved_placeholder
+  end
+
+  private
+
+  def resolve_label
     return label if label.present?
-    form.object.class.human_attribute_name(field)
+    return inferred_i18n("label") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_label")
+    nil
+  end
+
+  def resolve_placeholder
+    return placeholder if placeholder.present?
+    return inferred_i18n("placeholder") if i18n_scope && i18n_key_exists?("#{i18n_scope}.#{field}_placeholder")
+    nil
+  end
+
+  def inferred_i18n(suffix)
+    helpers.t("#{i18n_scope}.#{field}_#{suffix}")
+  end
+
+  def i18n_key_exists?(key)
+    I18n.exists?(key)
   end
 
   def error_messages
@@ -89,7 +120,7 @@ class TextareaComponent < ViewComponent::Base
       rows: rows
     }
 
-    attrs[:placeholder] = placeholder if placeholder.present?
+    attrs[:placeholder] = placeholder_text if placeholder_text.present?
     attrs[:required] = true if required
     attrs[:autofocus] = true if autofocus
     attrs[:"aria-invalid"] = "true" if has_errors?

@@ -8,6 +8,11 @@ class TextareaComponentTest < ViewComponent::TestCase
     @form = ActionView::Helpers::FormBuilder.new(:user, @user, vc_test_controller.view_context, {})
   end
 
+  def teardown
+    # Clear test translations to prevent interference between tests
+    I18n.backend.store_translations(:en, test: nil)
+  end
+
   def test_component_initializes_correctly
     component = TextareaComponent.new(
       form: @form,
@@ -171,8 +176,9 @@ class TextareaComponentTest < ViewComponent::TestCase
       field: :email_address,
       label: "Custom Label"
     )
+    render_inline(component)
 
-    assert_equal "Custom Label", component.send(:label_text)
+    assert_selector "label", text: "Custom Label"
   end
 
   def test_label_text_with_default_label
@@ -180,8 +186,9 @@ class TextareaComponentTest < ViewComponent::TestCase
       form: @form,
       field: :email_address
     )
+    render_inline(component)
 
-    assert_equal "Email address", component.send(:label_text)
+    assert_selector "label", text: "Email address"
   end
 
   def test_textarea_classes_without_errors
@@ -295,14 +302,71 @@ class TextareaComponentTest < ViewComponent::TestCase
       autofocus: true,
       rows: 5
     )
+    render_inline(component)
 
-    attrs = component.send(:textarea_attributes)
-    assert_equal "user_email_address", attrs[:id]
-    assert_equal 5, attrs[:rows]
-    assert_equal "Enter text...", attrs[:placeholder]
-    assert_equal true, attrs[:required]
-    assert_equal true, attrs[:autofocus]
-    assert_equal "true", attrs[:"aria-invalid"]
-    assert_equal "user_email_address_help user_email_address_error", attrs[:"aria-describedby"]
+    assert_selector "textarea[id='user_email_address']"
+    assert_selector "textarea[rows='5']"
+    assert_selector "textarea[placeholder='Enter text...']"
+    assert_selector "textarea[required]"
+    assert_selector "textarea[autofocus]"
+    assert_selector "textarea[aria-invalid='true']"
+    assert_selector "textarea[aria-describedby='user_email_address_help user_email_address_error']"
+  end
+
+  def test_infers_label_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_label: "Test Email Label" } })
+
+    component = TextareaComponent.new(
+      form: @form,
+      field: :email_address,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "label", text: "Test Email Label"
+  end
+
+  def test_infers_placeholder_from_i18n_scope
+    # Add test i18n key
+    I18n.backend.store_translations(:en, test: { form: { email_address_placeholder: "Enter notes here..." } })
+
+    component = TextareaComponent.new(
+      form: @form,
+      field: :email_address,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    assert_selector "textarea[placeholder='Enter notes here...']"
+  end
+
+  def test_falls_back_to_explicit_values_when_no_i18n_scope
+    component = TextareaComponent.new(
+      form: @form,
+      field: :email_address,
+      label: "Explicit Label",
+      placeholder: "Explicit Placeholder"
+    )
+    render_inline(component)
+
+    assert_selector "label", text: "Explicit Label"
+    assert_selector "textarea[placeholder='Explicit Placeholder']"
+  end
+
+  def test_falls_back_when_i18n_key_does_not_exist
+    # Clear any existing test translations
+    I18n.backend.store_translations(:en, test: { form: {} })
+
+    component = TextareaComponent.new(
+      form: @form,
+      field: :email_address,
+      i18n_scope: "test.form"
+    )
+    render_inline(component)
+
+    # Should fall back to humanized attribute name
+    assert_selector "label", text: "Email address"
+    assert_no_selector "textarea[placeholder]"
   end
 end

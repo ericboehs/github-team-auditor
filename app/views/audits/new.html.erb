@@ -43,12 +43,11 @@
               <%= render InputComponent.new(
                 form: form,
                 field: :name,
-                label: t("audits.form.name_label"),
                 type: :text,
-                placeholder: t("audits.form.name_placeholder"),
                 required: true,
                 autofocus: true,
-                error: @audit_session.errors[:name].first
+                error: @audit_session.errors[:name].first,
+                i18n_scope: "audits.form"
               ) %>
 
               <%= render SelectComponent.new(
@@ -83,9 +82,8 @@
               <%= render TextareaComponent.new(
                 form: form,
                 field: :notes,
-                label: t("audits.form.notes_label"),
                 rows: 4,
-                placeholder: t("audits.form.notes_placeholder")
+                i18n_scope: "audits.form"
               ) %>
 
               <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">

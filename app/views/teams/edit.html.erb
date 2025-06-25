@@ -64,28 +64,25 @@
                     form: form,
                     field: :name,
                     type: :text,
-                    label: t("teams.form.name_label"),
-                    placeholder: t("teams.form.name_placeholder"),
                     required: true,
-                    autofocus: true
+                    autofocus: true,
+                    i18n_scope: "teams.form"
                   ) %>
 
               <%= render InputComponent.new(
                     form: form,
                     field: :github_slug,
                     type: :text,
-                    label: t("teams.form.github_slug_label"),
-                    placeholder: t("teams.form.github_slug_placeholder"),
-                    help_text: t("teams.form.github_slug_help")
+                    help_text: t("teams.form.github_slug_help"),
+                    i18n_scope: "teams.form"
                   ) %>
 
 
               <%= render TextareaComponent.new(
                     form: form,
                     field: :description,
-                    label: t("teams.form.description_label"),
-                    placeholder: t("teams.form.description_placeholder"),
-                    rows: 3
+                    rows: 3,
+                    i18n_scope: "teams.form"
                   ) %>
 
               <div class="flex items-center justify-between pt-6">
