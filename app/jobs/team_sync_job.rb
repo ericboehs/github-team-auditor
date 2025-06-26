@@ -82,6 +82,14 @@ class TeamSyncJob < ApplicationJob
       locals: { team_members: team_members, team: team }
     )
 
+    # Update actions dropdown to re-enable buttons
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{team.id}",
+      target: "team-actions-dropdown",
+      partial: "teams/team_actions_dropdown",
+      locals: { team: team }
+    )
+
     # Update team card on index page to remove syncing badge
     team.reload # Ensure fresh data
     Turbo::StreamsChannel.broadcast_replace_to(

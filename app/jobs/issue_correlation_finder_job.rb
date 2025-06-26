@@ -1,6 +1,18 @@
 class IssueCorrelationFinderJob < ApplicationJob
   queue_as :default
 
+  # Retry on transient errors but not on permanent failures  
+  retry_on StandardError, wait: :polynomially_longer, attempts: 3 do |job, error|
+    # Don't retry on configuration errors
+    raise error if error.is_a?(Github::ApiClient::ConfigurationError)
+    
+    # Log retry attempt
+    Rails.logger.warn "Issue correlation job retrying due to: #{error.message}"
+  end
+
+  # Don't retry on configuration errors
+  discard_on Github::ApiClient::ConfigurationError
+
   def perform(team_id, search_terms: nil, exclusion_terms: nil, repository: nil)
     @team = Team.find(team_id)
     @organization = @team.organization
@@ -60,6 +72,14 @@ class IssueCorrelationFinderJob < ApplicationJob
       html: ""
     )
 
+    # Update actions dropdown to re-enable buttons
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{@team.id}",
+      target: "team-actions-dropdown",
+      partial: "teams/team_actions_dropdown",
+      locals: { team: @team }
+    )
+
     # Update team card on index page to remove syncing badge
     @team.reload # Ensure fresh data
     Turbo::StreamsChannel.broadcast_replace_to(
@@ -73,7 +93,20 @@ class IssueCorrelationFinderJob < ApplicationJob
     Rails.logger.info "Issue correlation finder completed for team #{@team.name}"
   rescue StandardError => e
     Rails.logger.error "Issue correlation finder failed for team #{@team&.name}: #{e.message}"
+    Rails.logger.error "Error details: #{e.backtrace&.first(5)&.join(', ')}"
+
+    # Mark team as failed and broadcast error message
     @team&.update!(issue_correlation_status: "failed")
+
+    # Broadcast error message to user
+    broadcast_error_message(e)
+
+    # Clear status banner
+    broadcast_clear_status_banner
+
+    # Update actions dropdown to re-enable buttons
+    broadcast_dropdown_update
+
     raise
   end
 
@@ -248,5 +281,54 @@ class IssueCorrelationFinderJob < ApplicationJob
       # Resume with progress information
       update_progress_status
     end
+  end
+
+  def broadcast_error_message(error)
+    return unless @team
+
+    # Create user-friendly error message
+    friendly_message = case error
+    when Github::ApiClient::ConfigurationError
+      "GitHub configuration error. Please check your organization and team settings."
+    when Octokit::Unauthorized
+      "GitHub authentication failed. Please check your GitHub token configuration."
+    when Octokit::TooManyRequests
+      "GitHub API rate limit exceeded. The issue correlation search will automatically retry."
+    when Octokit::NetworkError, Net::TimeoutError, Errno::ECONNREFUSED
+      "Network connection error occurred. The issue correlation search will automatically retry."
+    else
+      "An unexpected error occurred during issue correlation search. Please try again."
+    end
+
+    # Broadcast error message via Turbo Stream
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{@team.id}",
+      target: "flash-messages",
+      partial: "shared/turbo_flash_message",
+      locals: { message: friendly_message, type: :alert }
+    )
+  end
+
+  def broadcast_clear_status_banner
+    return unless @team
+
+    # Clear the status banner
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{@team.id}",
+      target: "status-banner-container",
+      html: ""
+    )
+  end
+
+  def broadcast_dropdown_update
+    return unless @team
+
+    # Update actions dropdown to re-enable buttons
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{@team.id}",
+      target: "team-actions-dropdown",
+      partial: "teams/team_actions_dropdown",
+      locals: { team: @team }
+    )
   end
 end
