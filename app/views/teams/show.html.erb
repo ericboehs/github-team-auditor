@@ -37,31 +37,114 @@
             </div>
 
             <!-- Actions and Sync Buttons -->
-            <div class="flex flex-col sm:flex-row items-end sm:items-center gap-3">
-              <!-- Sync buttons - visible on desktop -->
+            <div class="flex flex-col sm:flex-row items-end sm:items-start gap-3">
+              <!-- Desktop sync section -->
               <div class="hidden sm:block">
-                <%= render 'sync_buttons', team: @team %>
-              </div>
-
-              <!-- Actions dropdown -->
-              <div id="team-actions-dropdown">
-                <%= render 'team_actions_dropdown', team: @team %>
+                <div class="flex gap-4 items-start">
+                  <!-- Sync buttons -->
+                  <%= render 'sync_buttons', team: @team %>
+                  <!-- Actions dropdown -->
+                  <div id="team-actions-dropdown">
+                    <%= render 'team_actions_dropdown', team: @team %>
+                  </div>
+                </div>
+                <!-- Sync status - below buttons on desktop -->
+                <div class="flex gap-4 mt-2">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 flex-1">
+                    <div class="flex items-center justify-center">
+                      <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                      <% if @last_synced_at %>
+                        <span title="<%= @last_synced_at.iso8601 %>">
+                          <% time_text = time_ago_in_words(@last_synced_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
+                          <% if time_text == 'less than a minute' %>
+                            Synced just now
+                          <% else %>
+                            Synced <%= time_text %> ago
+                          <% end %>
+                        </span>
+                      <% else %>
+                        Never synced
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 flex-1">
+                    <div class="flex items-center justify-center">
+                      <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                      </svg>
+                      <% if @last_issue_correlation_at %>
+                        <span title="<%= @last_issue_correlation_at.iso8601 %>">
+                          <% time_text = time_ago_in_words(@last_issue_correlation_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
+                          <% if time_text == 'less than a minute' %>
+                            Synced just now
+                          <% else %>
+                            Synced <%= time_text %> ago
+                          <% end %>
+                        </span>
+                      <% else %>
+                        Never synced
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="flex-1"></div> <!-- Spacer to align with actions dropdown -->
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Sync info and mobile sync buttons -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div class="order-2 sm:order-1">
-              <!-- Sync buttons - visible on mobile only -->
+            <div class="order-1 sm:order-1">
+              <!-- Mobile sync section -->
               <div class="block sm:hidden">
+                <!-- Sync buttons -->
                 <%= render 'sync_buttons', team: @team %>
+                <!-- Sync status - tight spacing below buttons -->
+                <div class="flex gap-4 mt-2">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 flex-1">
+                    <div class="flex items-center justify-center">
+                      <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                      <% if @last_synced_at %>
+                        <span title="<%= @last_synced_at.iso8601 %>">
+                          <% time_text = time_ago_in_words(@last_synced_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
+                          <% if time_text == 'less than a minute' %>
+                            Synced just now
+                          <% else %>
+                            Synced <%= time_text %> ago
+                          <% end %>
+                        </span>
+                      <% else %>
+                        Never synced
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400 flex-1">
+                    <div class="flex items-center justify-center">
+                      <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                      </svg>
+                      <% if @last_issue_correlation_at %>
+                        <span title="<%= @last_issue_correlation_at.iso8601 %>">
+                          <% time_text = time_ago_in_words(@last_issue_correlation_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
+                          <% if time_text == 'less than a minute' %>
+                            Synced just now
+                          <% else %>
+                            Synced <%= time_text %> ago
+                          <% end %>
+                        </span>
+                      <% else %>
+                        Never synced
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="order-1 sm:order-2">
-              <%= render 'last_synced', last_synced_at: @last_synced_at, last_issue_correlation_at: @last_issue_correlation_at %>
-            </div>
           </div>
         </div>
 

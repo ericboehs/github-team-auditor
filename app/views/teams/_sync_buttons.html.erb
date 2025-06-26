@@ -1,9 +1,8 @@
 <!-- Sync Action Buttons -->
-<div class="flex flex-col sm:flex-row gap-2" id="team-sync-buttons">
+<div class="grid grid-cols-2 gap-4 sm:flex sm:flex-row" id="team-sync-buttons">
   <!-- Sync GitHub Team Button -->
   <%= form_with url: sync_team_path(team), method: :post, local: true,
-                data: { turbo_submits_with: 'Syncing GitHub Team...' },
-                class: "contents" do |form| %>
+                data: { turbo_submits_with: 'Syncing GitHub Team...' } do |form| %>
     <%= form.button type: :submit,
                   class: sync_button_classes(team),
                   disabled: team.any_jobs_running?,
@@ -16,14 +15,13 @@
                     stroke: "currentColor",
                     "aria-hidden": "true",
                     "data-slot": "icon") %>
-      <span class="ml-2"><%= team.sync_running? ? 'Syncing GitHub Team...' : 'Sync GitHub Team' %></span>
+      <span class="ml-2"><%= team.sync_running? ? t('jobs.team_sync.syncing_short') : t('teams.sync_buttons.sync_github_team') %></span>
     <% end %>
   <% end %>
 
   <!-- Find GitHub Issues Button -->
   <%= form_with url: find_issue_correlations_team_path(team), method: :post, local: true,
-                data: { turbo_submits_with: 'Finding GitHub Issues...' },
-                class: "contents" do |form| %>
+                data: { turbo_submits_with: 'Finding GitHub Issues...' } do |form| %>
     <%= form.button type: :submit,
                   class: sync_button_classes(team),
                   disabled: team.any_jobs_running?,
@@ -36,7 +34,7 @@
                     stroke: "currentColor",
                     "aria-hidden": "true",
                     "data-slot": "icon") %>
-      <span class="ml-2"><%= team.issue_correlation_running? ? 'Finding GitHub Issues...' : 'Find GitHub Issues' %></span>
+      <span class="ml-2"><%= team.issue_correlation_running? ? t('jobs.issue_correlation.finding_issues_short') : t('teams.sync_buttons.find_github_issues') %></span>
     <% end %>
   <% end %>
 </div>

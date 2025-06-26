@@ -161,6 +161,9 @@ en:
     dismiss: "Dismiss"
 
   teams:
+    sync_buttons:
+      sync_github_team: "Sync GitHub Team"
+      find_github_issues: "Find GitHub Issues"
     index:
       title: "Teams"
       new_button: "New Team"
@@ -335,6 +338,7 @@ en:
   jobs:
     issue_correlation:
       finding_issues: "Finding GitHub issues for team members..."
+      finding_issues_short: "Finding Issues..."
       completed_success: "Issue correlation completed successfully! Found %{count} issues across team members."
       started_announcement: "Started finding GitHub issues for %{team_name} team members"
       completed_announcement: "Completed finding GitHub issues for %{team_name}. Found %{count} issues"
@@ -351,6 +355,7 @@ en:
 
     team_sync:
       syncing: "Syncing team members from GitHub..."
+      syncing_short: "Syncing..."
       completed_success: "Team sync completed successfully! Added %{new_count} new members, updated %{updated_count} members."
       started_announcement: "Started syncing %{team_name} team members from GitHub"
       completed_announcement: "Completed syncing %{team_name}. Added %{new_count} new members, updated %{updated_count} members"
