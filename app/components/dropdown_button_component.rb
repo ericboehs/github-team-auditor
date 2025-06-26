@@ -79,8 +79,13 @@ class DropdownButtonComponent < ViewComponent::Base
   end
 
   def render_form_item(item, item_id)
-    button_classes = item_hover_classes(item) + " w-full text-left border-0 bg-transparent"
-    icon_classes = item_icon_classes(item)
+    if item[:disabled]
+      button_classes = "group flex items-center px-4 py-2 text-sm w-full text-left border-0 bg-transparent text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60"
+      icon_classes = "mr-3 h-4 w-4 text-gray-300 dark:text-gray-600"
+    else
+      button_classes = item_hover_classes(item) + " w-full text-left border-0 bg-transparent"
+      icon_classes = item_icon_classes(item)
+    end
 
     # Add flash message clearing for sync and find issues actions
     action_data = { action: "click->dropdown#closeAction" }

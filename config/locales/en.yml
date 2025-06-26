@@ -312,6 +312,7 @@ en:
       issue_correlation_started: "Issue correlation finder started successfully."
       issue_correlation_already_running: "Issue correlation is already in progress."
       cannot_find_issues_while_syncing: "Cannot find issues while team sync is in progress."
+      search_terms_required: "Please configure search terms for this team before running issue correlation."
     audits:
       created: "Audit session created successfully"
       updated: "Audit session updated successfully"
@@ -330,6 +331,44 @@ en:
       reset_invalid: "Password reset link is invalid or has expired."
     sessions:
       rate_limit: "Try again later."
+
+  jobs:
+    issue_correlation:
+      finding_issues: "Finding GitHub issues for team members..."
+      completed_success: "Issue correlation completed successfully! Found %{count} issues across team members."
+      started_announcement: "Started finding GitHub issues for %{team_name} team members"
+      completed_announcement: "Completed finding GitHub issues for %{team_name}. Found %{count} issues"
+      error_announcement: "Error finding GitHub issues for %{team_name}: %{message}"
+      progress_status: "Finding issues for %{member} (%{current}/%{total})..."
+      progress_announcement: "Processing member %{current} of %{total}: %{member}"
+      rate_limit_status: "Finding issues for %{member} (%{current}/%{total}). Waiting %{seconds} seconds for GitHub's rate limit..."
+      errors:
+        configuration: "GitHub configuration error. Please check your organization and team settings."
+        unauthorized: "GitHub authentication failed. Please check your GitHub token configuration."
+        rate_limit: "GitHub API rate limit exceeded. The issue correlation search will automatically retry."
+        network: "Network connection error occurred. The issue correlation search will automatically retry."
+        unexpected: "An unexpected error occurred during issue correlation search. Please try again."
+
+    team_sync:
+      syncing: "Syncing team members from GitHub..."
+      completed_success: "Team sync completed successfully! Added %{new_count} new members, updated %{updated_count} members."
+      started_announcement: "Started syncing %{team_name} team members from GitHub"
+      completed_announcement: "Completed syncing %{team_name}. Added %{new_count} new members, updated %{updated_count} members"
+
+    shared:
+      error_announcement: "Error occurred for %{team_name}: %{message}"
+      errors:
+        configuration: "GitHub configuration error. Please check your organization and team settings."
+        unauthorized: "GitHub authentication failed. Please check your GitHub token configuration."
+        rate_limit: "GitHub API rate limit exceeded. The operation will automatically retry."
+        network: "Network connection error occurred. The operation will automatically retry."
+        unexpected: "An unexpected error occurred. Please try again."
+
+  models:
+    team:
+      status:
+        syncing: "Syncing team members from GitHub..."
+        finding_issues: "Finding GitHub issues for team members..."
 
   aria_labels:
     view_github_profile: "View %{name}'s GitHub profile (opens in new tab)"

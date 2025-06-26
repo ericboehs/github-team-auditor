@@ -133,10 +133,15 @@ app/
 **Services**:
 - `Github::ApiClient` - GitHub API client with rate limiting
 - `Github::TeamSyncService` - High-level team synchronization
+- `IssueCorrelationService` - Business logic for issue correlation finding
 
 **Jobs**:
-- `TeamSyncJob` - Background team data synchronization
+- `TeamSyncJob` - Background team data synchronization (refactored with TurboBroadcasting)
+- `IssueCorrelationFinderJob` - Background issue correlation finding with real-time UI updates
 - `MemberEnrichmentJob` - Background member profile enrichment
+
+**Job Concerns**:
+- `TurboBroadcasting` - Shared concern for real-time UI updates and error handling
 
 **Components**:
 - `Auth::*` - Form components for authentication

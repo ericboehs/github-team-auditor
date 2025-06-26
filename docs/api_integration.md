@@ -126,11 +126,32 @@ user_data = client.user_details("username")
 
 ### Issue Search
 
-Searches for issues across repositories:
+Searches for issues across repositories with filtering support:
 
 ```ruby
 issues = client.search_issues("audit security", repository: "org/repo")
 ```
+
+**Advanced Issue Correlation:**
+The `IssueCorrelationService` provides sophisticated issue correlation:
+
+```ruby
+service = IssueCorrelationService.new(
+  team,
+  api_client: client,
+  search_terms: "access security",
+  exclusion_terms: "test duplicate",
+  repository: "department-of-veterans-affairs/va.gov-team"
+)
+
+correlations = service.find_correlations_for_member(team_member)
+```
+
+**Search Query Building:**
+- Automatically includes member login in issue body and title searches
+- Sanitizes search terms to prevent query injection
+- Supports configurable search terms and exclusion filters
+- Returns structured issue data for database storage
 
 ## Background Job Integration
 

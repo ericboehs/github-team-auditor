@@ -103,9 +103,9 @@ class TeamsController < ApplicationController
     # Validate that search terms are defined beyond the default
     if @team.search_terms.blank?
       respond_to do |format|
-        format.html { redirect_to team_path(@team), alert: "Please configure search terms for this team before running issue correlation." }
+        format.html { redirect_to team_path(@team), alert: t("flash.teams.search_terms_required") }
         format.turbo_stream {
-          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_message", locals: { message: "Please configure search terms for this team before running issue correlation.", type: :alert })
+          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_message", locals: { message: t("flash.teams.search_terms_required"), type: :alert })
         }
       end
       return

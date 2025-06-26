@@ -42,40 +42,34 @@ class Team < ApplicationRecord
   end
 
   # Job status management
+  JOB_TYPES = %w[sync issue_correlation].freeze
+
   def sync_running?
-    sync_status.present?
+    job_running?(:sync)
   end
 
   def issue_correlation_running?
-    issue_correlation_status.present?
+    job_running?(:issue_correlation)
   end
 
   def any_jobs_running?
-    sync_running? || issue_correlation_running?
+    JOB_TYPES.any? { |job_type| job_running?(job_type) }
   end
 
   def start_sync_job!
-    update!(sync_status: "running", sync_started_at: Time.current)
+    start_job!(:sync)
   end
 
   def complete_sync_job!
-    update!(
-      sync_status: nil,
-      sync_started_at: nil,
-      last_synced_at: Time.current
-    )
+    complete_job!(:sync, completion_field: :last_synced_at)
   end
 
   def start_issue_correlation_job!
-    update!(issue_correlation_status: "running", issue_correlation_started_at: Time.current)
+    start_job!(:issue_correlation)
   end
 
   def complete_issue_correlation_job!
-    update!(
-      issue_correlation_status: nil,
-      issue_correlation_started_at: nil,
-      issue_correlation_completed_at: Time.current
-    )
+    complete_job!(:issue_correlation, completion_field: :issue_correlation_completed_at)
   end
 
   def current_job_status
@@ -83,9 +77,35 @@ class Team < ApplicationRecord
       # When both are running, prioritize the more specific issue correlation status
       issue_correlation_status
     elsif sync_running?
-      sync_status == "running" ? "Syncing team members from GitHub..." : sync_status
+      sync_status == "running" ? I18n.t("models.team.status.syncing") : sync_status
     elsif issue_correlation_running?
-      issue_correlation_status == "running" ? "Finding GitHub issues for team members..." : issue_correlation_status
+      issue_correlation_status == "running" ? I18n.t("models.team.status.finding_issues") : issue_correlation_status
     end
+  end
+
+  private
+
+  def job_running?(job_type)
+    send("#{job_type}_status").present?
+  end
+
+  def start_job!(job_type)
+    update!(
+      "#{job_type}_status" => "running",
+      "#{job_type}_started_at" => Time.current
+    )
+  end
+
+  def complete_job!(job_type, completion_field: nil)
+    attributes = {
+      "#{job_type}_status" => nil,
+      "#{job_type}_started_at" => nil
+    }
+
+    if completion_field
+      attributes[completion_field.to_s] = Time.current
+    end
+
+    update!(attributes)
   end
 end

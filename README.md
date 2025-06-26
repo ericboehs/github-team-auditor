@@ -4,11 +4,15 @@ A Rails 8.0.2 application template with modern tooling and best practices.
 
 ## Features
 
+- **GitHub Team Auditing** - Comprehensive team member auditing and compliance tracking
+- **Real-time Team Sync** - Background synchronization of team data from GitHub with live UI updates
+- **Issue Correlation** - Automatic correlation of GitHub issues with team members using configurable search terms
 - **User Authentication** - Secure session-based authentication system
 - **Modern Rails Stack** - Built with Rails 8.0.2, SQLite3, and modern asset pipeline
-- **Component-Based UI** - ViewComponent architecture for maintainable UI components
+- **Component-Based UI** - ViewComponent architecture with advanced dropdown components
+- **Real-time Updates** - Turbo Streams and ActionCable for live job progress and notifications
 - **Responsive Design** - Tailwind CSS with dark mode support
-- **Comprehensive Testing** - 99%+ test coverage with SimpleCov
+- **Comprehensive Testing** - 95%+ test coverage with SimpleCov
 
 ## Tech Stack
 
@@ -118,6 +122,18 @@ The application uses ViewComponent for UI components:
 - `AvatarComponent` for user avatars
 - `AlertComponent` for flash messages and errors
 - `UserPageComponent` for profile page layouts
+
+### Detailed Documentation
+
+For comprehensive guides on specific aspects of the application:
+
+- **[App Components](app/components/README.md)** - ViewComponent architecture and reusable UI components
+- **[Background Jobs](app/jobs/README.md)** - Job architecture, real-time updates, and error handling
+- **[Services](app/services/README.md)** - Business logic services and GitHub API integration
+- **[Development Guide](docs/development.md)** - Complete development setup and workflow
+- **[GitHub API Integration](docs/api_integration.md)** - Detailed API client documentation and usage
+- **[Job Architecture](docs/job_architecture.md)** - Background job patterns and shared concerns
+- **[Real-time Features](docs/real_time_features.md)** - Turbo Streams, ActionCable, and live UI updates
 
 ## Contributing
 
