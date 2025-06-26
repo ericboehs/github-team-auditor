@@ -80,7 +80,7 @@ class IssueCorrelationFinderJob < ApplicationJob
   private
 
   def find_correlations_for_team
-    members = @team.team_members.current.order(:github_login)
+    members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
     total_members = members.count
     @current_index = 0
 
@@ -118,8 +118,23 @@ class IssueCorrelationFinderJob < ApplicationJob
   end
 
   def build_search_query(github_login)
+    # Sanitize inputs to prevent search query injection
+    safe_login = sanitize_search_term(github_login)
+    safe_search_terms = sanitize_search_term(@search_terms)
+
     # Build query similar to legacy: search for member in both body and title, plus search terms in title
-    "is:issue \"#{github_login}\" in:body \"#{github_login}\" in:title \"#{@search_terms}\""
+    "is:issue \"#{safe_login}\" in:body \"#{safe_login}\" in:title \"#{safe_search_terms}\""
+  end
+
+  def sanitize_search_term(term)
+    return "" if term.blank?
+
+    # Remove potentially dangerous characters that could break GitHub search syntax
+    # Keep alphanumeric, spaces, hyphens, underscores, and dots
+    sanitized = term.to_s.gsub(/[^\w\s\-\.]/, "")
+
+    # Limit length to prevent excessively long queries
+    sanitized.truncate(100)
   end
 
   def filter_excluded_issues(issues)
@@ -155,23 +170,26 @@ class IssueCorrelationFinderJob < ApplicationJob
       }
     end
 
-    if upsert_data.any?
-      # Use upsert to handle both new and existing correlations
-      IssueCorrelation.upsert_all(
-        upsert_data,
-        unique_by: [ :team_member_id, :github_issue_number ]
-      )
-    end
+    # Wrap all correlation updates in a transaction for consistency
+    ApplicationRecord.transaction do
+      if upsert_data.any?
+        # Use upsert to handle both new and existing correlations
+        IssueCorrelation.upsert_all(
+          upsert_data,
+          unique_by: [ :team_member_id, :github_issue_number ]
+        )
+      end
 
-    # Remove correlations for issues that no longer match the search
-    current_issue_numbers = issues.map { |i| i[:github_issue_number] }
-    if current_issue_numbers.any?
-      team_member.issue_correlations
-        .where.not(github_issue_number: current_issue_numbers)
-        .destroy_all
-    else
-      # If no issues found, remove all existing correlations for this member
-      team_member.issue_correlations.destroy_all
+      # Remove correlations for issues that no longer match the search
+      current_issue_numbers = issues.map { |i| i[:github_issue_number] }
+      if current_issue_numbers.any?
+        team_member.issue_correlations
+          .where.not(github_issue_number: current_issue_numbers)
+          .destroy_all
+      else
+        # If no issues found, remove all existing correlations for this member
+        team_member.issue_correlations.destroy_all
+      end
     end
 
     # Reload the team member to get fresh issue correlations for broadcast

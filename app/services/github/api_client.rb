@@ -184,8 +184,23 @@ module Github
 
       if @rate_limit_callback
         total_seconds = sleep_time.to_i
+        last_broadcast = 0
+
         (total_seconds).downto(1) do |remaining_seconds|
-          @rate_limit_callback.call(remaining_seconds)
+          # Use exponential backoff for broadcasts to prevent overwhelming ActionCable
+          # Broadcast immediately, then at 30s intervals, then 60s intervals
+          should_broadcast = case remaining_seconds
+          when total_seconds # Always broadcast the first countdown
+                            true
+          when (1..30) # In final 30 seconds, broadcast every 10 seconds
+                            remaining_seconds % 10 == 0
+          when (31..300) # 30 seconds to 5 minutes, broadcast every 30 seconds
+                            remaining_seconds % 30 == 0
+          else # Over 5 minutes, broadcast every 60 seconds
+                            remaining_seconds % 60 == 0
+          end
+
+          @rate_limit_callback.call(remaining_seconds) if should_broadcast
           sleep(1)
         end
       else

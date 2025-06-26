@@ -28,6 +28,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", @team.name
   end
 
+
   test "should sync team" do
     sign_in_as(@user)
 

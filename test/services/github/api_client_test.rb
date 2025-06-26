@@ -723,4 +723,56 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     result = @client.fetch_team_by_slug("nonexistent-team")
     assert_nil result
   end
+
+  test "rate limit countdown uses exponential backoff for broadcasts" do
+    callback_calls = []
+    callback = ->(remaining) { callback_calls << remaining }
+
+    client = Github::ApiClient.new(@organization, rate_limit_callback: callback)
+
+    # Mock sleep to track calls without actually sleeping
+    sleep_calls = 0
+    client.define_singleton_method(:sleep) { |duration| sleep_calls += 1 }
+
+    # Test countdown with 65 seconds (should trigger different broadcast intervals)
+    client.send(:sleep_with_countdown, 65)
+
+    # Verify we slept 65 times (once per second)
+    assert_equal 65, sleep_calls
+
+    # Verify broadcasts used exponential backoff
+    # Should have broadcasts at: 65 (start), 60, 30, 20, 10 (final 30s every 10s)
+    expected_calls = [ 65, 60, 30, 20, 10 ]
+    assert_equal expected_calls.sort.reverse, callback_calls.sort.reverse
+
+    # Verify we didn't broadcast every single second (would be 65 calls)
+    assert callback_calls.length < 20, "Too many callback calls: #{callback_calls.length}"
+  end
+
+  test "rate limit countdown broadcasts frequently in final 30 seconds" do
+    callback_calls = []
+    callback = ->(remaining) { callback_calls << remaining }
+
+    client = Github::ApiClient.new(@organization, rate_limit_callback: callback)
+    client.define_singleton_method(:sleep) { |duration| nil }
+
+    # Test countdown with 25 seconds (should broadcast every 10 seconds)
+    client.send(:sleep_with_countdown, 25)
+
+    # Should broadcast at: 25 (start), 20, 10
+    expected_calls = [ 25, 20, 10 ]
+    assert_equal expected_calls.sort.reverse, callback_calls.sort.reverse
+  end
+
+  test "rate limit countdown without callback sleeps normally" do
+    client = Github::ApiClient.new(@organization) # No callback
+
+    sleep_duration = nil
+    client.define_singleton_method(:sleep) { |duration| sleep_duration = duration }
+
+    client.send(:sleep_with_countdown, 5)
+
+    # Should call sleep once with the full duration
+    assert_equal 5, sleep_duration
+  end
 end

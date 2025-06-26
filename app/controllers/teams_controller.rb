@@ -6,8 +6,8 @@ class TeamsController < ApplicationController
   end
 
   def show
-    # Get current team members from team_members table
-    @team_members = @team.team_members.current.order(:github_login)
+    # Get current team members from team_members table with issue correlations preloaded
+    @team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
     @recent_audits_count = @team.audit_sessions.where(created_at: 30.days.ago..).count
     @total_members_count = @team_members.count
     @validated_members_count = 0 # Not applicable for team-level view

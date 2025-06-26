@@ -74,7 +74,7 @@ class TeamSyncJob < ApplicationJob
     )
 
     # Update team members table to replace empty state with actual members
-    team_members = team.team_members.current.order(:github_login)
+    team_members = team.team_members.includes(:issue_correlations).current.order(:github_login)
     Turbo::StreamsChannel.broadcast_replace_to(
       "team_#{team.id}",
       target: "team-members-content",

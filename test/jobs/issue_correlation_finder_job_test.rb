@@ -364,4 +364,96 @@ class IssueCorrelationFinderJobTest < ActiveJob::TestCase
       assert_equal "failed", @team.issue_correlation_status
     end
   end
+
+  test "sanitizes search terms to prevent injection" do
+    job = IssueCorrelationFinderJob.new
+
+    # Test malicious search terms with special characters
+    malicious_terms = 'evil" OR 1=1 --'
+    sanitized = job.send(:sanitize_search_term, malicious_terms)
+    assert_equal "evil OR 11 --", sanitized
+
+    # Test with quotes and brackets
+    complex_terms = 'test"[injection]<script>'
+    sanitized = job.send(:sanitize_search_term, complex_terms)
+    assert_equal "testinjectionscript", sanitized
+
+    # Test length truncation
+    long_term = "a" * 200
+    sanitized = job.send(:sanitize_search_term, long_term)
+    assert_equal 100, sanitized.length
+
+    # Test nil and empty handling
+    assert_equal "", job.send(:sanitize_search_term, nil)
+    assert_equal "", job.send(:sanitize_search_term, "")
+  end
+
+  test "builds safe search queries" do
+    job = IssueCorrelationFinderJob.new
+    job.instance_variable_set(:@search_terms, "test terms")
+
+    # Test normal case
+    query = job.send(:build_search_query, "normal_user")
+    expected = 'is:issue "normal_user" in:body "normal_user" in:title "test terms"'
+    assert_equal expected, query
+
+    # Test with potentially malicious input
+    job.instance_variable_set(:@search_terms, 'evil" injection')
+    query = job.send(:build_search_query, "user\"evil")
+    expected = 'is:issue "userevil" in:body "userevil" in:title "evil injection"'
+    assert_equal expected, query
+  end
+
+  test "rolls back correlation updates on database error" do
+    team_member = @team.team_members.create!(
+      github_login: "test_user",
+      name: "Test User",
+      active: true
+    )
+
+    # Create some existing correlations
+    team_member.issue_correlations.create!(
+      github_issue_number: 123,
+      github_issue_url: "https://github.com/test/test/issues/123",
+      title: "Old Issue",
+      description: "Old description",
+      status: "open"
+    )
+
+    job = IssueCorrelationFinderJob.new
+
+    # Mock issues to update
+    issues = [
+      {
+        github_issue_number: 456,
+        github_issue_url: "https://github.com/test/test/issues/456",
+        title: "New Issue",
+        body: "New description",
+        state: "open",
+        created_at: Time.current,
+        updated_at: Time.current
+      }
+    ]
+
+    # Mock IssueCorrelation.upsert_all to raise an error
+    original_upsert = IssueCorrelation.method(:upsert_all)
+    IssueCorrelation.define_singleton_method(:upsert_all) do |*args|
+      raise ActiveRecord::RecordInvalid.new(IssueCorrelation.new)
+    end
+
+    begin
+      # The transaction should roll back and preserve existing data
+      assert_raises ActiveRecord::RecordInvalid do
+        job.send(:update_correlations_for_member, team_member, issues)
+      end
+
+      # Original correlation should still exist (transaction rolled back)
+      team_member.reload
+      assert_equal 1, team_member.issue_correlations.count
+      assert_equal 123, team_member.issue_correlations.first.github_issue_number
+    ensure
+      # Restore original method
+      IssueCorrelation.define_singleton_method(:upsert_all, original_upsert)
+    end
+  end
 end
