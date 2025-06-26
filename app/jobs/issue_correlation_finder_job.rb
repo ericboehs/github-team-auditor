@@ -41,8 +41,6 @@ class IssueCorrelationFinderJob < ApplicationJob
     # Count the results for a better message
     total_issues = @team.team_members.joins(:issue_correlations).count
     message = "Issue correlation completed successfully! Found #{total_issues} issues across team members."
-    Rails.cache.write("team_correlation_completed_#{@team.id}", message, expires_in: 60.seconds)
-    Rails.logger.info "Cached correlation completion message for team #{@team.id}: #{message.inspect}"
 
     # Complete the job first
     @team.complete_issue_correlation_job!
