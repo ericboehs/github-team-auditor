@@ -19,7 +19,7 @@ class InputComponentTest < ViewComponent::TestCase
     render_inline(component)
 
     assert_selector "input[type='email']"
-    assert_selector "label", text: "Email"
+    assert_selector "label", text: "Email *"
     assert_selector "input[required]"
   end
 

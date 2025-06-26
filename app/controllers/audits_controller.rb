@@ -86,20 +86,31 @@ class AuditsController < ApplicationController
   end
 
   def toggle_status
-    new_status =
-      case @audit_session.status
-      when "active"
-        "completed"
-      when "completed"
-        "active"
-      when "draft"
-        "active"
-      else
-        "active"
-      end
+    # If a specific status is provided, use it; otherwise, use the toggle logic
+    if params[:status].present? && %w[draft active completed].include?(params[:status])
+      new_status = params[:status]
+    else
+      # Legacy toggle behavior
+      new_status =
+        case @audit_session.status
+        when "active"
+          "completed"
+        when "completed"
+          "active"
+        when "draft"
+          "active"
+        else
+          "active"
+        end
+    end
 
     if @audit_session.update(status: new_status, completed_at: new_status == "completed" ? Time.current : nil)
-      notice_key = new_status == "completed" ? "marked_complete" : "marked_active"
+      notice_key = case new_status
+      when "completed" then "marked_complete"
+      when "active" then "marked_active"
+      when "draft" then "marked_draft"
+      else "marked_active"
+      end
       redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.#{notice_key}") }
     else
       redirect_to audit_path(@audit_session), alert: @audit_session.errors.full_messages.join(", ")

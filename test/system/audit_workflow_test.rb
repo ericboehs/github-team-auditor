@@ -41,7 +41,7 @@ class AuditWorkflowTest < ApplicationSystemTestCase
     assert_text "Test notes for audit"
 
     # Now that we auto-sync team members, we should see them
-    assert_text "Total Members"
+    assert_text "Members"
     assert_text "Jane Smith"
     assert_text "John Doe"
   end

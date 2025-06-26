@@ -254,6 +254,30 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Name can't be blank", flash[:alert]
   end
 
+  test "should set specific status when status parameter is provided" do
+    sign_in_as(@user)
+    @audit_session.update!(status: "active")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "draft" }
+
+    @audit_session.reload
+    assert_equal "draft", @audit_session.status
+    assert_redirected_to audit_path(@audit_session)
+    assert_equal I18n.t("flash.audits.marked_draft"), flash[:success]
+  end
+
+  test "should reject invalid status parameter" do
+    sign_in_as(@user)
+    @audit_session.update!(status: "active")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "invalid_status" }
+
+    @audit_session.reload
+    # Should fall back to toggle behavior
+    assert_equal "completed", @audit_session.status
+    assert_redirected_to audit_path(@audit_session)
+  end
+
   private
 
   def sign_in_as(user)

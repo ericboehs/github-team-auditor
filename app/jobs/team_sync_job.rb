@@ -10,12 +10,21 @@ class TeamSyncJob < ApplicationJob
     Rails.logger.info "Starting team sync for team: #{team.name}"
     team.start_sync_job!
 
-    # Broadcast sync started via Turbo Stream
+    # Broadcast sync started to team show page
     Turbo::StreamsChannel.broadcast_update_to(
       "team_#{team.id}",
       target: "status-banner-container",
       partial: "shared/status_banner",
       locals: { message: "Syncing team members from GitHub...", type: :info, spinner: true }
+    )
+
+    # Broadcast syncing state to team index page
+    team.reload # Get fresh sync_status
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "teams_index",
+      target: "team-card-#{team.id}",
+      partial: "teams/team_card",
+      locals: { team: team }
     )
 
     # Sync team members to team_members table
@@ -29,10 +38,10 @@ class TeamSyncJob < ApplicationJob
     message = "Team sync completed successfully! Added #{results[:new_members]} new members, updated #{results[:updated]} members."
 
     # Broadcast completion message via Turbo Stream
-    Turbo::StreamsChannel.broadcast_replace_to(
+    Turbo::StreamsChannel.broadcast_update_to(
       "team_#{team.id}",
       target: "flash-messages",
-      partial: "shared/flash_message",
+      partial: "shared/turbo_flash_message",
       locals: { message: message, type: :success }
     )
 

@@ -43,7 +43,7 @@
         <!-- Form -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
           <div class="px-6 py-8">
-            <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
+            <%= form_with model: @team, local: true, data: { turbo: false }, class: "space-y-6" do |form| %>
               <% if @team.errors.any? %>
                 <%= render AlertComponent.new(
                   messages: @team.errors.full_messages,
@@ -72,6 +72,8 @@
                     form: form,
                     field: :github_slug,
                     type: :text,
+                    required: true,
+                    autocapitalize: "none",
                     i18n_scope: "teams.form"
                   ) %>
 
@@ -110,20 +112,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between pt-6">
-                <div>
-                  <%= render LinkButtonComponent.new(
-                    text: t('buttons.delete'),
-                    url: team_path(@team),
-                    variant: :danger,
-                    include_flex: false,
-                    data: {
-                      "turbo-method": "delete",
-                      "turbo-confirm": t("teams.form.delete_confirm")
-                    }
-                  ) %>
-                </div>
-
+              <div class="flex items-center justify-end pt-6">
                 <div class="flex items-center space-x-4">
                   <%= render LinkButtonComponent.new(text: t("buttons.cancel"), url: team_path(@team), variant: :secondary) %>
                   <%= render ButtonComponent.new(text: t("teams.form.update_button"), type: :submit, variant: :primary) %>

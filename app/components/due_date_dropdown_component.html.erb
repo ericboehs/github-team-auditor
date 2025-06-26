@@ -1,0 +1,72 @@
+<div class="relative inline-block text-left" data-controller="dropdown due-date-dropdown">
+  <div>
+    <button type="button"
+            class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold shadow-xs ring-1 ring-inset bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+            data-action="click->dropdown#toggle"
+            data-dropdown-target="button"
+            aria-expanded="false"
+            aria-haspopup="true">
+      <%= button_text %>
+      <svg class="-mr-1 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="absolute left-0 z-10 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-left rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-hidden opacity-0 scale-95 transform transition ease-out duration-100 pointer-events-none"
+      role="menu"
+      aria-orientation="vertical"
+      tabindex="-1"
+      inert
+      data-dropdown-target="menu"
+      data-transition-enter="transition ease-out duration-100"
+      data-transition-enter-start="transform opacity-0 scale-95"
+      data-transition-enter-end="transform opacity-100 scale-100"
+      data-transition-leave="transition ease-in duration-75"
+      data-transition-leave-start="transform opacity-100 scale-100"
+      data-transition-leave-end="transform opacity-0 scale-95">
+
+    <div class="p-4" role="none">
+      <%= form_with model: audit_session, url: audit_path(audit_session), method: :patch, local: true, class: "space-y-4", id: "due-date-form", data: { due_date_dropdown_target: "form" } do |form| %>
+        <div class="pr-4">
+          <%= form.label :due_date, t('common.due_date'), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
+          <div class="relative">
+            <%= form.date_field :due_date,
+                value: audit_session.due_date&.strftime('%Y-%m-%d'),
+                class: "block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-vads-primary focus:border-vads-primary dark:bg-gray-700 dark:text-white text-sm leading-normal",
+                data: { due_date_dropdown_target: "dateField", dropdown_target: "input" } %>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center space-x-2">
+          <div>
+            <% if audit_session.due_date %>
+              <%= button_tag type: :button,
+                    class: "inline-flex items-center px-2 py-1 text-sm text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 bg-transparent border-0",
+                    data: { action: "click->due-date-dropdown#clearDate" } do %>
+                <%= clear_icon %>
+                <span class="ml-1"><%= t('due_date.clear_due_date') %></span>
+              <% end %>
+            <% end %>
+          </div>
+
+          <div class="flex space-x-2">
+            <%= render ButtonComponent.new(
+              text: t('buttons.cancel'),
+              type: :button,
+              variant: :secondary,
+              data: { action: "click->dropdown#toggle" },
+              class: "text-sm px-3 py-1"
+            ) %>
+            <%= render ButtonComponent.new(
+              text: t('buttons.save'),
+              type: :submit,
+              variant: :primary,
+              class: "text-sm px-3 py-1"
+            ) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -19,12 +19,21 @@ class IssueCorrelationFinderJob < ApplicationJob
     Rails.logger.info "Starting issue correlation finder for team #{@team.name} with search terms: #{@search_terms}"
     @team.start_issue_correlation_job!
 
-    # Broadcast correlation started via Turbo Stream
+    # Broadcast correlation started to team show page
     Turbo::StreamsChannel.broadcast_update_to(
       "team_#{@team.id}",
       target: "status-banner-container",
       partial: "shared/status_banner",
       locals: { message: "Finding GitHub issues for team members...", type: :info, spinner: true }
+    )
+
+    # Broadcast syncing state to team index page
+    @team.reload # Get fresh issue_correlation_status
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "teams_index",
+      target: "team-card-#{@team.id}",
+      partial: "teams/team_card",
+      locals: { team: @team }
     )
 
     find_correlations_for_team
@@ -39,10 +48,10 @@ class IssueCorrelationFinderJob < ApplicationJob
     @team.complete_issue_correlation_job!
 
     # Broadcast completion message via Turbo Stream
-    Turbo::StreamsChannel.broadcast_replace_to(
+    Turbo::StreamsChannel.broadcast_update_to(
       "team_#{@team.id}",
       target: "flash-messages",
-      partial: "shared/flash_message",
+      partial: "shared/turbo_flash_message",
       locals: { message: message, type: :success }
     )
 

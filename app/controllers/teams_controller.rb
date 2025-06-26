@@ -1,5 +1,5 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations, :dismiss_status ]
+  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations ]
 
   def index
     @teams = Team.includes(:organization, :audit_sessions, :team_members).order(:name)
@@ -60,6 +60,21 @@ class TeamsController < ApplicationController
   end
 
   def sync
+    # Check if any jobs are already running
+    if @team.any_jobs_running?
+      alert_message = if @team.sync_running?
+        t("flash.teams.sync_already_running")
+      else
+        t("flash.teams.cannot_sync_while_finding_issues")
+      end
+
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: alert_message }
+        format.turbo_stream { head :ok }
+      end
+      return
+    end
+
     # Sync team data from GitHub in background
     @team.sync_from_github!
 
@@ -70,6 +85,21 @@ class TeamsController < ApplicationController
   end
 
   def find_issue_correlations
+    # Check if any jobs are already running
+    if @team.any_jobs_running?
+      alert_message = if @team.issue_correlation_running?
+        t("flash.teams.issue_correlation_already_running")
+      else
+        t("flash.teams.cannot_find_issues_while_syncing")
+      end
+
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: alert_message }
+        format.turbo_stream { head :ok }
+      end
+      return
+    end
+
     # Validate that search terms are defined beyond the default
     if @team.search_terms.blank?
       respond_to do |format|
@@ -91,14 +121,6 @@ class TeamsController < ApplicationController
   end
 
 
-  def dismiss_status
-    @team.update!(
-      sync_completed_at: nil,
-      issue_correlation_completed_at: nil
-    )
-
-    head :ok
-  end
 
   private
 

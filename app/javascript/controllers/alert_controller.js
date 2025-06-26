@@ -4,7 +4,37 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static values = { dismissUrl: String }
 
-  dismiss() {
+  connect() {
+    this.dismissed = false
+    // Add mobile-friendly event listeners as backup
+    const dismissButton = this.element.querySelector('[data-action*="alert#dismiss"]')
+    if (dismissButton) {
+      // Add touch listeners for mobile support
+      dismissButton.addEventListener('touchend', this.handleTouch.bind(this), { passive: false })
+    }
+  }
+
+  handleTouch(event) {
+    if (this.dismissed) return
+    event.preventDefault()
+    event.stopPropagation()
+    this.dismiss(event)
+  }
+
+  dismiss(event) {
+    // Prevent duplicate dismissals
+    if (this.dismissed) return
+    this.dismissed = true
+
+    // Prevent any default behavior
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    // Store reference to next focusable element before removal
+    const nextFocusElement = this.findNextFocusElement()
+
     // Add closing animation
     this.element.style.transition = 'all 0.3s ease-out'
     this.element.style.opacity = '0'
@@ -32,9 +62,29 @@ export default class extends Controller {
       })
     }
 
-    // Remove element after animation completes
+    // Remove element after animation completes and manage focus
     setTimeout(() => {
       this.element.remove()
+      // Return focus to next logical element
+      if (nextFocusElement) {
+        nextFocusElement.focus()
+      }
     }, 300)
+  }
+
+  // Find the next logical element to focus after dismissing the alert
+  findNextFocusElement() {
+    // Try to find the main content area
+    const mainContent = document.querySelector('main#main-content')
+    if (mainContent) {
+      // Look for the first focusable element in main content
+      const focusableElements = mainContent.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+      return focusableElements[0] || mainContent
+    }
+
+    // Fallback to skip link or body
+    return document.querySelector('.skip-link') || document.body
   }
 }

@@ -1,12 +1,13 @@
-<div class="<%= card_classes %>">
+<% content_wrapper = url ? "a" : "div" %>
+<% wrapper_options = url ? { href: url, class: "#{card_classes} hover:shadow-md transition-shadow" } : { class: card_classes } %>
+
+<%= content_tag(content_wrapper, wrapper_options) do %>
   <div class="p-5">
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 <%= icon_bg_color %> rounded-md flex items-center justify-center">
-          <svg class="w-5 h-5 <%= icon_color %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= icon_path %>"></path>
-          </svg>
-        </div>
+        <svg class="w-8 h-8 <%= icon_color %>" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_path %>"></path>
+        </svg>
       </div>
       <div class="ml-5 w-0 flex-1">
         <dl>
@@ -16,4 +17,4 @@
       </div>
     </div>
   </div>
-</div>
+<% end %>

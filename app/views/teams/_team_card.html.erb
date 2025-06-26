@@ -37,12 +37,16 @@
         <!-- Team Stats -->
         <div class="grid grid-cols-2 gap-4 mt-4">
           <div class="text-center">
-            <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.team_members.count %></p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Members</p>
+            <%= link_to team_path(team), class: "block hover:opacity-75 transition-opacity" do %>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.team_members.count %></p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Members</p>
+            <% end %>
           </div>
           <div class="text-center">
-            <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.audit_sessions.count %></p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Audits</p>
+            <%= link_to audits_path(team_id: team.id), class: "block hover:opacity-75 transition-opacity" do %>
+              <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.audit_sessions.count %></p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Audits</p>
+            <% end %>
           </div>
         </div>
       </div>
