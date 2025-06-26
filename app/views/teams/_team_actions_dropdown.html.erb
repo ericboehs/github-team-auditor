@@ -27,26 +27,6 @@
       icon_path: '<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>',
       hover_color: 'secondary'
     },
-    {
-      type: :form,
-      text: team.sync_running? ? 'Syncing GitHub Team...' : 'Sync GitHub Team',
-      url: sync_team_path(team),
-      method: :post,
-      data: { turbo_submits_with: 'Syncing GitHub Team...' },
-      icon_path: '<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>',
-      hover_color: 'secondary',
-      disabled: team.any_jobs_running?
-    },
-    {
-      type: :form,
-      text: team.issue_correlation_running? ? 'Finding GitHub Issues...' : 'Find GitHub Issues',
-      url: find_issue_correlations_team_path(team),
-      method: :post,
-      data: { turbo_submits_with: 'Finding GitHub Issues...' },
-      icon_path: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>',
-      hover_color: 'secondary',
-      disabled: team.any_jobs_running?
-    },
     # Divider
     { type: :divider },
     # Section 3: Management actions

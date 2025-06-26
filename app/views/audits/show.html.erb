@@ -238,6 +238,10 @@
                 <div class="flex flex-col space-y-1">
                   <% if member.maintainer_role? %>
                     <%= render StatusBadgeComponent.new(status: "maintainer", class: "w-fit") %>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200 w-fit">
+                      <%= t('status_badges.member') %>
+                    </span>
                   <% end %>
                   <% if member.government_employee? %>
                     <%= render StatusBadgeComponent.new(status: "government", class: "w-fit") %>

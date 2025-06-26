@@ -18,7 +18,7 @@ class AlertComponent < ViewComponent::Base
   end
 
   def alert_classes
-    base_classes = "rounded-md p-4"
+    base_classes = "rounded-md p-4 mb-4"
 
     case type
     when :success
@@ -65,18 +65,18 @@ class AlertComponent < ViewComponent::Base
   end
 
   def dismiss_button_classes
-    base_classes = "inline-flex rounded-md min-h-[44px] min-w-[44px] items-center justify-center touch-manipulation cursor-pointer"
+    base_classes = "inline-flex rounded-md h-6 w-6 items-center justify-center touch-manipulation cursor-pointer"
     case type
     when :success
-      "#{base_classes} bg-green-50 dark:bg-green-900/50 p-1.5 text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-green-50 dark:focus:ring-offset-green-900/50 focus:outline-hidden"
+      "#{base_classes} bg-green-50 dark:bg-green-900/50 p-0.5 text-green-500 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-green-50 dark:focus:ring-offset-green-900/50 focus:outline-hidden"
     when :error, :alert
-      "#{base_classes} bg-red-50 dark:bg-red-900/50 p-1.5 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-red-50 dark:focus:ring-offset-red-900/50 focus:outline-hidden"
+      "#{base_classes} bg-red-50 dark:bg-red-900/50 p-0.5 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-red-50 dark:focus:ring-offset-red-900/50 focus:outline-hidden"
     when :warning
-      "#{base_classes} bg-yellow-50 dark:bg-yellow-900/50 p-1.5 text-yellow-500 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:focus:ring-offset-yellow-900/50 focus:outline-hidden"
+      "#{base_classes} bg-yellow-50 dark:bg-yellow-900/50 p-0.5 text-yellow-500 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:focus:ring-offset-yellow-900/50 focus:outline-hidden"
     when :info
-      "#{base_classes} bg-blue-50 dark:bg-blue-900/50 p-1.5 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-blue-50 dark:focus:ring-offset-blue-900/50 focus:outline-hidden"
+      "#{base_classes} bg-blue-50 dark:bg-blue-900/50 p-0.5 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-blue-50 dark:focus:ring-offset-blue-900/50 focus:outline-hidden"
     else
-      "#{base_classes} bg-gray-50 dark:bg-gray-900/50 p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900/50 focus:outline-hidden"
+      "#{base_classes} bg-gray-50 dark:bg-gray-900/50 p-0.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900/50 focus:outline-hidden"
     end
   end
 

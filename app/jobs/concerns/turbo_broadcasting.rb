@@ -4,11 +4,17 @@ module TurboBroadcasting
   private
 
   def broadcast_job_started(team, message_key, announcement_key)
+    # Clear any existing flash messages first
+    broadcast_clear_flash_messages(team)
+
     # Broadcast job started status banner
     broadcast_status_banner(team, I18n.t(message_key), :info, spinner: true)
 
     # Announce start to screen readers
     broadcast_live_announcement(team, I18n.t(announcement_key, team_name: team.name))
+
+    # Update team actions dropdown to disable buttons while job is running
+    broadcast_dropdown_update(team)
 
     # Update team card on index page to show job running state
     broadcast_team_card_update(team)
@@ -63,6 +69,14 @@ module TurboBroadcasting
     )
   end
 
+  def broadcast_clear_flash_messages(team)
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{team.id}",
+      target: "flash-messages",
+      html: ""
+    )
+  end
+
   def broadcast_live_announcement(team, announcement)
     Turbo::StreamsChannel.broadcast_update_to(
       "team_#{team.id}",
@@ -80,6 +94,17 @@ module TurboBroadcasting
   end
 
   def broadcast_dropdown_update(team)
+    team.reload # Ensure fresh data for button rendering
+
+    # Update the sync buttons (replaces the old dropdown update)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{team.id}",
+      target: "team-sync-buttons",
+      partial: "teams/sync_buttons",
+      locals: { team: team }
+    )
+
+    # Also update the dropdown (in case it has other dynamic content)
     Turbo::StreamsChannel.broadcast_replace_to(
       "team_#{team.id}",
       target: "team-actions-dropdown",

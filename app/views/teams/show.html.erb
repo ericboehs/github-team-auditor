@@ -7,17 +7,16 @@
   <div aria-live="polite" aria-atomic="true" class="sr-only" id="live-announcements"></div>
   <%= render 'shared/navbar' %>
 
-  <div id="flash-messages">
-    <% if flash[:alert] || flash[:notice] || flash[:success] %>
-      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
-        <%= render 'shared/flash_messages' %>
-      </div>
-    <% end %>
-  </div>
-
   <div class="py-6">
     <main id="main-content">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <!-- Flash Messages -->
+        <div id="flash-messages">
+          <% if flash[:alert] || flash[:notice] || flash[:success] %>
+            <%= render 'shared/flash_messages' %>
+          <% end %>
+        </div>
+
         <!-- Status Banner -->
         <div id="status-banner-container">
           <% if @team.any_jobs_running? %>
@@ -37,15 +36,32 @@
               </div>
             </div>
 
-            <!-- Actions dropdown moved next to title -->
-            <div id="team-actions-dropdown">
-              <%= render 'team_actions_dropdown', team: @team %>
+            <!-- Actions and Sync Buttons -->
+            <div class="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+              <!-- Sync buttons - visible on desktop -->
+              <div class="hidden sm:block">
+                <%= render 'sync_buttons', team: @team %>
+              </div>
+
+              <!-- Actions dropdown -->
+              <div id="team-actions-dropdown">
+                <%= render 'team_actions_dropdown', team: @team %>
+              </div>
             </div>
           </div>
 
-          <!-- Sync info below the button -->
-          <div class="flex justify-start md:justify-end">
-            <%= render 'last_synced', last_synced_at: @last_synced_at, last_issue_correlation_at: @last_issue_correlation_at %>
+          <!-- Sync info and mobile sync buttons -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="order-2 sm:order-1">
+              <!-- Sync buttons - visible on mobile only -->
+              <div class="block sm:hidden">
+                <%= render 'sync_buttons', team: @team %>
+              </div>
+            </div>
+
+            <div class="order-1 sm:order-2">
+              <%= render 'last_synced', last_synced_at: @last_synced_at, last_issue_correlation_at: @last_issue_correlation_at %>
+            </div>
           </div>
         </div>
 

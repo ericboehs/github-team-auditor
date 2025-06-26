@@ -112,6 +112,7 @@ export default class extends Controller {
     }
   }
 
+
   isOpen() {
     return this.menuTarget.classList.contains("opacity-100")
   }

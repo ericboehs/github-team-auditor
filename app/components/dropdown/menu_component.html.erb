@@ -1,0 +1,18 @@
+<div class="<%= menu_classes %>"
+    role="menu"
+    aria-orientation="vertical"
+    tabindex="-1"
+    inert
+    data-dropdown-target="menu"
+    data-transition-enter="transition ease-out duration-100"
+    data-transition-enter-start="transform opacity-0 scale-95"
+    data-transition-enter-end="transform opacity-100 scale-100"
+    data-transition-leave="transition ease-in duration-75"
+    data-transition-leave-start="transform opacity-100 scale-100"
+    data-transition-leave-end="transform opacity-0 scale-95">
+  <div class="py-1" role="none">
+    <% items.each_with_index do |item, item_index| %>
+      <%= render_menu_item(item, "menu-item-#{item_index}") %>
+    <% end %>
+  </div>
+</div>
