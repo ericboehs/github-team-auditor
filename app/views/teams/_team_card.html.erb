@@ -1,0 +1,52 @@
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+  <div class="p-6">
+    <div class="flex items-start justify-between">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center mb-2">
+          <img class="h-6 w-6 rounded-full mr-2" src="https://github.com/<%= team.organization.github_login %>.png" alt="<%= team.organization.name %>">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <%= link_to team.name, team_path(team), class: "hover:text-blue-800 dark:hover:text-blue-600" %>
+          </h3>
+          <% if team.any_jobs_running? %>
+            <div class="ml-2 flex items-center">
+              <svg class="animate-spin h-3 w-3 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-xs text-blue-600 dark:text-blue-400">Syncing</span>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Last Synced Info -->
+        <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          <% if team.last_synced_at %>
+            Last synced <%= time_ago_in_words(team.last_synced_at) %> ago
+          <% else %>
+            Never synced
+          <% end %>
+        </div>
+
+        <% if team.description.present? %>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2"><%= team.description %></p>
+        <% end %>
+
+        <!-- Team Stats -->
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="text-center">
+            <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.team_members.count %></p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Members</p>
+          </div>
+          <div class="text-center">
+            <p class="text-lg font-semibold text-gray-900 dark:text-white"><%= team.audit_sessions.count %></p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Audits</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

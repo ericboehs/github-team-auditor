@@ -40,4 +40,52 @@ class Team < ApplicationRecord
   def name_with_slug
     "#{name} (#{github_slug})"
   end
+
+  # Job status management
+  def sync_running?
+    sync_status.present?
+  end
+
+  def issue_correlation_running?
+    issue_correlation_status.present?
+  end
+
+  def any_jobs_running?
+    sync_running? || issue_correlation_running?
+  end
+
+  def start_sync_job!
+    update!(sync_status: "running", sync_started_at: Time.current)
+  end
+
+  def complete_sync_job!
+    update!(
+      sync_status: nil,
+      sync_started_at: nil,
+      last_synced_at: Time.current
+    )
+  end
+
+  def start_issue_correlation_job!
+    update!(issue_correlation_status: "running", issue_correlation_started_at: Time.current)
+  end
+
+  def complete_issue_correlation_job!
+    update!(
+      issue_correlation_status: nil,
+      issue_correlation_started_at: nil,
+      issue_correlation_completed_at: Time.current
+    )
+  end
+
+  def current_job_status
+    if sync_running? && issue_correlation_running?
+      # When both are running, prioritize the more specific issue correlation status
+      issue_correlation_status
+    elsif sync_running?
+      sync_status == "running" ? "Syncing team members from GitHub..." : sync_status
+    elsif issue_correlation_running?
+      issue_correlation_status == "running" ? "Finding GitHub issues for team members..." : issue_correlation_status
+    end
+  end
 end

@@ -4,7 +4,12 @@ class IssueCorrelationFinderJob < ApplicationJob
   def perform(team_id, search_terms: nil, exclusion_terms: nil, repository: nil)
     @team = Team.find(team_id)
     @organization = @team.organization
-    @api_client = @api_client || Github::ApiClient.new(@organization)
+
+    # Create API client with rate limit callback for countdown display
+    rate_limit_callback = lambda do |remaining_seconds|
+      update_rate_limit_status(remaining_seconds)
+    end
+    @api_client = @api_client || Github::ApiClient.new(@organization, rate_limit_callback: rate_limit_callback)
 
     # Use team's search configuration, with fallbacks to parameters or defaults
     @search_terms = search_terms || @team.effective_search_terms
@@ -12,21 +17,79 @@ class IssueCorrelationFinderJob < ApplicationJob
     @repository = repository || @team.effective_search_repository
 
     Rails.logger.info "Starting issue correlation finder for team #{@team.name} with search terms: #{@search_terms}"
+    @team.start_issue_correlation_job!
+
+    # Broadcast correlation started via Turbo Stream
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{@team.id}",
+      target: "status-banner-container",
+      partial: "shared/status_banner",
+      locals: { message: "Finding GitHub issues for team members...", type: :info, spinner: true }
+    )
 
     find_correlations_for_team
+
+    # Count the results for a better message
+    total_issues = @team.team_members.joins(:issue_correlations).count
+    message = "Issue correlation completed successfully! Found #{total_issues} issues across team members."
+    Rails.cache.write("team_correlation_completed_#{@team.id}", message, expires_in: 60.seconds)
+    Rails.logger.info "Cached correlation completion message for team #{@team.id}: #{message.inspect}"
+
+    # Complete the job first
+    @team.complete_issue_correlation_job!
+
+    # Broadcast completion message via Turbo Stream
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{@team.id}",
+      target: "flash-messages",
+      partial: "shared/flash_message",
+      locals: { message: message, type: :success }
+    )
+
+    # Clear status banner
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{@team.id}",
+      target: "status-banner-container",
+      html: ""
+    )
+
+    # Update team card on index page to remove syncing badge
+    @team.reload # Ensure fresh data
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "teams_index",
+      target: "team-card-#{@team.id}",
+      partial: "teams/team_card",
+      locals: { team: @team }
+    )
+
+    Rails.logger.info "Broadcasted correlation completion message for team #{@team.id}: #{message}"
+    Rails.logger.info "Issue correlation finder completed for team #{@team.name}"
+  rescue StandardError => e
+    Rails.logger.error "Issue correlation finder failed for team #{@team&.name}: #{e.message}"
+    @team&.update!(issue_correlation_status: "failed")
+    raise
   end
 
   private
 
   def find_correlations_for_team
-    @team.team_members.current.find_each do |team_member|
+    members = @team.team_members.current.order(:github_login)
+    total_members = members.count
+    @current_index = 0
+
+    members.each do |team_member|
+      @current_index += 1
+      @current_member = team_member.github_login
+      @total_members = total_members
+
+      # Update status with current progress
+      update_progress_status
+
       find_correlations_for_member(team_member)
     rescue StandardError => e
       Rails.logger.error "Failed to find correlations for member #{team_member.github_login}: #{e.message}"
       # Continue with other members even if one fails
     end
-
-    Rails.logger.info "Issue correlation finder completed for team #{@team.name}"
   end
 
   def find_correlations_for_member(team_member)
@@ -103,6 +166,17 @@ class IssueCorrelationFinderJob < ApplicationJob
       # If no issues found, remove all existing correlations for this member
       team_member.issue_correlations.destroy_all
     end
+
+    # Reload the team member to get fresh issue correlations for broadcast
+    team_member.reload
+
+    # Broadcast updated issues for this member via Turbo Stream
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{@team.id}",
+      target: "member-issues-#{team_member.id}",
+      partial: "teams/member_issues",
+      locals: { member: team_member }
+    )
   end
 
   def truncate_description(body)
@@ -120,6 +194,34 @@ class IssueCorrelationFinderJob < ApplicationJob
       "resolved"
     else
       "open" # Default to open for unknown states
+    end
+  end
+
+  def update_progress_status
+    progress_message = "Finding issues for #{@current_member} (#{@current_index}/#{@total_members})..."
+
+    # Broadcast only the message text update (keeps spinner spinning smoothly)
+    Turbo::StreamsChannel.broadcast_update_to(
+      "team_#{@team.id}",
+      target: "status-message",
+      html: progress_message
+    )
+  end
+
+  def update_rate_limit_status(remaining_seconds)
+    if remaining_seconds > 0
+      # Combine progress and rate limit information
+      combined_message = "Finding issues for #{@current_member} (#{@current_index}/#{@total_members}). Waiting #{remaining_seconds} seconds for GitHub's rate limit..."
+
+      # Broadcast only the message text update (keeps spinner spinning smoothly)
+      Turbo::StreamsChannel.broadcast_update_to(
+        "team_#{@team.id}",
+        target: "status-message",
+        html: combined_message
+      )
+    else
+      # Resume with progress information
+      update_progress_status
     end
   end
 end

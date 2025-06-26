@@ -104,7 +104,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to audit_path(@audit_session)
-    assert_equal I18n.t("flash.audits.updated"), flash[:notice]
+    assert_equal I18n.t("flash.audits.updated"), flash[:success]
     @audit_session.reload
     assert_equal 1.month.from_now.to_date, @audit_session.due_date
   end
@@ -132,7 +132,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to audits_path
-    assert_equal I18n.t("flash.audits.deleted"), flash[:notice]
+    assert_equal I18n.t("flash.audits.deleted"), flash[:success]
   end
 
   test "should get index filtered by team" do

@@ -71,6 +71,10 @@ class TeamSyncJobTest < ActiveJob::TestCase
       end
 
       assert_equal "Sync failed", error.message
+
+      # Check that team sync_status was set to failed
+      @team.reload
+      assert_equal "failed", @team.sync_status
     end
 
     mock_service.verify

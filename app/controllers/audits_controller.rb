@@ -58,7 +58,7 @@ class AuditsController < ApplicationController
 
     if @audit_session.save
       @audit_session.sync_team_members!
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.created")
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.created") }
     else
       @organizations = Organization.all
       if @audit_session.organization
@@ -74,7 +74,7 @@ class AuditsController < ApplicationController
 
   def update
     if @audit_session.update(audit_session_params)
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.updated")
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.updated") }
     else
       redirect_to audit_path(@audit_session), alert: @audit_session.errors.full_messages.join(", ")
     end
@@ -82,7 +82,7 @@ class AuditsController < ApplicationController
 
   def destroy
     @audit_session.destroy
-    redirect_to audits_path, notice: t("flash.audits.deleted")
+    redirect_to audits_path, flash: { success: t("flash.audits.deleted") }
   end
 
   def toggle_status
@@ -100,7 +100,7 @@ class AuditsController < ApplicationController
 
     if @audit_session.update(status: new_status, completed_at: new_status == "completed" ? Time.current : nil)
       notice_key = new_status == "completed" ? "marked_complete" : "marked_active"
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.#{notice_key}")
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.#{notice_key}") }
     else
       redirect_to audit_path(@audit_session), alert: @audit_session.errors.full_messages.join(", ")
     end

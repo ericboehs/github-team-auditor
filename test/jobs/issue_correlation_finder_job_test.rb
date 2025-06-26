@@ -343,4 +343,25 @@ class IssueCorrelationFinderJobTest < ActiveJob::TestCase
     assert_equal 1, active_member.issue_correlations.count
     assert_equal 0, inactive_member.issue_correlations.count
   end
+
+  test "should set issue correlation status to failed on error" do
+    @team.team_members.destroy_all
+    @team.team_members.create!(
+      github_login: "test_user",
+      name: "Test User",
+      active: true
+    )
+
+    # Mock the job to raise an error during find_correlations_for_team
+    job = IssueCorrelationFinderJob.new
+    job.stub :find_correlations_for_team, ->() { raise StandardError.new("Test error") } do
+      assert_raises StandardError do
+        job.perform(@team.id)
+      end
+
+      # Check that team issue_correlation_status was set to failed
+      @team.reload
+      assert_equal "failed", @team.issue_correlation_status
+    end
+  end
 end

@@ -36,7 +36,6 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to team_url(@team)
-    assert_equal I18n.t("flash.teams.sync_started"), flash[:notice]
   end
 
   test "should get new" do
@@ -113,18 +112,25 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
 
   test "should find issue correlations" do
     sign_in_as(@user)
+    @team.update!(search_terms: "test search terms")
+
     assert_enqueued_jobs 1, only: IssueCorrelationFinderJob do
       post find_issue_correlations_team_path(@team)
     end
 
     assert_redirected_to team_path(@team)
-    assert_equal I18n.t("flash.teams.issue_correlation_started"), flash[:notice]
   end
 
-  test "should poll for updates" do
+  test "should not find issue correlations without search terms" do
     sign_in_as(@user)
-    get poll_team_path(@team), headers: { "Accept" => "text/vnd.turbo-stream.html" }
-    assert_response :success
-    assert_equal "text/vnd.turbo-stream.html; charset=utf-8", response.content_type
+    @team.update!(search_terms: nil)
+
+    assert_enqueued_jobs 0, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    follow_redirect!
+    assert_select "[role='alert']", text: /Please configure search terms/
   end
 end

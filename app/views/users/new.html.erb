@@ -1,7 +1,7 @@
 <%= render FormContainerComponent.new(
   title_key: "auth.sign_up.title"
 ) do %>
-  <% if flash[:alert] || flash[:notice] %>
+  <% if flash[:alert] || flash[:notice] || flash[:success] %>
     <%= render 'shared/flash_messages' %>
   <% end %>
 

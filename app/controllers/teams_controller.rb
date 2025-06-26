@@ -1,8 +1,8 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations, :poll ]
+  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations, :dismiss_status ]
 
   def index
-    @teams = Team.includes(:organization, :audit_sessions).order(:name)
+    @teams = Team.includes(:organization, :audit_sessions, :team_members).order(:name)
   end
 
   def show
@@ -13,6 +13,12 @@ class TeamsController < ApplicationController
     @validated_members_count = 0 # Not applicable for team-level view
     @maintainer_members_count = @team_members.where(maintainer_role: true).count
     @last_synced_at = @team.last_synced_at
+    @last_issue_correlation_at = @team.issue_correlation_completed_at
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream { head :ok }
+    end
   end
 
   def new
@@ -57,27 +63,41 @@ class TeamsController < ApplicationController
     # Sync team data from GitHub in background
     @team.sync_from_github!
 
-    redirect_to team_path(@team), notice: t("flash.teams.sync_started")
+    respond_to do |format|
+      format.html { redirect_to team_path(@team) }
+      format.turbo_stream { head :ok }
+    end
   end
 
   def find_issue_correlations
+    # Validate that search terms are defined beyond the default
+    if @team.search_terms.blank?
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: "Please configure search terms for this team before running issue correlation." }
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_message", locals: { message: "Please configure search terms for this team before running issue correlation.", type: :alert })
+        }
+      end
+      return
+    end
+
     # Find issue correlations for team members in background using team's configuration
     IssueCorrelationFinderJob.perform_later(@team.id)
 
-    redirect_to team_path(@team), notice: t("flash.teams.issue_correlation_started")
+    respond_to do |format|
+      format.html { redirect_to team_path(@team) }
+      format.turbo_stream { head :ok }
+    end
   end
 
-  def poll
-    # Get updated team data for polling
-    @team_members = @team.team_members.current.order(:github_login)
-    @total_members_count = @team_members.count
-    @validated_members_count = 0 # Not applicable for team-level view
-    @maintainer_members_count = @team_members.where(maintainer_role: true).count
-    @last_synced_at = @team.last_synced_at
 
-    respond_to do |format|
-      format.turbo_stream
-    end
+  def dismiss_status
+    @team.update!(
+      sync_completed_at: nil,
+      issue_correlation_completed_at: nil
+    )
+
+    head :ok
   end
 
   private

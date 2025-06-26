@@ -7,8 +7,9 @@ module Github
     config_accessor :default_rate_limit_delay, default: ApiConfiguration::DEFAULT_RATE_LIMIT_DELAY
     config_accessor :max_retries, default: ApiConfiguration::MAX_RETRIES
 
-    def initialize(organization)
+    def initialize(organization, rate_limit_callback: nil)
       @organization = organization
+      @rate_limit_callback = rate_limit_callback
       token = ENV["GHTA_GITHUB_TOKEN"]
       raise ConfigurationError, "GHTA_GITHUB_TOKEN environment variable is required" if token.blank?
       @client = Octokit::Client.new(access_token: token)
@@ -137,7 +138,7 @@ module Github
           reset_time = e.response_headers["x-ratelimit-reset"].to_i
           sleep_time = [ reset_time - Time.now.to_i, ApiConfiguration::MAX_RETRY_DELAY ].max
           Rails.logger.warn "Rate limited. Sleeping for #{sleep_time}s (attempt #{retries}/#{config.max_retries})"
-          sleep(sleep_time)
+          sleep_with_countdown(sleep_time)
           retry
         else
           raise
@@ -171,10 +172,24 @@ module Github
         reset_time = rate_limit.resets_at
         sleep_time = [ reset_time - Time.now, ApiConfiguration::MIN_CRITICAL_DELAY ].max
         Rails.logger.warn "Rate limit critical (#{remaining}/#{limit} remaining). Sleeping for #{sleep_time}s until #{reset_time}"
-        sleep(sleep_time) if sleep_time > 0
+        sleep_with_countdown(sleep_time) if sleep_time > 0
       elsif remaining < warning_threshold
         Rails.logger.debug "Rate limit warning (#{remaining}/#{limit} remaining). Sleeping for #{config.default_rate_limit_delay}s"
-        sleep(config.default_rate_limit_delay)
+        sleep_with_countdown(config.default_rate_limit_delay)
+      end
+    end
+
+    def sleep_with_countdown(sleep_time)
+      return if sleep_time <= 0
+
+      if @rate_limit_callback
+        total_seconds = sleep_time.to_i
+        (total_seconds).downto(1) do |remaining_seconds|
+          @rate_limit_callback.call(remaining_seconds)
+          sleep(1)
+        end
+      else
+        sleep(sleep_time)
       end
     end
 

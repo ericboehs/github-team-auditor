@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 class AlertComponent < ViewComponent::Base
-  def initialize(message: nil, messages: nil, type: :info, dismissible: false)
+  def initialize(message: nil, messages: nil, type: :info, dismissible: false, spinner: false)
     @message = message
     @messages = messages
     @type = type
     @dismissible = dismissible
+    @spinner = spinner
   end
 
   private
 
-  attr_reader :message, :messages, :type, :dismissible
+  attr_reader :message, :messages, :type, :dismissible, :spinner
 
   def has_list?
     messages && messages.any?
@@ -75,6 +76,21 @@ class AlertComponent < ViewComponent::Base
       "inline-flex rounded-md bg-blue-50 dark:bg-blue-900/50 p-1.5 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-blue-50 dark:focus:ring-offset-blue-900/50 focus:outline-hidden"
     else
       "inline-flex rounded-md bg-gray-50 dark:bg-gray-900/50 p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900/50 focus:outline-hidden"
+    end
+  end
+
+  def spinner_color
+    case type
+    when :success
+      "text-green-400"
+    when :error, :alert
+      "text-red-400"
+    when :warning
+      "text-yellow-400"
+    when :info
+      "text-blue-400"
+    else
+      "text-gray-400"
     end
   end
 

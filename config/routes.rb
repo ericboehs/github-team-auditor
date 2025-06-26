@@ -3,7 +3,7 @@ Rails.application.routes.draw do
     member do
       post :sync
       post :find_issue_correlations
-      get :poll
+      patch :dismiss_status
     end
   end
   resources :audits, only: [ :index, :show, :new, :create, :update, :destroy ] do

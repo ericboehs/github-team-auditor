@@ -1,9 +1,10 @@
 <% content_for :title, t("teams.index.title") %>
 
 <div class="min-h-full bg-gray-50 dark:bg-gray-900">
+  <%= turbo_stream_from "teams_index" %>
   <%= render 'shared/navbar' %>
 
-  <% if flash[:alert] || flash[:notice] %>
+  <% if flash[:alert] || flash[:notice] || flash[:success] %>
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
       <%= render 'shared/flash_messages' %>
     </div>
@@ -25,24 +26,8 @@
         <!-- Teams Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <% @teams.each do |team| %>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-              <div class="p-6">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center mb-2">
-                      <img class="h-6 w-6 rounded-full mr-2" src="https://github.com/<%= team.organization.github_login %>.png" alt="<%= team.organization.name %>">
-                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        <%= link_to team.name, team_path(team), class: "hover:text-blue-800 dark:hover:text-blue-600" %>
-                      </h3>
-                    </div>
-
-                    <% if team.description.present? %>
-                      <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2"><%= team.description %></p>
-                    <% end %>
-                  </div>
-                </div>
-
-              </div>
+            <div id="team-card-<%= team.id %>">
+              <%= render 'team_card', team: team %>
             </div>
           <% end %>
         </div>
