@@ -41,6 +41,7 @@ en:
     view_github_issue: "View GitHub issue #%{number} (opens in new tab)"
     team_members_table: "Team members audit data for %{audit_name}"
     organization_members_table: "Members of the %{team_name} team"
+    open_options: "Open options"
 
   navigation:
     dashboard: "Dashboard"
@@ -117,6 +118,8 @@ en:
     due_date: "Due Date"
     no_issues: "No issues"
     actions: "Actions"
+    show_more: "+%{count} more"
+    show_less: "Show less"
 
   status_badges:
     current: "Current"
@@ -339,6 +342,7 @@ en:
     issue_correlation:
       finding_issues: "Finding GitHub issues for team members..."
       finding_issues_short: "Finding Issues..."
+      finding_issues_submits_with: "Finding GitHub Issues..."
       completed_success: "Issue correlation completed successfully! Found %{count} issues across team members."
       started_announcement: "Started finding GitHub issues for %{team_name} team members"
       completed_announcement: "Completed finding GitHub issues for %{team_name}. Found %{count} issues"
@@ -356,6 +360,7 @@ en:
     team_sync:
       syncing: "Syncing team members from GitHub..."
       syncing_short: "Syncing..."
+      syncing_submits_with: "Syncing GitHub Team..."
       completed_success: "Team sync completed successfully! Added %{new_count} new members, updated %{updated_count} members."
       started_announcement: "Started syncing %{team_name} team members from GitHub"
       completed_announcement: "Completed syncing %{team_name}. Added %{new_count} new members, updated %{updated_count} members"

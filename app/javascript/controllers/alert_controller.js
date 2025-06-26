@@ -2,7 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="alert"
 export default class extends Controller {
-  static values = { dismissUrl: String }
 
   connect() {
     this.dismissed = false
@@ -49,18 +48,6 @@ export default class extends Controller {
       this.element.style.paddingBottom = '0'
     })
 
-    // If there's a custom dismiss URL, hit that endpoint
-    if (this.dismissUrlValue) {
-      fetch(this.dismissUrlValue, {
-        method: 'PATCH',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      }).catch(() => {
-        // Continue with removal even if request fails
-      })
-    }
 
     // Remove element after animation completes and manage focus
     setTimeout(() => {

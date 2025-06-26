@@ -15,9 +15,9 @@
           class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
           data-action="click->issue-list#toggle"
           data-issue-list-target="toggleButton"
-          data-expand-text="+<%= member.issue_correlations.count - 2 %> more"
-          data-collapse-text="Show less">
-          +<%= member.issue_correlations.count - 2 %> more
+          data-expand-text="<%= t('common.show_more', count: member.issue_correlations.count - 2) %>"
+          data-collapse-text="<%= t('common.show_less') %>">
+          <%= t('common.show_more', count: member.issue_correlations.count - 2) %>
         </button>
       <% end %>
     </div>
@@ -36,9 +36,9 @@
         class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
         data-action="click->issue-list#toggle"
         data-issue-list-target="toggleButton"
-        data-expand-text="+<%= member.issue_correlations.count - 2 %> more"
-        data-collapse-text="Show less">
-        Show less
+        data-expand-text="<%= t('common.show_more', count: member.issue_correlations.count - 2) %>"
+        data-collapse-text="<%= t('common.show_less') %>">
+        <%= t('common.show_less') %>
       </button>
     </div>
   </div>

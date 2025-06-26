@@ -2,7 +2,7 @@
 <div class="grid grid-cols-2 gap-4 sm:flex sm:flex-row" id="team-sync-buttons">
   <!-- Sync GitHub Team Button -->
   <%= form_with url: sync_team_path(team), method: :post, local: true,
-                data: { turbo_submits_with: 'Syncing GitHub Team...' } do |form| %>
+                data: { turbo_submits_with: t('jobs.team_sync.syncing_submits_with') } do |form| %>
     <%= form.button type: :submit,
                   class: sync_button_classes(team),
                   disabled: team.any_jobs_running?,
@@ -21,7 +21,7 @@
 
   <!-- Find GitHub Issues Button -->
   <%= form_with url: find_issue_correlations_team_path(team), method: :post, local: true,
-                data: { turbo_submits_with: 'Finding GitHub Issues...' } do |form| %>
+                data: { turbo_submits_with: t('jobs.issue_correlation.finding_issues_submits_with') } do |form| %>
     <%= form.button type: :submit,
                   class: sync_button_classes(team),
                   disabled: team.any_jobs_running?,
