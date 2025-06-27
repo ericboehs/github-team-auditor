@@ -69,13 +69,8 @@ module Github
 
       mark_absent_members(github_members.map { |m| m[:github_login] })
 
-      # Enrich new members with detailed user info in background
-      if new_member_count > 0
-        new_member_logins = github_members
-          .select { |m| !existing_members.key?(m[:github_login]) }
-          .map { |m| m[:github_login] }
-        MemberEnrichmentJob.perform_later(@team.id, new_member_logins)
-      end
+      # Member enrichment is now handled inline by the enhanced GraphQL query
+      # No longer need to trigger separate MemberEnrichmentJob
 
       {
         total: github_members.size,

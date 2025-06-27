@@ -8,9 +8,8 @@ All jobs follow a consistent orchestration pattern with shared concerns for main
 
 ### Core Jobs
 
-- **`TeamSyncJob`** - Synchronizes team member data from GitHub API
-- **`IssueCorrelationFinderJob`** - Finds GitHub issues related to team members using configurable search terms
-- **`MemberEnrichmentJob`** - Enriches member profiles with additional GitHub data
+- **`TeamSyncJob`** - Synchronizes team member data from GitHub API with full profile enrichment using GraphQL
+- **`IssueCorrelationFinderJob`** - Finds GitHub issues related to team members using configurable search terms via GraphQL batch processing
 
 ### Shared Concerns
 

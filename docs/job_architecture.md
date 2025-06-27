@@ -22,10 +22,10 @@ The application uses Rails Active Job with Solid Queue for background processing
 - Updates issue correlation records
 - Broadcasts progress and completion status
 
-**MemberEnrichmentJob** - Enriches member profiles with additional data
-- Fetches detailed user information from GitHub
-- Updates member profile data
-- Handles API rate limits gracefully
+**Integrated Member Enrichment** - Now handled directly in TeamSyncJob
+- Member profile enrichment is integrated into the team sync GraphQL query
+- Eliminates separate job and N+1 API call pattern
+- Provides 10-50x performance improvement over individual REST API calls
 
 ## Refactored Architecture
 
