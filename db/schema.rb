@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_25_191530) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_27_213441) do
   create_table "audit_members", force: :cascade do |t|
     t.integer "audit_session_id", null: false
     t.integer "team_member_id", null: false
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_25_191530) do
     t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["access_validated"], name: "index_audit_members_on_access_validated"
     t.index ["audit_session_id", "team_member_id"], name: "index_audit_members_on_session_and_member", unique: true
     t.index ["audit_session_id"], name: "index_audit_members_on_audit_session_id"
     t.index ["team_member_id"], name: "index_audit_members_on_team_member_id"
@@ -96,6 +97,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_25_191530) do
     t.datetime "first_seen_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["github_login"], name: "index_team_members_on_github_login"
+    t.index ["maintainer_role"], name: "index_team_members_on_maintainer_role"
     t.index ["team_id", "github_login"], name: "index_team_members_on_team_id_and_github_login", unique: true
     t.index ["team_id"], name: "index_team_members_on_team_id"
   end
