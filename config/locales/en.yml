@@ -197,6 +197,11 @@ en:
       new_audit: "New Audit"
       last_synced: "Last synced %{time} ago"
       never_synced: "Never synced"
+      synced_just_now: "Synced just now"
+      synced_ago: "Synced %{time} ago"
+      sections:
+        team_statistics: "Team Statistics"
+        team_members: "Team Members"
       stats:
         members: "Members"
         total_audits: "Audits"

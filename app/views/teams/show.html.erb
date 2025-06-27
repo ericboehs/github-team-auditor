@@ -57,15 +57,16 @@
                       </svg>
                       <% if @last_synced_at %>
                         <span title="<%= @last_synced_at.iso8601 %>">
+                          <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
                           <% time_text = time_ago_in_words(@last_synced_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
                           <% if time_text == 'less than a minute' %>
-                            Synced just now
+                            <%= t('teams.show.synced_just_now') %>
                           <% else %>
-                            Synced <%= time_text %> ago
+                            <%= t('teams.show.synced_ago', time: time_text) %>
                           <% end %>
                         </span>
                       <% else %>
-                        Never synced
+                        <%= t('teams.show.never_synced') %>
                       <% end %>
                     </div>
                   </div>
@@ -76,15 +77,16 @@
                       </svg>
                       <% if @last_issue_correlation_at %>
                         <span title="<%= @last_issue_correlation_at.iso8601 %>">
+                          <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
                           <% time_text = time_ago_in_words(@last_issue_correlation_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
                           <% if time_text == 'less than a minute' %>
-                            Synced just now
+                            <%= t('teams.show.synced_just_now') %>
                           <% else %>
-                            Synced <%= time_text %> ago
+                            <%= t('teams.show.synced_ago', time: time_text) %>
                           <% end %>
                         </span>
                       <% else %>
-                        Never synced
+                        <%= t('teams.show.never_synced') %>
                       <% end %>
                     </div>
                   </div>
@@ -110,15 +112,16 @@
                       </svg>
                       <% if @last_synced_at %>
                         <span title="<%= @last_synced_at.iso8601 %>">
+                          <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
                           <% time_text = time_ago_in_words(@last_synced_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
                           <% if time_text == 'less than a minute' %>
-                            Synced just now
+                            <%= t('teams.show.synced_just_now') %>
                           <% else %>
-                            Synced <%= time_text %> ago
+                            <%= t('teams.show.synced_ago', time: time_text) %>
                           <% end %>
                         </span>
                       <% else %>
-                        Never synced
+                        <%= t('teams.show.never_synced') %>
                       <% end %>
                     </div>
                   </div>
@@ -129,15 +132,16 @@
                       </svg>
                       <% if @last_issue_correlation_at %>
                         <span title="<%= @last_issue_correlation_at.iso8601 %>">
+                          <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
                           <% time_text = time_ago_in_words(@last_issue_correlation_at).gsub(/\babout /, '').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %>
                           <% if time_text == 'less than a minute' %>
-                            Synced just now
+                            <%= t('teams.show.synced_just_now') %>
                           <% else %>
-                            Synced <%= time_text %> ago
+                            <%= t('teams.show.synced_ago', time: time_text) %>
                           <% end %>
                         </span>
                       <% else %>
-                        Never synced
+                        <%= t('teams.show.never_synced') %>
                       <% end %>
                     </div>
                   </div>
@@ -149,13 +153,13 @@
         </div>
 
         <section aria-labelledby="team-stats-heading">
-          <h2 id="team-stats-heading" class="sr-only">Team Statistics</h2>
+          <h2 id="team-stats-heading" class="sr-only"><%= t('teams.show.sections.team_statistics') %></h2>
           <%= render 'team_stats', total_members_count: @total_members_count, validated_members_count: @validated_members_count, maintainer_members_count: @maintainer_members_count, team: @team %>
         </section>
 
         <!-- Team Members -->
         <section aria-labelledby="team-members-heading">
-          <h2 id="team-members-heading" class="sr-only">Team Members</h2>
+          <h2 id="team-members-heading" class="sr-only"><%= t('teams.show.sections.team_members') %></h2>
           <div id="team-members-table" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
             <div id="team-members-content" class="flow-root">
               <%= render 'team_members_table', team_members: @team_members, team: @team %>
