@@ -94,12 +94,8 @@ class IssueCorrelationFinderJob < ApplicationJob
   end
 
   def broadcast_team_members_update
-    # Reload team to ensure fresh data, then get members with issue correlations
-    @team.reload
+    # Refresh team members with updated issue correlation data
     team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
-    
-    # Force reload of each team member to ensure fresh association data after correlation updates
-    team_members.each(&:reload)
 
     # Broadcast updated team members table to replace the existing one
     Turbo::StreamsChannel.broadcast_replace_to(
