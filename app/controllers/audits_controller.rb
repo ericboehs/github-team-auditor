@@ -162,7 +162,7 @@ class AuditsController < ApplicationController
     when "member"
       relation.order(team_members: { github_login: sort_direction })
     when "role"
-      direction = sort_direction == 'asc' ? :desc : :asc
+      direction = sort_direction == "asc" ? :desc : :asc
       relation.order(team_members: { maintainer_role: direction })
     when "status"
       relation.order(audit_members: { access_validated: sort_direction })
@@ -170,18 +170,20 @@ class AuditsController < ApplicationController
       # Sort by minimum issue_created_at from issue_correlations
       # For ascending: NULLs first, then oldest to newest
       # For descending: newest to oldest, then NULLs last
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
       relation.joins("LEFT JOIN issue_correlations ic_first ON ic_first.team_member_id = team_members.id")
               .group("audit_members.id, team_members.id")
-              .order(Arel.sql("MIN(ic_first.issue_created_at) #{sort_direction} #{nulls_position}"))
+              .order(Arel.sql("MIN(ic_first.issue_created_at) #{direction} #{nulls_position}"))
     when "last_seen"
       # Sort by maximum issue_updated_at from issue_correlations
       # For ascending: NULLs first, then oldest to newest
       # For descending: newest to oldest, then NULLs last
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
       relation.joins("LEFT JOIN issue_correlations ic_last ON ic_last.team_member_id = team_members.id")
               .group("audit_members.id, team_members.id")
-              .order(Arel.sql("MAX(ic_last.issue_updated_at) #{sort_direction} #{nulls_position}"))
+              .order(Arel.sql("MAX(ic_last.issue_updated_at) #{direction} #{nulls_position}"))
     else
       # Default sorting
       relation.order(team_members: { github_login: :asc })

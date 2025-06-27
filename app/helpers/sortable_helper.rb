@@ -24,27 +24,32 @@ module SortableHelper
       css_class += " text-gray-700 dark:text-gray-300"
     end
 
-    # Convert path_params to permitted hash and merge sort params
-    permitted_params = path_params.respond_to?(:permit) ? path_params.to_unsafe_h : path_params
-    link_params = permitted_params.merge(sort: column, direction: direction)
+    begin
+      # Convert path_params to permitted hash and merge sort params
+      permitted_params = path_params.respond_to?(:permit) ? path_params.to_unsafe_h : path_params
+      link_params = permitted_params.merge(sort: column, direction: direction)
 
-    link_to(url_for(link_params),
-            class: css_class,
-            data: { turbo_frame: "sortable-table" }) do
-      content = title.dup
+      link_to(url_for(link_params),
+              class: css_class,
+              data: { turbo_frame: "sortable-table" }) do
+        content = title.dup
 
-      # Add sort indicator
-      if sort_column == column
-        if sort_direction == "asc"
-          content += " " + chevron_up_icon
+        # Add sort indicator
+        if sort_column == column
+          if sort_direction == "asc"
+            content += " " + chevron_up_icon
+          else
+            content += " " + chevron_down_icon
+          end
         else
-          content += " " + chevron_down_icon
+          content += " " + chevron_up_down_icon
         end
-      else
-        content += " " + chevron_up_down_icon
-      end
 
-      content.html_safe
+        content.html_safe
+      end
+    rescue ActionController::UrlGenerationError, NoMethodError
+      # Fallback when no route context (e.g., in job context)
+      content_tag(:span, title, class: "text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider")
     end
   end
 
