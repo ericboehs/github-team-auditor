@@ -59,7 +59,7 @@ class AuditWorkflowTest < ApplicationSystemTestCase
     team_member = @team.team_members.create!(
       github_login: "systemtestuser",
       name: "System Test User",
-      avatar_url: "https://github.com/systemtestuser.png",
+      avatar_url: "https://avatars.githubusercontent.com/systemtestuser",
       maintainer_role: true
     )
 

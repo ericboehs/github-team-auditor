@@ -19,7 +19,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @audit_session.name %></h1>
         <div class="flex items-center mt-2 text-gray-600 dark:text-gray-400">
           <%= link_to @audit_session.organization.github_url, target: "_blank", "aria-label": t('accessibility.view_on_github', name: @audit_session.organization.name), class: "inline-block" do %>
-            <img class="h-5 w-5 rounded-full mr-2" src="https://github.com/<%= @audit_session.organization.github_login %>.png" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
+            <img class="h-5 w-5 rounded-full mr-2" src="https://avatars.githubusercontent.com/<%= @audit_session.organization.github_login %>" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
           <% end %>
           <%= link_to team_path(@audit_session.team), class: "font-medium text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500 inline-flex items-center" do %>
             <%= @audit_session.team.name %>

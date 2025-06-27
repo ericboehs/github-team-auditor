@@ -20,13 +20,13 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "Test User 1",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: false
         },
         {
           github_login: "testuser2",
           name: "Test User 2",
-          avatar_url: "https://github.com/testuser2.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser2",
           maintainer_role: true
         }
       ]
@@ -96,7 +96,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "New Name",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: true
         }
       ]
@@ -153,7 +153,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "present",
           name: "Present User",
-          avatar_url: "https://github.com/present.png",
+          avatar_url: "https://avatars.githubusercontent.com/present",
           maintainer_role: false
         }
       ]
@@ -219,7 +219,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "Test User 1",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: false
         }
       ]
@@ -276,13 +276,13 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "existing_user",
           name: "Existing User",
-          avatar_url: "https://github.com/existing_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/existing_user",
           maintainer_role: false
         },
         {
           github_login: "new_user",
           name: "New User",
-          avatar_url: "https://github.com/new_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/new_user",
           maintainer_role: true
         }
       ]
@@ -358,7 +358,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "staying_user",
           name: "Staying User",
-          avatar_url: "https://github.com/staying_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/staying_user",
           maintainer_role: false
         }
       ]
@@ -422,7 +422,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "test_user",
           name: "Test User",
-          avatar_url: "https://github.com/test_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/test_user",
           maintainer_role: false
         }
       ]

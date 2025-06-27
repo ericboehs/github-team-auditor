@@ -27,7 +27,7 @@
         <div class="mb-4">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center">
-              <img class="h-8 w-8 rounded-full mr-3" src="https://github.com/<%= @team.organization.github_login %>.png" alt="<%= @team.organization.name %>">
+              <img class="h-8 w-8 rounded-full mr-3" src="https://avatars.githubusercontent.com/<%= @team.organization.github_login %>" alt="<%= @team.organization.name %>">
               <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @team.name %></h1>
                 <% if @team.description.present? %>

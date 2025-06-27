@@ -77,7 +77,7 @@ class AuditSessionTest < ActiveSupport::TestCase
     team_member = @audit_session.team.team_members.create!(
       github_login: "gov_maintainer",
       name: "Gov Maintainer",
-      avatar_url: "https://github.com/gov_maintainer.png",
+      avatar_url: "https://avatars.githubusercontent.com/gov_maintainer",
       maintainer_role: true,
       government_employee: true
     )

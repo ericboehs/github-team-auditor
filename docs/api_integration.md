@@ -78,7 +78,7 @@ members = client.fetch_team_members("platform-security")
   {
     github_login: "username",
     name: "Full Name",
-    avatar_url: "https://github.com/username.png",
+    avatar_url: "https://avatars.githubusercontent.com/username",
     maintainer_role: false
   }
 ]
@@ -117,7 +117,7 @@ user_data = client.user_details("username")
   github_login: "username",
   name: "Full Name",
   email: "user@example.com",
-  avatar_url: "https://github.com/username.png",
+  avatar_url: "https://avatars.githubusercontent.com/username",
   company: "Company Name",
   location: "City, State",
   bio: "User bio"

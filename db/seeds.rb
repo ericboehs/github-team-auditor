@@ -74,7 +74,7 @@ if Rails.env.development?
     #   # First create or find the team member
     #   team_member = vets_api_prod_terminal.team_members.find_or_create_by!(github_login: member_data[:github_login]) do |tm|
     #     tm.name = member_data[:name]
-    #     tm.avatar_url = "https://github.com/#{member_data[:github_login]}.png"
+    #     tm.avatar_url = "https://avatars.githubusercontent.com/#{member_data[:github_login]}"
     #     tm.maintainer_role = member_data[:maintainer_role]
     #     tm.government_employee = member_data[:government_employee]
     #   end
