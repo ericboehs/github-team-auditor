@@ -80,4 +80,12 @@ class InputComponent < ViewComponent::Base
   def i18n_key_exists?(key)
     I18n.exists?(key)
   end
+
+  def label_with_required_indicator
+    if required
+      (label_text + ' <span class="text-red-500 ml-1" aria-label="required">*</span>').html_safe
+    else
+      label_text
+    end
+  end
 end

@@ -7,8 +7,9 @@ module Github
     config_accessor :default_rate_limit_delay, default: ApiConfiguration::DEFAULT_RATE_LIMIT_DELAY
     config_accessor :max_retries, default: ApiConfiguration::MAX_RETRIES
 
-    def initialize(organization)
+    def initialize(organization, rate_limit_callback: nil)
       @organization = organization
+      @rate_limit_callback = rate_limit_callback
       token = ENV["GHTA_GITHUB_TOKEN"]
       raise ConfigurationError, "GHTA_GITHUB_TOKEN environment variable is required" if token.blank?
       @client = Octokit::Client.new(access_token: token)
@@ -94,9 +95,14 @@ module Github
 
     def search_issues(query, repository: nil)
       repo = repository || "#{@organization.github_login}/va.gov-team"
+      search_query = "repo:#{repo} #{query}"
+      Rails.logger.debug "Searching issues with query: #{search_query}"
+
       with_rate_limiting do
-        results = @client.search_issues("repo:#{repo} #{query}")
-        results.items.map { |issue| normalize_issue_data(issue) }
+        results = @client.search_issues(search_query)
+        normalized_results = results.items.map { |issue| normalize_issue_data(issue) }
+        Rails.logger.debug "Found #{normalized_results.length} issues"
+        normalized_results
       end
     end
 
@@ -132,7 +138,7 @@ module Github
           reset_time = e.response_headers["x-ratelimit-reset"].to_i
           sleep_time = [ reset_time - Time.now.to_i, ApiConfiguration::MAX_RETRY_DELAY ].max
           Rails.logger.warn "Rate limited. Sleeping for #{sleep_time}s (attempt #{retries}/#{config.max_retries})"
-          sleep(sleep_time)
+          sleep_with_countdown(sleep_time)
           retry
         else
           raise
@@ -155,14 +161,35 @@ module Github
       return unless rate_limit
 
       remaining = rate_limit.remaining
+      limit = rate_limit.limit || 5000 # Default to core API limit if nil
+      Rails.logger.debug "Rate limit check: #{remaining}/#{limit} remaining, resets at #{rate_limit.resets_at}"
 
-      if remaining < ApiConfiguration::CRITICAL_RATE_LIMIT_THRESHOLD
+      # Adjust thresholds based on API type - search API has much lower limits
+      critical_threshold = limit <= 100 ? 3 : ApiConfiguration::CRITICAL_RATE_LIMIT_THRESHOLD
+      warning_threshold = limit <= 100 ? 10 : ApiConfiguration::WARNING_RATE_LIMIT_THRESHOLD
+
+      if remaining < critical_threshold
         reset_time = rate_limit.resets_at
         sleep_time = [ reset_time - Time.now, ApiConfiguration::MIN_CRITICAL_DELAY ].max
-        Rails.logger.info "Rate limit critical (#{remaining} remaining). Sleeping for #{sleep_time}s"
-        sleep(sleep_time) if sleep_time > 0
-      elsif remaining < ApiConfiguration::WARNING_RATE_LIMIT_THRESHOLD
-        sleep(config.default_rate_limit_delay)
+        Rails.logger.warn "Rate limit critical (#{remaining}/#{limit} remaining). Sleeping for #{sleep_time}s until #{reset_time}"
+        sleep_with_countdown(sleep_time) if sleep_time > 0
+      elsif remaining < warning_threshold
+        Rails.logger.debug "Rate limit warning (#{remaining}/#{limit} remaining). Sleeping for #{config.default_rate_limit_delay}s"
+        sleep_with_countdown(config.default_rate_limit_delay)
+      end
+    end
+
+    def sleep_with_countdown(sleep_time)
+      return if sleep_time <= 0
+
+      if @rate_limit_callback
+        total_seconds = sleep_time.to_i
+        (total_seconds).downto(1) do |remaining_seconds|
+          @rate_limit_callback.call(remaining_seconds)
+          sleep(1)
+        end
+      else
+        sleep(sleep_time)
       end
     end
 

@@ -1,11 +1,17 @@
 <% if flash[:alert] %>
   <div class="mb-4" aria-live="assertive" aria-atomic="true">
-    <%= render AlertComponent.new(message: flash[:alert], type: :error) %>
+    <%= render AlertComponent.new(message: flash[:alert], type: :error, dismissible: true) %>
   </div>
 <% end %>
 
 <% if flash[:notice] %>
   <div class="mb-4" aria-live="polite" aria-atomic="true">
-    <%= render AlertComponent.new(message: flash[:notice], type: :success) %>
+    <%= render AlertComponent.new(message: flash[:notice], type: :info, dismissible: true) %>
+  </div>
+<% end %>
+
+<% if flash[:success] %>
+  <div class="mb-4" aria-live="polite" aria-atomic="true">
+    <%= render AlertComponent.new(message: flash[:success], type: :success, dismissible: true) %>
   </div>
 <% end %>

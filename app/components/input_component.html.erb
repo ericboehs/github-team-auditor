@@ -1,13 +1,13 @@
 <div>
   <% if forgot_password_link %>
     <div class="flex items-center justify-between">
-      <%= form.label field, label_text, class: "block text-sm/6 font-medium text-gray-900 dark:text-white", for: field_id %>
+      <%= form.label field, label_with_required_indicator, for: field_id, class: "block text-sm/6 font-medium text-gray-900 dark:text-white" %>
       <div class="text-sm">
         <%= forgot_password_link %>
       </div>
     </div>
   <% else %>
-    <%= form.label field, label_text, class: "block text-sm/6 font-medium text-gray-900 dark:text-white", for: field_id %>
+    <%= form.label field, label_with_required_indicator, for: field_id, class: "block text-sm/6 font-medium text-gray-900 dark:text-white" %>
   <% end %>
   <div class="mt-2">
     <%= form.send("#{type}_field", field,
@@ -16,12 +16,13 @@
           required: required,
           autocomplete: autocomplete,
           placeholder: placeholder_text,
+          "aria-required": required ? "true" : nil,
           "aria-invalid": error ? "true" : nil,
-          "aria-describedby": error ? "#{field_id}-error" : nil,
+          "aria-describedby": [error ? "#{field_id}-error" : nil, help_text_value ? "#{field_id}-help" : nil].compact.join(" ").presence,
           **options) %>
   </div>
   <% if help_text_value %>
-    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= help_text_value %></p>
+    <p id="<%= field_id %>-help" class="mt-2 text-sm text-gray-600 dark:text-gray-400"><%= help_text_value %></p>
   <% end %>
   <% if error %>
     <p class="mt-2 text-sm text-red-600 dark:text-red-400 inline-flex items-center" id="<%= field_id %>-error">

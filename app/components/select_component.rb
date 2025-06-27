@@ -135,10 +135,19 @@ class SelectComponent < ViewComponent::Base
 
     attrs[:required] = true if required
     attrs[:autofocus] = true if autofocus
+    attrs[:"aria-required"] = "true" if required
     attrs[:"aria-invalid"] = "true" if has_errors?
     attrs[:"aria-describedby"] = describedby_ids if describedby_ids.present?
 
     # Merge any additional HTML options
     attrs.merge(html_options)
+  end
+
+  def label_with_required_indicator
+    if required
+      (label_text + ' <span class="text-red-500 ml-1" aria-label="required">*</span>').html_safe
+    else
+      label_text
+    end
   end
 end

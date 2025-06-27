@@ -19,7 +19,7 @@ class InputComponentTest < ViewComponent::TestCase
     render_inline(component)
 
     assert_selector "input[type='email']"
-    assert_selector "label", text: "Email"
+    assert_selector "label", text: "Email *"
     assert_selector "input[required]"
   end
 
@@ -98,5 +98,20 @@ class InputComponentTest < ViewComponent::TestCase
     render_inline(component)
 
     assert_selector "p", text: "Help text from i18n"
+  end
+
+  def test_returns_nil_help_text_when_no_help_provided
+    # Test the missing branch where help_text is not present and no i18n scope
+    form = ActionView::Helpers::FormBuilder.new(:user, User.new, vc_test_controller.view_context, {})
+    component = InputComponent.new(
+      form: form,
+      field: :email_address,
+      type: :text
+      # No help_text and no i18n_scope
+    )
+    render_inline(component)
+
+    # Should not render help text
+    assert_no_selector "p.text-sm"
   end
 end

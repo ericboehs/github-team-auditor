@@ -1,0 +1,42 @@
+<div>
+  <% if hide_chevron_on_mobile %>
+    <!-- Mobile: Just triple dots, no background -->
+    <button type="button"
+            class="<%= mobile_button_classes %>"
+            data-action="click->dropdown#toggle"
+            data-dropdown-target="button"
+            aria-expanded="false"
+            aria-haspopup="true">
+      <span class="sr-only"><%= t('accessibility.open_options') %></span>
+      <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path d="M10 3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM10 8.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM11.5 15.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z" />
+      </svg>
+    </button>
+
+    <!-- Desktop: Full button with text and chevron -->
+    <button type="button"
+            class="<%= desktop_button_classes %>"
+            data-action="click->dropdown#toggle"
+            data-dropdown-target="button"
+            aria-expanded="false"
+            aria-haspopup="true">
+      <%= text %>
+      <svg class="<%= chevron_classes %>" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  <% else %>
+    <!-- Standard button -->
+    <button type="button"
+            class="<%= button_classes %>"
+            data-action="click->dropdown#toggle"
+            data-dropdown-target="button"
+            aria-expanded="false"
+            aria-haspopup="true">
+      <%= text %>
+      <svg class="<%= chevron_classes %>" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  <% end %>
+</div>

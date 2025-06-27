@@ -101,6 +101,20 @@ class EmptyStateComponentTest < ViewComponent::TestCase
     assert_selector "div[data-testid='empty-state']"
   end
 
+  def test_renders_bordered_variant
+    component = EmptyStateComponent.new(
+      title: "No data found",
+      message: "This is a bordered empty state.",
+      variant: :bordered
+    )
+
+    render_inline(component)
+
+    assert_selector "div.text-center.py-12.bg-gray-50.dark\\:bg-gray-800.border.border-gray-200.dark\\:border-gray-700.rounded-lg"
+    assert_text "No data found"
+    assert_text "This is a bordered empty state."
+  end
+
   def test_predefined_icons_exist
     component = EmptyStateComponent.new(title: "Test", message: "Test")
 
@@ -112,5 +126,16 @@ class EmptyStateComponentTest < ViewComponent::TestCase
     assert icons[:teams].present?
     assert icons[:audits].present?
     assert icons[:members].present?
+  end
+
+  def test_icon_svg_path_returns_nil_when_no_icon_specified
+    component = EmptyStateComponent.new(
+      title: "No Icon",
+      message: "This has no icon",
+      icon_name: nil
+    )
+
+    # This should trigger the missing branch where icon_name.present? is false
+    assert_nil component.send(:icon_svg_path)
   end
 end

@@ -47,7 +47,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                     id: "1",
                     login: "user1",
                     name: "User One",
-                    avatarUrl: "https://github.com/user1.png",
+                    avatarUrl: "https://avatars.githubusercontent.com/user1",
                     databaseId: 123
                   }
                 },
@@ -57,7 +57,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                     id: "2",
                     login: "user2",
                     name: "User Two",
-                    avatarUrl: "https://github.com/user2.png",
+                    avatarUrl: "https://avatars.githubusercontent.com/user2",
                     databaseId: 124
                   }
                 }
@@ -87,7 +87,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                       id: "1",
                       login: "user1",
                       name: "User One",
-                      avatarUrl: "https://github.com/user1.png",
+                      avatarUrl: "https://avatars.githubusercontent.com/user1",
                       databaseId: 123
                     }
                   },
@@ -97,7 +97,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                       id: "2",
                       login: "user2",
                       name: "User Two",
-                      avatarUrl: "https://github.com/user2.png",
+                      avatarUrl: "https://avatars.githubusercontent.com/user2",
                       databaseId: 124
                     }
                   }
@@ -147,7 +147,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                         id: "1",
                         login: "user1",
                         name: "User One",
-                        avatarUrl: "https://github.com/user1.png",
+                        avatarUrl: "https://avatars.githubusercontent.com/user1",
                         databaseId: 123
                       }
                     }
@@ -175,7 +175,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
                         id: "2",
                         login: "user2",
                         name: "User Two",
-                        avatarUrl: "https://github.com/user2.png",
+                        avatarUrl: "https://avatars.githubusercontent.com/user2",
                         databaseId: 124
                       }
                     }
@@ -260,7 +260,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
       login: "testuser",
       name: "Test User",
       email: "test@example.com",
-      avatar_url: "https://github.com/testuser.png",
+      avatar_url: "https://avatars.githubusercontent.com/testuser",
       company: "Test Company",
       location: "Test City",
       bio: "Test bio"
@@ -273,7 +273,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
         login: "testuser",
         name: "Test User",
         email: "test@example.com",
-        avatar_url: "https://github.com/testuser.png",
+        avatar_url: "https://avatars.githubusercontent.com/testuser",
         company: "Test Company",
         location: "Test City",
         bio: "Test bio"
@@ -287,7 +287,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     assert_equal "testuser", result[:github_login]
     assert_equal "Test User", result[:name]
     assert_equal "test@example.com", result[:email]
-    assert_equal "https://github.com/testuser.png", result[:avatar_url]
+    assert_equal "https://avatars.githubusercontent.com/testuser", result[:avatar_url]
     assert_equal "Test Company", result[:company]
     assert_equal "Test City", result[:location]
     assert_equal "Test bio", result[:bio]
@@ -396,14 +396,14 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     member = OpenStruct.new(
       login: "testuser",
       name: "Test User",
-      avatar_url: "https://github.com/testuser.png"
+      avatar_url: "https://avatars.githubusercontent.com/testuser"
     )
 
     result = @client.send(:normalize_member_data, member)
 
     assert_equal "testuser", result[:github_login]
     assert_equal "Test User", result[:name]
-    assert_equal "https://github.com/testuser.png", result[:avatar_url]
+    assert_equal "https://avatars.githubusercontent.com/testuser", result[:avatar_url]
   end
 
   test "should normalize team data correctly" do
@@ -455,7 +455,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
       login: "testuser",
       name: "Test User",
       email: "test@example.com",
-      avatar_url: "https://github.com/testuser.png",
+      avatar_url: "https://avatars.githubusercontent.com/testuser",
       company: "Test Company",
       location: "Test City",
       bio: "Test bio"
@@ -466,7 +466,7 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     assert_equal "testuser", result[:github_login]
     assert_equal "Test User", result[:name]
     assert_equal "test@example.com", result[:email]
-    assert_equal "https://github.com/testuser.png", result[:avatar_url]
+    assert_equal "https://avatars.githubusercontent.com/testuser", result[:avatar_url]
     assert_equal "Test Company", result[:company]
     assert_equal "Test City", result[:location]
     assert_equal "Test bio", result[:bio]
@@ -722,5 +722,38 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     # This should return nil due to the rescue in fetch_team_by_slug
     result = @client.fetch_team_by_slug("nonexistent-team")
     assert_nil result
+  end
+
+  test "rate limit countdown broadcasts every second" do
+    callback_calls = []
+    callback = ->(remaining) { callback_calls << remaining }
+
+    client = Github::ApiClient.new(@organization, rate_limit_callback: callback)
+
+    # Mock sleep to track calls without actually sleeping
+    sleep_calls = 0
+    client.define_singleton_method(:sleep) { |duration| sleep_calls += 1 }
+
+    # Test countdown with 5 seconds
+    client.send(:sleep_with_countdown, 5)
+
+    # Verify we slept 5 times (once per second)
+    assert_equal 5, sleep_calls
+
+    # Verify broadcasts happened every second
+    expected_calls = [ 5, 4, 3, 2, 1 ]
+    assert_equal expected_calls, callback_calls
+  end
+
+  test "rate limit countdown without callback sleeps normally" do
+    client = Github::ApiClient.new(@organization) # No callback
+
+    sleep_duration = nil
+    client.define_singleton_method(:sleep) { |duration| sleep_duration = duration }
+
+    client.send(:sleep_with_countdown, 5)
+
+    # Should call sleep once with the full duration
+    assert_equal 5, sleep_duration
   end
 end

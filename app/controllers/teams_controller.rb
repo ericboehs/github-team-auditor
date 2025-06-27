@@ -1,18 +1,24 @@
 class TeamsController < ApplicationController
-  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync ]
+  before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations ]
 
   def index
-    @teams = Team.includes(:organization, :audit_sessions).order(:name)
+    @teams = Team.includes(:organization, :audit_sessions, :team_members).order(:name)
   end
 
   def show
-    # Get current team members from team_members table
-    @team_members = @team.team_members.current.order(:github_login)
+    # Get current team members from team_members table with issue correlations preloaded
+    @team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
     @recent_audits_count = @team.audit_sessions.where(created_at: 30.days.ago..).count
     @total_members_count = @team_members.count
     @validated_members_count = 0 # Not applicable for team-level view
     @maintainer_members_count = @team_members.where(maintainer_role: true).count
-    @last_synced_at = @team.last_synced_at
+    @last_synced_at = @team.sync_completed_at
+    @last_issue_correlation_at = @team.issue_correlation_completed_at
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream { head :ok }
+    end
   end
 
   def new
@@ -54,11 +60,67 @@ class TeamsController < ApplicationController
   end
 
   def sync
+    # Check if any jobs are already running
+    if @team.any_jobs_running?
+      alert_message = if @team.sync_running?
+        t("flash.teams.sync_already_running")
+      else
+        t("flash.teams.cannot_sync_while_finding_issues")
+      end
+
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: alert_message }
+        format.turbo_stream { head :ok }
+      end
+      return
+    end
+
     # Sync team data from GitHub in background
     @team.sync_from_github!
 
-    redirect_to team_path(@team), notice: t("flash.teams.sync_started")
+    respond_to do |format|
+      format.html { redirect_to team_path(@team) }
+      format.turbo_stream { head :ok }
+    end
   end
+
+  def find_issue_correlations
+    # Check if any jobs are already running
+    if @team.any_jobs_running?
+      alert_message = if @team.issue_correlation_running?
+        t("flash.teams.issue_correlation_already_running")
+      else
+        t("flash.teams.cannot_find_issues_while_syncing")
+      end
+
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: alert_message }
+        format.turbo_stream { head :ok }
+      end
+      return
+    end
+
+    # Validate that search terms are defined beyond the default
+    if @team.search_terms.blank?
+      respond_to do |format|
+        format.html { redirect_to team_path(@team), alert: t("flash.teams.search_terms_required") }
+        format.turbo_stream {
+          render turbo_stream: turbo_stream.replace("flash-messages", partial: "shared/flash_message", locals: { message: t("flash.teams.search_terms_required"), type: :alert })
+        }
+      end
+      return
+    end
+
+    # Find issue correlations for team members in background using team's configuration
+    IssueCorrelationFinderJob.perform_later(@team.id)
+
+    respond_to do |format|
+      format.html { redirect_to team_path(@team) }
+      format.turbo_stream { head :ok }
+    end
+  end
+
+
 
   private
 
@@ -67,6 +129,6 @@ class TeamsController < ApplicationController
   end
 
   def team_params
-    params.require(:team).permit(:name, :github_slug, :description, :organization_id)
+    params.require(:team).permit(:name, :github_slug, :description, :organization_id, :search_terms, :exclusion_terms, :search_repository)
   end
 end

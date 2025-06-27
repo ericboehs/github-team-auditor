@@ -1,4 +1,4 @@
-<div class="<%= alert_classes %>" role="alert" aria-live="polite" aria-atomic="true">
+<div class="<%= alert_classes %>" role="alert" aria-live="polite" aria-atomic="true" data-controller="alert">
   <div class="flex">
     <div class="shrink-0">
       <%= icon_svg.html_safe %>
@@ -17,17 +17,25 @@
         <p class="<%= text_classes %>"><%= message %></p>
       <% end %>
     </div>
-    <% if dismissible %>
-      <div class="ml-auto pl-3">
-        <div class="-mx-1.5 -my-1.5">
+    <div class="ml-auto pl-3">
+      <div class="-mx-1.5 -my-1.5">
+        <% if dismissible %>
           <button type="button" class="<%= dismiss_button_classes %>" data-action="click->alert#dismiss">
             <span class="sr-only"><%= t('alerts.dismiss') %></span>
             <svg class="size-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
             </svg>
           </button>
-        </div>
+        <% elsif spinner %>
+          <!-- Animated spinner -->
+          <div class="flex items-center justify-center h-6 w-6 mx-1.5 my-1.5">
+            <svg class="animate-spin h-5 w-5 <%= spinner_color %>" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        <% end %>
       </div>
-    <% end %>
+    </div>
   </div>
 </div>

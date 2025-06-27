@@ -17,6 +17,7 @@ class ButtonComponent < ViewComponent::Base
 
   def button_classes
     extra_classes = options.delete(:class) || ""
-    build_button_classes(variant: variant, extra_classes: extra_classes, include_flex: include_flex)
+    disabled = options[:disabled] || false
+    build_button_classes(variant: variant, extra_classes: extra_classes, include_flex: include_flex, disabled: disabled)
   end
 end

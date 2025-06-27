@@ -3,7 +3,7 @@
 <div class="min-h-full bg-gray-50 dark:bg-gray-900">
   <%= render 'shared/navbar' %>
 
-  <% if flash[:alert] || flash[:notice] %>
+  <% if flash[:alert] || flash[:notice] || flash[:success] %>
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
       <%= render 'shared/flash_messages' %>
     </div>
@@ -32,7 +32,7 @@
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <img class="h-10 w-10 rounded-full" src="https://github.com/<%= org.github_login %>.png" alt="<%= org.name %>">
+            <img class="h-10 w-10 rounded-full" src="https://avatars.githubusercontent.com/<%= org.github_login %>" alt="<%= org.name %>">
           </div>
           <div class="ml-4">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white"><%= org.name %></h3>

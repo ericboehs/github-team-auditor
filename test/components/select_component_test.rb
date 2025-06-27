@@ -423,4 +423,16 @@ class SelectComponentTest < ViewComponent::TestCase
     # Should fall back to humanized attribute name
     assert_selector "label", text: "Email address"
   end
+
+  def test_resolve_prompt_returns_nil_when_no_prompt_or_i18n
+    # Test the missing branch where prompt is not present and no i18n scope
+    component = SelectComponent.new(
+      form: @form,
+      field: :email_address,
+      options: @options
+      # No prompt and no i18n_scope
+    )
+
+    assert_nil component.send(:resolve_prompt)
+  end
 end

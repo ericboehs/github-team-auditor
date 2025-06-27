@@ -28,6 +28,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", @team.name
   end
 
+
   test "should sync team" do
     sign_in_as(@user)
 
@@ -36,7 +37,6 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to team_url(@team)
-    assert_equal I18n.t("flash.teams.sync_started"), flash[:notice]
   end
 
   test "should get new" do
@@ -109,5 +109,77 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   test "should redirect to login when not authenticated" do
     get teams_url
     assert_redirected_to new_session_url
+  end
+
+  test "should find issue correlations" do
+    sign_in_as(@user)
+    @team.update!(search_terms: "test search terms")
+
+    assert_enqueued_jobs 1, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+  end
+
+  test "should not find issue correlations without search terms" do
+    sign_in_as(@user)
+    @team.update!(search_terms: nil)
+
+    assert_enqueued_jobs 0, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    follow_redirect!
+    assert_select "[role='alert']", text: /Please configure search terms/
+  end
+
+  test "should not sync team when sync is already running" do
+    sign_in_as(@user)
+    @team.update!(sync_status: "running")
+
+    assert_enqueued_jobs 0, only: TeamSyncJob do
+      post sync_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    assert_equal I18n.t("flash.teams.sync_already_running"), flash[:alert]
+  end
+
+  test "should not sync team when issue correlation is running" do
+    sign_in_as(@user)
+    @team.update!(issue_correlation_status: "running")
+
+    assert_enqueued_jobs 0, only: TeamSyncJob do
+      post sync_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    assert_equal I18n.t("flash.teams.cannot_sync_while_finding_issues"), flash[:alert]
+  end
+
+  test "should not find issue correlations when job is already running" do
+    sign_in_as(@user)
+    @team.update!(search_terms: "test search", issue_correlation_status: "running")
+
+    assert_enqueued_jobs 0, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    assert_equal I18n.t("flash.teams.issue_correlation_already_running"), flash[:alert]
+  end
+
+  test "should not find issue correlations when sync is running" do
+    sign_in_as(@user)
+    @team.update!(search_terms: "test search", sync_status: "running")
+
+    assert_enqueued_jobs 0, only: IssueCorrelationFinderJob do
+      post find_issue_correlations_team_path(@team)
+    end
+
+    assert_redirected_to team_path(@team)
+    assert_equal I18n.t("flash.teams.cannot_find_issues_while_syncing"), flash[:alert]
   end
 end

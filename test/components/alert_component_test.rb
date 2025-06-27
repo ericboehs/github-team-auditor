@@ -140,4 +140,52 @@ class AlertComponentTest < ViewComponent::TestCase
     assert_text "Unknown type dismissible"
     assert_selector "button" # Should still render dismiss button
   end
+
+  def test_renders_spinner_for_all_types
+    [ :success, :error, :warning, :info, :alert, :unknown ].each do |type|
+      component = AlertComponent.new(
+        type: type,
+        message: "Message with spinner",
+        spinner: true
+      )
+      render_inline(component)
+
+      assert_selector ".animate-spin" # Should have spinner
+      assert_text "Message with spinner"
+    end
+  end
+
+  def test_renders_without_spinner_by_default
+    component = AlertComponent.new(
+      type: :info,
+      message: "Message without spinner"
+    )
+    render_inline(component)
+
+    assert_no_selector ".animate-spin"
+    assert_text "Message without spinner"
+  end
+
+  def test_renders_spinner_with_correct_colors
+    # Test each type to ensure spinner_color method branches are covered
+    color_map = {
+      success: "text-green-400",
+      error: "text-red-400",
+      alert: "text-red-400",
+      warning: "text-yellow-400",
+      info: "text-blue-400",
+      unknown: "text-gray-400"
+    }
+
+    color_map.each do |type, expected_color|
+      component = AlertComponent.new(
+        type: type,
+        message: "Test spinner color",
+        spinner: true
+      )
+      render_inline(component)
+
+      assert_selector ".#{expected_color}"
+    end
+  end
 end

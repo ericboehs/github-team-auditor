@@ -3,7 +3,7 @@
 <div class="min-h-full bg-gray-50 dark:bg-gray-900">
   <%= render 'shared/navbar' %>
 
-  <% if flash[:alert] || flash[:notice] %>
+  <% if flash[:alert] || flash[:notice] || flash[:success] %>
     <div class="max-w-3xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
       <%= render 'shared/flash_messages' %>
     </div>
@@ -43,7 +43,7 @@
         <!-- Form -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
           <div class="px-6 py-8">
-            <%= form_with model: @team, local: true, class: "space-y-6" do |form| %>
+            <%= form_with model: @team, local: true, data: { turbo: false }, class: "space-y-6" do |form| %>
               <% if @team.errors.any? %>
                 <%= render AlertComponent.new(
                   messages: @team.errors.full_messages,
@@ -72,6 +72,8 @@
                     form: form,
                     field: :github_slug,
                     type: :text,
+                    required: true,
+                    autocapitalize: "none",
                     i18n_scope: "teams.form"
                   ) %>
 
@@ -83,20 +85,34 @@
                     i18n_scope: "teams.form"
                   ) %>
 
-              <div class="flex items-center justify-between pt-6">
-                <div>
-                  <%= render LinkButtonComponent.new(
-                    text: t('buttons.delete'),
-                    url: team_path(@team),
-                    variant: :danger,
-                    include_flex: false,
-                    data: {
-                      "turbo-method": "delete",
-                      "turbo-confirm": t("teams.form.delete_confirm")
-                    }
-                  ) %>
-                </div>
+              <!-- Issue Search Configuration -->
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Issue Search Configuration</h3>
+                <div class="space-y-6">
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :search_terms,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
 
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :exclusion_terms,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
+
+                  <%= render InputComponent.new(
+                        form: form,
+                        field: :search_repository,
+                        type: :text,
+                        i18n_scope: "teams.form"
+                      ) %>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end pt-6">
                 <div class="flex items-center space-x-4">
                   <%= render LinkButtonComponent.new(text: t("buttons.cancel"), url: team_path(@team), variant: :secondary) %>
                   <%= render ButtonComponent.new(text: t("teams.form.update_button"), type: :submit, variant: :primary) %>

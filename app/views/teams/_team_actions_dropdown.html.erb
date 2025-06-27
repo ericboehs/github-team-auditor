@@ -1,0 +1,7 @@
+<%= render DropdownButtonComponent.new(
+  text: t('common.actions'),
+  variant: :secondary,
+  items: team_actions_dropdown_items(team),
+  class: "flex-shrink-0",
+  hide_chevron_on_mobile: true
+) %>

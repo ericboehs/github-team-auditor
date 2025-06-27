@@ -1,0 +1,40 @@
+<!-- Sync Action Buttons -->
+<div class="grid grid-cols-2 gap-4 sm:flex sm:flex-row" id="team-sync-buttons">
+  <!-- Sync GitHub Team Button -->
+  <%= form_with url: sync_team_path(team), method: :post, local: true,
+                data: { turbo_submits_with: t('jobs.team_sync.syncing_submits_with') } do |form| %>
+    <%= form.button type: :submit,
+                  class: sync_button_classes(team),
+                  disabled: team.any_jobs_running?,
+                  data: { action: "click->dropdown#clearFlashMessages" },
+                  id: "sync-github-team-btn" do %>
+      <%= content_tag(:svg, '<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>'.html_safe,
+                    class: sync_icon_classes(team),
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    "aria-hidden": "true",
+                    "data-slot": "icon") %>
+      <span class="ml-2"><%= team.sync_running? ? t('jobs.team_sync.syncing_short') : t('teams.sync_buttons.sync_github_team') %></span>
+    <% end %>
+  <% end %>
+
+  <!-- Find GitHub Issues Button -->
+  <%= form_with url: find_issue_correlations_team_path(team), method: :post, local: true,
+                data: { turbo_submits_with: t('jobs.issue_correlation.finding_issues_submits_with') } do |form| %>
+    <%= form.button type: :submit,
+                  class: sync_button_classes(team),
+                  disabled: team.any_jobs_running?,
+                  data: { action: "click->dropdown#clearFlashMessages" },
+                  id: "find-github-issues-btn" do %>
+      <%= content_tag(:svg, '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>'.html_safe,
+                    class: sync_icon_classes(team),
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    "aria-hidden": "true",
+                    "data-slot": "icon") %>
+      <span class="ml-2"><%= team.issue_correlation_running? ? t('jobs.issue_correlation.finding_issues_short') : t('teams.sync_buttons.find_github_issues') %></span>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,30 @@
+<div id="last-synced" class="flex flex-row sm:flex-col gap-4 sm:gap-1 md:text-right text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+  <div class="flex items-center justify-start md:justify-end">
+    <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    </svg>
+    <% if last_synced_at %>
+      <span title="<%= last_synced_at.iso8601 %>">
+        <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
+        <span class="sm:hidden"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
+        <span class="hidden sm:inline"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
+      </span>
+    <% else %>
+      <%= t('sync.never_synced_team') %>
+    <% end %>
+  </div>
+  <div class="flex items-center justify-start md:justify-end">
+    <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+    </svg>
+    <% if last_issue_correlation_at %>
+      <span title="<%= last_issue_correlation_at.iso8601 %>">
+        <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
+        <span class="sm:hidden"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
+        <span class="hidden sm:inline"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
+      </span>
+    <% else %>
+      <%= t('sync.never_synced_issues') %>
+    <% end %>
+  </div>
+</div>

@@ -3,7 +3,7 @@
 <div class="min-h-full bg-gray-50 dark:bg-gray-900">
   <%= render 'shared/navbar' %>
 
-  <% if flash[:alert] || flash[:notice] %>
+  <% if flash[:alert] || flash[:notice] || flash[:success] %>
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 pt-4">
       <%= render 'shared/flash_messages' %>
     </div>
@@ -19,7 +19,7 @@
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"><%= @audit_session.name %></h1>
         <div class="flex items-center mt-2 text-gray-600 dark:text-gray-400">
           <%= link_to @audit_session.organization.github_url, target: "_blank", "aria-label": t('accessibility.view_on_github', name: @audit_session.organization.name), class: "inline-block" do %>
-            <img class="h-5 w-5 rounded-full mr-2" src="https://github.com/<%= @audit_session.organization.github_login %>.png" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
+            <img class="h-5 w-5 rounded-full mr-2" src="https://avatars.githubusercontent.com/<%= @audit_session.organization.github_login %>" alt="<%= @audit_session.organization.name %>" title="<%= @audit_session.organization.name %>">
           <% end %>
           <%= link_to team_path(@audit_session.team), class: "font-medium text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500 inline-flex items-center" do %>
             <%= @audit_session.team.name %>
@@ -28,48 +28,84 @@
             </svg>
           <% end %>
         </div>
-        <% if @audit_session.due_date %>
-          <div class="flex items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-            <svg class="h-4 w-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            <span><%= t('due_date.due_label') %> <%= @audit_session.due_date.strftime('%B %d, %Y') %></span>
-          </div>
-        <% end %>
       </div>
-      <div class="flex flex-wrap gap-2" data-controller="toggle">
-        <%= render ButtonComponent.new(
-          text: content_tag(:span, class: "inline-flex items-center") do
-            concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
-              content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
-            end)
-            concat(content_tag(:span, @audit_session.due_date ? t('due_date.edit_due_date') : t('due_date.set_due_date'), class: "hidden sm:inline"))
-            concat(content_tag(:span, @audit_session.due_date ? t('buttons.edit') : t('common.due_date'), class: "sm:hidden"))
-          end.html_safe,
-          type: :button,
-          variant: :secondary,
-          include_flex: true,
-          data: { action: "click->toggle#toggle" },
+      <div class="flex flex-wrap gap-2">
+        <%= render DueDateDropdownComponent.new(
+          audit_session: @audit_session,
           class: "flex-shrink-0"
         ) %>
-        <%= form_with url: toggle_status_audit_path(@audit_session), method: :patch, local: true, data: { turbo_method: :patch }, class: "inline-block" do |form| %>
-          <%= render ButtonComponent.new(
-            text: content_tag(:span, class: "inline-flex items-center") do
-              concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
-                if @audit_session.status == 'completed'
-                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15")
-                else
-                  content_tag(:path, "", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-width": "2", d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
-                end
-              end)
-              concat(@audit_session.status == 'completed' ? t('actions.mark_active') : t('actions.mark_complete'))
-            end.html_safe,
-            type: :submit,
-            variant: @audit_session.status == 'completed' ? :primary : :success,
-            include_flex: true,
-            class: "flex-shrink-0"
-          ) %>
-        <% end %>
+        <%
+          # Define all possible status transitions
+          current_status = @audit_session.status
+          status_items = []
+
+          # Add all status options except the current one
+          unless current_status == 'draft'
+            status_items << {
+              type: :form,
+              text: t('actions.mark_draft'),
+              url: toggle_status_audit_path(@audit_session),
+              method: :patch,
+              data: { turbo_method: :patch, turbo_frame: "_top" },
+              icon_path: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />',
+              hidden_field: { name: 'status', value: 'draft' },
+              hover_color: 'secondary'
+            }
+          end
+
+          unless current_status == 'active'
+            status_items << {
+              type: :form,
+              text: t('actions.mark_active'),
+              url: toggle_status_audit_path(@audit_session),
+              method: :patch,
+              data: { turbo_method: :patch, turbo_frame: "_top" },
+              icon_path: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />',
+              hidden_field: { name: 'status', value: 'active' },
+              hover_color: 'primary'
+            }
+          end
+
+          unless current_status == 'completed'
+            status_items << {
+              type: :form,
+              text: t('actions.mark_complete'),
+              url: toggle_status_audit_path(@audit_session),
+              method: :patch,
+              data: { turbo_method: :patch, turbo_frame: "_top" },
+              icon_path: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />',
+              hidden_field: { name: 'status', value: 'completed' },
+              hover_color: 'success'
+            }
+          end
+        %>
+
+        <%= render DropdownButtonComponent.new(
+          text: content_tag(:span, class: "inline-flex items-center") do
+            concat(content_tag(:svg, class: "-ml-1 mr-2 h-4 w-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+              case @audit_session.status
+              when 'draft'
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />'.html_safe
+              when 'active'
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />'.html_safe
+              when 'completed'
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />'.html_safe
+              else
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />'.html_safe
+              end
+            end)
+            concat(content_tag(:span, @audit_session.status.titleize, class: "hidden sm:inline"))
+            concat(content_tag(:span, @audit_session.status.titleize, class: "sm:hidden"))
+          end.html_safe,
+          variant: case @audit_session.status
+                  when 'draft' then :secondary
+                  when 'active' then :primary
+                  when 'completed' then :success
+                  else :secondary
+                  end,
+          items: status_items,
+          class: "flex-shrink-0"
+        ) %>
         <%= form_with url: audit_path(@audit_session), method: :delete, local: true, data: { turbo_method: :delete, turbo_confirm: t('confirmations.delete_audit') }, class: "inline-block" do |form| %>
           <%= render ButtonComponent.new(
             text: content_tag(:span, class: "inline-flex items-center") do
@@ -84,41 +120,6 @@
             class: "flex-shrink-0"
           ) %>
         <% end %>
-
-        <!-- Due Date Form (Hidden by default) -->
-        <div id="due-date-form" data-toggle-target="toggleable" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6 w-full max-w-md mx-auto">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4"><%= t('common.due_date') %></h3>
-      <%= form_with model: @audit_session, url: audit_path(@audit_session), method: :patch, local: true, class: "space-y-4" do |form| %>
-        <div>
-          <%= form.label :due_date, t('common.due_date'), class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" %>
-          <div class="relative">
-            <%= form.date_field :due_date,
-                placeholder: "YYYY-MM-DD",
-                data: { toggle_target: "field", action: "input->toggle#toggleClearButton" },
-                class: "block w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-700 focus:border-blue-700 dark:bg-gray-700 dark:text-white sm:text-sm" %>
-            <button type="button" data-toggle-target="clearButton" data-action="click->toggle#clearField" class="absolute inset-y-0 right-0 flex items-center pr-3 <%= @audit_session.due_date ? '' : 'hidden' %>">
-              <svg class="h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-2">
-          <%= render ButtonComponent.new(
-            text: t('buttons.cancel'),
-            type: :button,
-            variant: :secondary,
-            data: { action: "click->toggle#toggle" }
-          ) %>
-          <%= render ButtonComponent.new(
-            text: t('buttons.save'),
-            type: :submit,
-            variant: :primary
-          ) %>
-        </div>
-        <% end %>
-        </div>
       </div>
     </div>
   </div>
@@ -129,8 +130,8 @@
       <div class="flex items-center">
         <div class="flex-shrink-0">
           <!-- Heroicons: user-group -->
-          <svg class="h-8 w-8 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          <svg class="h-8 w-8 text-blue-800" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
           </svg>
         </div>
         <div class="ml-4">
@@ -143,9 +144,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <!-- Heroicons: check-circle -->
-          <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <!-- Heroicons: check-badge -->
+          <svg class="h-8 w-8 text-vads-success" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
           </svg>
         </div>
         <div class="ml-4">
@@ -158,9 +159,9 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <!-- Heroicons: shield-check -->
-          <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          <!-- Heroicons: wrench-screwdriver -->
+          <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true" data-slot="icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
           </svg>
         </div>
         <div class="ml-4">
@@ -237,6 +238,10 @@
                 <div class="flex flex-col space-y-1">
                   <% if member.maintainer_role? %>
                     <%= render StatusBadgeComponent.new(status: "maintainer", class: "w-fit") %>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200 w-fit">
+                      <%= t('status_badges.member') %>
+                    </span>
                   <% end %>
                   <% if member.government_employee? %>
                     <%= render StatusBadgeComponent.new(status: "government", class: "w-fit") %>
@@ -255,22 +260,87 @@
                 <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                <% if member.has_open_issues? %>
-                  <% member.open_issues.limit(2).each do |issue| %>
-                    <div class="mb-1">
-                      <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
-                                  target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                <% if member.team_member.issue_correlations.any? %>
+                  <div data-controller="issue-list">
+                    <!-- Summary view (first 2 issues) -->
+                    <div data-issue-list-target="summary">
+                      <% member.team_member.issue_correlations.order(issue_updated_at: :desc).limit(2).each do |issue| %>
+                        <div class="mb-1 flex items-center gap-1">
+                          <% if issue.resolved? %>
+                            <!-- Heroicons: check-circle outline (purple for resolved) -->
+                            <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                          <% else %>
+                            <!-- Heroicons: exclamation-circle outline (green for open) -->
+                            <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                          <% end %>
+                          <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
+                                      target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                        </div>
+                      <% end %>
+                      <% if member.team_member.issue_correlations.count > 2 %>
+                        <button
+                          type="button"
+                          class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                          data-action="click->issue-list#toggle"
+                          data-issue-list-target="toggleButton"
+                          data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
+                          data-collapse-text="Show less">
+                          +<%= member.team_member.issue_correlations.count - 2 %> more
+                        </button>
+                      <% end %>
                     </div>
-                  <% end %>
+
+                    <!-- Expanded view (all issues) -->
+                    <div data-issue-list-target="expanded" hidden>
+                      <% member.team_member.issue_correlations.order(issue_updated_at: :desc).each do |issue| %>
+                        <div class="mb-1 flex items-center gap-1">
+                          <% if issue.resolved? %>
+                            <!-- Heroicons: check-circle outline (purple for resolved) -->
+                            <svg class="h-4 w-4 text-purple-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                          <% else %>
+                            <!-- Heroicons: exclamation-circle outline (green for open) -->
+                            <svg class="h-4 w-4 text-green-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                          <% end %>
+                          <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
+                                      target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                        </div>
+                      <% end %>
+                      <button
+                        type="button"
+                        class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                        data-action="click->issue-list#toggle"
+                        data-issue-list-target="toggleButton"
+                        data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
+                        data-collapse-text="Show less">
+                        Show less
+                      </button>
+                    </div>
+                  </div>
                 <% else %>
                   <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
                 <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                <%= member.first_seen_at&.strftime('%b %d, %Y') %>
+                <% if member.team_member.first_seen_at %>
+                  <%= time_ago_in_words(member.team_member.first_seen_at) %> ago
+                <% else %>
+                  -
+                <% end %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
-                <%= member.last_seen_at&.strftime('%b %d, %Y') %>
+                <% if member.team_member.last_seen_at %>
+                  <%= time_ago_in_words(member.team_member.last_seen_at) %> ago
+                <% else %>
+                  -
+                <% end %>
               </td>
             </tr>
           <% end %>

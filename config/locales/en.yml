@@ -41,6 +41,7 @@ en:
     view_github_issue: "View GitHub issue #%{number} (opens in new tab)"
     team_members_table: "Team members audit data for %{audit_name}"
     organization_members_table: "Members of the %{team_name} team"
+    open_options: "Open options"
 
   navigation:
     dashboard: "Dashboard"
@@ -59,9 +60,9 @@ en:
     welcome_message: "Welcome to GitHub Team Auditor! Features will be available here soon."
     stats:
       teams: "Teams"
-      organizations: "Organizations"
-      active_members: "Active Members"
-      recent_audits: "Recent Audits"
+      organizations: "Orgs"
+      active_members: "Members"
+      recent_audits: "Audits"
     recent_audits:
       title: "Recent Audits"
       none: "No recent audits found"
@@ -100,6 +101,7 @@ en:
     delete: "Delete"
     view: "View"
     sync: "Sync"
+    find_issues: "Find Issues"
 
   common:
     member: "Member"
@@ -110,11 +112,14 @@ en:
     last_seen: "Last Seen"
     validated: "Validated"
     maintainers: "Maintainers"
-    total_members: "Total Members"
+    total_members: "Members"
     progress: "Progress"
     notes: "Notes"
     due_date: "Due Date"
     no_issues: "No issues"
+    actions: "Actions"
+    show_more: "+%{count} more"
+    show_less: "Show less"
 
   status_badges:
     current: "Current"
@@ -131,15 +136,21 @@ en:
   sync:
     synced_ago: "Synced %{time} ago"
     never_synced: "Never synced"
+    synced_team_ago: "Synced team %{time} ago"
+    never_synced_team: "Never synced team"
+    synced_issues_ago: "Synced issues %{time} ago"
+    never_synced_issues: "Never synced issues"
 
   due_date:
     due_label: "Due:"
     edit_due_date: "Edit Due Date"
     set_due_date: "Set Due Date"
+    clear_due_date: "Clear"
 
   actions:
     mark_active: "Mark Active"
     mark_complete: "Mark Complete"
+    mark_draft: "Mark Draft"
 
   confirmations:
     delete_audit: "Are you sure you want to delete this audit session? This action cannot be undone."
@@ -157,6 +168,18 @@ en:
     dismiss: "Dismiss"
 
   teams:
+    sync_buttons:
+      sync_github_team: "Sync GitHub Team"
+      find_github_issues: "Find GitHub Issues"
+    actions:
+      view_audits: "View Audits"
+      view_on_github: "View on GitHub"
+    card:
+      syncing: "Syncing"
+      last_synced_ago: "Last synced %{time} ago"
+      never_synced: "Never synced"
+      members: "Members"
+      audits: "Audits"
     index:
       title: "Teams"
       new_button: "New Team"
@@ -174,9 +197,14 @@ en:
       new_audit: "New Audit"
       last_synced: "Last synced %{time} ago"
       never_synced: "Never synced"
+      synced_just_now: "Synced just now"
+      synced_ago: "Synced %{time} ago"
+      sections:
+        team_statistics: "Team Statistics"
+        team_members: "Team Members"
       stats:
         members: "Members"
-        total_audits: "Total Audits"
+        total_audits: "Audits"
         recent_audits: "Recent Audits"
         recent_audits_period: "Last 30 days"
         privacy: "Privacy"
@@ -211,6 +239,15 @@ en:
       description_label: "Description"
       description_placeholder: "Brief description of the team's purpose..."
       description_help: "Optional: Provide additional context about this team's responsibilities and scope"
+      search_terms_label: "Search Query"
+      search_terms_placeholder: "e.g., Sidekiq Admin UI access"
+      search_terms_help: "Query to search for in GitHub issue titles (defaults to 'access' if empty)"
+      exclusion_terms_label: "Exclusion Terms"
+      exclusion_terms_placeholder: "e.g., Sidekiq"
+      exclusion_terms_help: "Terms to exclude from search results (case-insensitive)"
+      search_repository_label: "Search Repository"
+      search_repository_placeholder: "e.g., department-of-veterans-affairs/va.gov-team"
+      search_repository_help: "Repository to search in (defaults to organization's va.gov-team if empty)"
       create_button: "Create Team"
       update_button: "Update Team"
       delete_button: "Delete Team"
@@ -294,6 +331,12 @@ en:
       updated: "Team was successfully updated."
       deleted: "Team was successfully deleted."
       sync_started: "Team sync started successfully."
+      sync_already_running: "Team sync is already in progress."
+      cannot_sync_while_finding_issues: "Cannot sync team while finding issues is in progress."
+      issue_correlation_started: "Issue correlation finder started successfully."
+      issue_correlation_already_running: "Issue correlation is already in progress."
+      cannot_find_issues_while_syncing: "Cannot find issues while team sync is in progress."
+      search_terms_required: "Please configure search terms for this team before running issue correlation."
     audits:
       created: "Audit session created successfully"
       updated: "Audit session updated successfully"
@@ -301,6 +344,7 @@ en:
       sync_started: "Team member sync started in background"
       marked_complete: "Audit session marked as completed"
       marked_active: "Audit session marked as active"
+      marked_draft: "Audit session marked as draft"
     users:
       created: "Account created successfully! Please sign in."
       updated: "Profile updated successfully."
@@ -311,6 +355,48 @@ en:
       reset_invalid: "Password reset link is invalid or has expired."
     sessions:
       rate_limit: "Try again later."
+
+  jobs:
+    issue_correlation:
+      finding_issues: "Finding GitHub issues for team members..."
+      finding_issues_short: "Finding Issues..."
+      finding_issues_submits_with: "Finding GitHub Issues..."
+      completed_success: "Issue correlation completed successfully! Found %{count} issues across team members."
+      started_announcement: "Started finding GitHub issues for %{team_name} team members"
+      completed_announcement: "Completed finding GitHub issues for %{team_name}. Found %{count} issues"
+      error_announcement: "Error finding GitHub issues for %{team_name}: %{message}"
+      progress_status: "Finding issues for %{member} (%{current}/%{total})..."
+      progress_announcement: "Processing member %{current} of %{total}: %{member}"
+      rate_limit_status: "Finding issues for %{member} (%{current}/%{total}). Waiting %{seconds} seconds for GitHub's rate limit..."
+      errors:
+        configuration: "GitHub configuration error. Please check your organization and team settings."
+        unauthorized: "GitHub authentication failed. Please check your GitHub token configuration."
+        rate_limit: "GitHub API rate limit exceeded. The issue correlation search will automatically retry."
+        network: "Network connection error occurred. The issue correlation search will automatically retry."
+        unexpected: "An unexpected error occurred during issue correlation search. Please try again."
+
+    team_sync:
+      syncing: "Syncing team members from GitHub..."
+      syncing_short: "Syncing..."
+      syncing_submits_with: "Syncing GitHub Team..."
+      completed_success: "Team sync completed successfully! Added %{new_count} new members, updated %{updated_count} members."
+      started_announcement: "Started syncing %{team_name} team members from GitHub"
+      completed_announcement: "Completed syncing %{team_name}. Added %{new_count} new members, updated %{updated_count} members"
+
+    shared:
+      error_announcement: "Error occurred for %{team_name}: %{message}"
+      errors:
+        configuration: "GitHub configuration error. Please check your organization and team settings."
+        unauthorized: "GitHub authentication failed. Please check your GitHub token configuration."
+        rate_limit: "GitHub API rate limit exceeded. The operation will automatically retry."
+        network: "Network connection error occurred. The operation will automatically retry."
+        unexpected: "An unexpected error occurred. Please try again."
+
+  models:
+    team:
+      status:
+        syncing: "Syncing team members from GitHub..."
+        finding_issues: "Finding GitHub issues for team members..."
 
   aria_labels:
     view_github_profile: "View %{name}'s GitHub profile (opens in new tab)"

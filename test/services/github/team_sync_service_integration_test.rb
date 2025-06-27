@@ -20,13 +20,13 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "Test User 1",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: false
         },
         {
           github_login: "testuser2",
           name: "Test User 2",
-          avatar_url: "https://github.com/testuser2.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser2",
           maintainer_role: true
         }
       ]
@@ -96,7 +96,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "New Name",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: true
         }
       ]
@@ -129,13 +129,21 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
 
     # Create existing members
     present_member = @team.team_members.create!(
-      github_login: "present",
-      last_seen_at: Time.current
+      github_login: "present"
     )
 
     absent_member = @team.team_members.create!(
-      github_login: "absent",
-      last_seen_at: Time.current
+      github_login: "absent"
+    )
+
+    # Create issue correlations to ensure last_seen_at has data
+    present_member.issue_correlations.create!(
+      github_issue_number: 123,
+      github_issue_url: "https://github.com/test/repo/issues/123",
+      title: "Test issue for present member",
+      status: "open",
+      issue_created_at: 2.hours.ago,
+      issue_updated_at: 30.seconds.ago
     )
 
     # Mock API that only returns present member
@@ -145,7 +153,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "present",
           name: "Present User",
-          avatar_url: "https://github.com/present.png",
+          avatar_url: "https://avatars.githubusercontent.com/present",
           maintainer_role: false
         }
       ]
@@ -211,7 +219,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "testuser1",
           name: "Test User 1",
-          avatar_url: "https://github.com/testuser1.png",
+          avatar_url: "https://avatars.githubusercontent.com/testuser1",
           maintainer_role: false
         }
       ]
@@ -268,13 +276,13 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "existing_user",
           name: "Existing User",
-          avatar_url: "https://github.com/existing_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/existing_user",
           maintainer_role: false
         },
         {
           github_login: "new_user",
           name: "New User",
-          avatar_url: "https://github.com/new_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/new_user",
           maintainer_role: true
         }
       ]
@@ -350,7 +358,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "staying_user",
           name: "Staying User",
-          avatar_url: "https://github.com/staying_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/staying_user",
           maintainer_role: false
         }
       ]
@@ -414,7 +422,7 @@ class Github::TeamSyncServiceIntegrationTest < ActiveSupport::TestCase
         {
           github_login: "test_user",
           name: "Test User",
-          avatar_url: "https://github.com/test_user.png",
+          avatar_url: "https://avatars.githubusercontent.com/test_user",
           maintainer_role: false
         }
       ]

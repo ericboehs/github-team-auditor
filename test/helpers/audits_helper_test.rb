@@ -84,4 +84,22 @@ class AuditsHelperTest < ActionView::TestCase
 
     assert_equal "John Doe", safe_github_link(member)
   end
+
+  test "safe_github_link with nil url assignment" do
+    # Specifically test the case where url = member.github_url results in nil
+    member = OpenStruct.new(display_name: "John Doe", github_url: nil)
+    assert_equal "John Doe", safe_github_link(member)
+  end
+
+  test "safe_github_link with url that becomes nil during assignment" do
+    # Test the missing branch where url& returns nil (line 7)
+    member = OpenStruct.new(display_name: "John Doe")
+
+    # Mock github_url to return nil when assigned to url
+    def member.github_url
+      nil
+    end
+
+    assert_equal "John Doe", safe_github_link(member)
+  end
 end

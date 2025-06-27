@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_21_015019) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_25_191530) do
   create_table "audit_members", force: :cascade do |t|
     t.integer "audit_session_id", null: false
     t.integer "team_member_id", null: false
@@ -105,9 +105,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_21_015019) do
     t.string "name"
     t.string "github_slug"
     t.text "description"
-    t.datetime "last_synced_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "search_terms"
+    t.text "exclusion_terms"
+    t.string "search_repository"
+    t.string "sync_status"
+    t.datetime "sync_started_at"
+    t.string "issue_correlation_status"
+    t.datetime "issue_correlation_started_at"
+    t.datetime "issue_correlation_completed_at"
+    t.datetime "sync_completed_at", precision: nil
     t.index ["organization_id"], name: "index_teams_on_organization_id"
   end
 

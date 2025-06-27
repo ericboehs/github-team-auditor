@@ -42,7 +42,7 @@ class AuditsController < ApplicationController
         @teams = @audit_session.organization.teams.recently_synced
 
         # Pre-select the most recently synced team
-        most_recent_team = @teams.where.not(last_synced_at: nil).first
+        most_recent_team = @teams.where.not(sync_completed_at: nil).first
         @audit_session.team = most_recent_team if most_recent_team
       else
         @teams = []
@@ -58,7 +58,7 @@ class AuditsController < ApplicationController
 
     if @audit_session.save
       @audit_session.sync_team_members!
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.created")
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.created") }
     else
       @organizations = Organization.all
       if @audit_session.organization
@@ -74,7 +74,7 @@ class AuditsController < ApplicationController
 
   def update
     if @audit_session.update(audit_session_params)
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.updated")
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.updated") }
     else
       redirect_to audit_path(@audit_session), alert: @audit_session.errors.full_messages.join(", ")
     end
@@ -82,25 +82,36 @@ class AuditsController < ApplicationController
 
   def destroy
     @audit_session.destroy
-    redirect_to audits_path, notice: t("flash.audits.deleted")
+    redirect_to audits_path, flash: { success: t("flash.audits.deleted") }
   end
 
   def toggle_status
-    new_status =
-      case @audit_session.status
-      when "active"
-        "completed"
-      when "completed"
-        "active"
-      when "draft"
-        "active"
-      else
-        "active"
-      end
+    # If a specific status is provided, use it; otherwise, use the toggle logic
+    if params[:status].present? && %w[draft active completed].include?(params[:status])
+      new_status = params[:status]
+    else
+      # Legacy toggle behavior
+      new_status =
+        case @audit_session.status
+        when "active"
+          "completed"
+        when "completed"
+          "active"
+        when "draft"
+          "active"
+        else
+          "active"
+        end
+    end
 
     if @audit_session.update(status: new_status, completed_at: new_status == "completed" ? Time.current : nil)
-      notice_key = new_status == "completed" ? "marked_complete" : "marked_active"
-      redirect_to audit_path(@audit_session), notice: t("flash.audits.#{notice_key}")
+      notice_key = case new_status
+      when "completed" then "marked_complete"
+      when "active" then "marked_active"
+      when "draft" then "marked_draft"
+      else "marked_active"
+      end
+      redirect_to audit_path(@audit_session), flash: { success: t("flash.audits.#{notice_key}") }
     else
       redirect_to audit_path(@audit_session), alert: @audit_session.errors.full_messages.join(", ")
     end

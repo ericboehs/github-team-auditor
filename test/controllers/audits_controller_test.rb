@@ -104,7 +104,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to audit_path(@audit_session)
-    assert_equal I18n.t("flash.audits.updated"), flash[:notice]
+    assert_equal I18n.t("flash.audits.updated"), flash[:success]
     @audit_session.reload
     assert_equal 1.month.from_now.to_date, @audit_session.due_date
   end
@@ -132,7 +132,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to audits_path
-    assert_equal I18n.t("flash.audits.deleted"), flash[:notice]
+    assert_equal I18n.t("flash.audits.deleted"), flash[:success]
   end
 
   test "should get index filtered by team" do
@@ -211,7 +211,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     recent_team = @organization.teams.create!(
       name: "Recently Synced Team",
       github_slug: "recent-team",
-      last_synced_at: 1.hour.ago
+      sync_completed_at: 1.hour.ago
     )
 
     get new_audit_url
@@ -252,6 +252,30 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to audit_path(@audit_session)
     assert_equal "Name can't be blank", flash[:alert]
+  end
+
+  test "should set specific status when status parameter is provided" do
+    sign_in_as(@user)
+    @audit_session.update!(status: "active")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "draft" }
+
+    @audit_session.reload
+    assert_equal "draft", @audit_session.status
+    assert_redirected_to audit_path(@audit_session)
+    assert_equal I18n.t("flash.audits.marked_draft"), flash[:success]
+  end
+
+  test "should reject invalid status parameter" do
+    sign_in_as(@user)
+    @audit_session.update!(status: "active")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "invalid_status" }
+
+    @audit_session.reload
+    # Should fall back to toggle behavior
+    assert_equal "completed", @audit_session.status
+    assert_redirected_to audit_path(@audit_session)
   end
 
   private

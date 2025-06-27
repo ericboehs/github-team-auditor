@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :teams do
     member do
       post :sync
+      post :find_issue_correlations
     end
   end
   resources :audits, only: [ :index, :show, :new, :create, :update, :destroy ] do
