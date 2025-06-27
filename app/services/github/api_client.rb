@@ -93,18 +93,6 @@ module Github
       nil
     end
 
-    def search_issues(query, repository: nil)
-      repo = repository || "#{@organization.github_login}/va.gov-team"
-      search_query = "repo:#{repo} #{query}"
-      Rails.logger.debug "Searching issues with query: #{search_query}"
-
-      with_rate_limiting do
-        results = @client.search_issues(search_query)
-        normalized_results = results.items.map { |issue| normalize_issue_data(issue) }
-        Rails.logger.debug "Found #{normalized_results.length} issues"
-        normalized_results
-      end
-    end
 
     def user_details(username)
       with_rate_limiting do

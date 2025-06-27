@@ -48,6 +48,8 @@ SimpleCov.start "rails" do
 end
 
 ENV["RAILS_ENV"] ||= "test"
+# Set a dummy GitHub token for testing
+ENV["GHTA_GITHUB_TOKEN"] ||= "ghp_dummy_token_for_testing_only"
 require_relative "../config/environment"
 require "rails/test_help"
 

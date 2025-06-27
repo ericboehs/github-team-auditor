@@ -294,68 +294,8 @@ class Github::ApiClientTest < ActiveSupport::TestCase
   end
 
   # Issue search tests
-  test "should search issues successfully" do
-    mock_issue = OpenStruct.new(
-      number: 123,
-      html_url: "https://github.com/org/repo/issues/123",
-      title: "Test Issue",
-      body: "Test issue body",
-      state: "open",
-      created_at: Time.parse("2023-01-01"),
-      updated_at: Time.parse("2023-01-02"),
-      user: OpenStruct.new(login: "issueuser", id: 789)
-    )
-
-    mock_results = OpenStruct.new(items: [ mock_issue ])
-
-    mock_client = OpenStruct.new
-    def mock_client.search_issues(query)
-      @last_query = query
-      OpenStruct.new(
-        items: [
-          OpenStruct.new(
-            number: 123,
-            html_url: "https://github.com/org/repo/issues/123",
-            title: "Test Issue",
-            body: "Test issue body",
-            state: "open",
-            created_at: Time.parse("2023-01-01"),
-            updated_at: Time.parse("2023-01-02"),
-            user: OpenStruct.new(login: "issueuser", id: 789)
-          )
-        ]
-      )
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    result = @client.search_issues("test query")
-
-    assert_equal 1, result.length
-    issue = result.first
-    assert_equal 123, issue[:github_issue_number]
-    assert_equal "https://github.com/org/repo/issues/123", issue[:github_issue_url]
-    assert_equal "Test Issue", issue[:title]
-    assert_equal "Test issue body", issue[:body]
-    assert_equal "open", issue[:state]
-    assert_equal "issueuser", issue[:user][:github_login]
-  end
-
-  test "should search issues with custom repository" do
-    mock_client = OpenStruct.new
-    def mock_client.search_issues(query)
-      @last_query = query
-      OpenStruct.new(items: [])
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    @client.search_issues("test query", repository: "custom/repo")
-
-    # Verify the query includes the custom repository
-    expected_query = "repo:custom/repo test query"
-    assert_equal expected_query, mock_client.instance_variable_get(:@last_query)
-  end
+  # Skipped: search_issues method moved to GraphQL client
+  # These tests were removed because issue searching is now handled by the GraphQL client
 
   # Rate limiting and retry tests
   test "should handle rate limit properly with medium remaining" do

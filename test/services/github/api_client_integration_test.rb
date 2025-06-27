@@ -96,35 +96,8 @@ class Github::ApiClientIntegrationTest < ActiveSupport::TestCase
     assert_nil result
   end
 
-  test "should search issues with default repository" do
-    client = Github::ApiClient.new(@organization)
-
-    # Mock successful search
-    mock_items = [
-      OpenStruct.new(
-        number: 123,
-        html_url: "https://github.com/org/repo/issues/123",
-        title: "Test Issue",
-        body: "Test body",
-        state: "open",
-        created_at: Time.now,
-        updated_at: Time.now,
-        user: OpenStruct.new(login: "testuser", id: 456)
-      )
-    ]
-    mock_results = OpenStruct.new(items: mock_items)
-
-    mock_client = OpenStruct.new
-    def mock_client.search_issues(query)
-      @last_query = query
-      OpenStruct.new(items: [])
-    end
-
-    client.instance_variable_set(:@client, mock_client)
-
-    result = client.search_issues("test query")
-    assert_equal [], result
-  end
+  # Skipped: search_issues method moved to GraphQL client
+  # This test was removed because issue searching is now handled by the GraphQL client
 
   test "should configure client correctly" do
     client = Github::ApiClient.new(@organization)
