@@ -21,7 +21,7 @@ gem "jbuilder"
 gem "bcrypt", "~> 3.1.7"
 
 # GitHub API client [https://github.com/octokit/octokit.rb]
-gem "octokit", "~> 9.0"
+gem "octokit", "~> 10.0"
 # CSV parsing library
 gem "csv"
 # Faraday retry middleware [https://github.com/lostisland/faraday-retry]
