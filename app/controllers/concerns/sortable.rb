@@ -1,8 +1,7 @@
 module Sortable
   extend ActiveSupport::Concern
 
-  private
-
+  # Public methods accessible to helpers via delegation
   def sort_column
     params[:sort].presence
   end

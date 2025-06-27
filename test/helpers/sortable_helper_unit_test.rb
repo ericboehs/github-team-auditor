@@ -23,15 +23,7 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
     assert_equal "asc", next_sort_direction("status")
   end
 
-  test "sort_column helper method" do
-    def params; { sort: "name" }; end
-    assert_equal "name", sort_column
-  end
-
-  test "sort_direction helper method" do
-    def params; { direction: "desc" }; end
-    assert_equal "desc", sort_direction
-  end
+  # These methods are now delegated to controller, tested in sorting_logic_test.rb
 
   test "sort_link handles url generation error gracefully" do
     def params; {}; end

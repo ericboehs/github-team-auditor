@@ -1,11 +1,6 @@
 module SortableHelper
-  def sort_column
-    params[:sort].presence
-  end
-
-  def sort_direction
-    %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
-  end
+  # Delegate to controller's Sortable concern methods
+  delegate :sort_column, :sort_direction, to: :controller
 
   def next_sort_direction(current_column)
     if sort_column == current_column
