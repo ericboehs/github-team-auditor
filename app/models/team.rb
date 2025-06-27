@@ -61,7 +61,7 @@ class Team < ApplicationRecord
   end
 
   def complete_sync_job!
-    complete_job!(:sync, completion_field: :last_synced_at)
+    complete_job!(:sync, completion_field: :sync_completed_at)
   end
 
   def start_issue_correlation_job!
@@ -90,17 +90,11 @@ class Team < ApplicationRecord
   end
 
   def start_job!(job_type)
-    update!(
-      "#{job_type}_status" => "running",
-      "#{job_type}_started_at" => Time.current
-    )
+    update!("#{job_type}_status" => "running")
   end
 
   def complete_job!(job_type, completion_field: nil)
-    attributes = {
-      "#{job_type}_status" => nil,
-      "#{job_type}_started_at" => nil
-    }
+    attributes = { "#{job_type}_status" => nil }
 
     if completion_field
       attributes[completion_field.to_s] = Time.current
