@@ -136,9 +136,8 @@ app/
 - `IssueCorrelationService` - Business logic for issue correlation finding
 
 **Jobs**:
-- `TeamSyncJob` - Background team data synchronization (refactored with TurboBroadcasting)
-- `IssueCorrelationFinderJob` - Background issue correlation finding with real-time UI updates
-- `MemberEnrichmentJob` - Background member profile enrichment
+- `TeamSyncJob` - Background team data synchronization with integrated member enrichment via GraphQL
+- `IssueCorrelationFinderJob` - Background issue correlation finding with GraphQL batch processing and real-time UI updates
 
 **Job Concerns**:
 - `TurboBroadcasting` - Shared concern for real-time UI updates and error handling

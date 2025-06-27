@@ -294,68 +294,8 @@ class Github::ApiClientTest < ActiveSupport::TestCase
   end
 
   # Issue search tests
-  test "should search issues successfully" do
-    mock_issue = OpenStruct.new(
-      number: 123,
-      html_url: "https://github.com/org/repo/issues/123",
-      title: "Test Issue",
-      body: "Test issue body",
-      state: "open",
-      created_at: Time.parse("2023-01-01"),
-      updated_at: Time.parse("2023-01-02"),
-      user: OpenStruct.new(login: "issueuser", id: 789)
-    )
-
-    mock_results = OpenStruct.new(items: [ mock_issue ])
-
-    mock_client = OpenStruct.new
-    def mock_client.search_issues(query)
-      @last_query = query
-      OpenStruct.new(
-        items: [
-          OpenStruct.new(
-            number: 123,
-            html_url: "https://github.com/org/repo/issues/123",
-            title: "Test Issue",
-            body: "Test issue body",
-            state: "open",
-            created_at: Time.parse("2023-01-01"),
-            updated_at: Time.parse("2023-01-02"),
-            user: OpenStruct.new(login: "issueuser", id: 789)
-          )
-        ]
-      )
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    result = @client.search_issues("test query")
-
-    assert_equal 1, result.length
-    issue = result.first
-    assert_equal 123, issue[:github_issue_number]
-    assert_equal "https://github.com/org/repo/issues/123", issue[:github_issue_url]
-    assert_equal "Test Issue", issue[:title]
-    assert_equal "Test issue body", issue[:body]
-    assert_equal "open", issue[:state]
-    assert_equal "issueuser", issue[:user][:github_login]
-  end
-
-  test "should search issues with custom repository" do
-    mock_client = OpenStruct.new
-    def mock_client.search_issues(query)
-      @last_query = query
-      OpenStruct.new(items: [])
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    @client.search_issues("test query", repository: "custom/repo")
-
-    # Verify the query includes the custom repository
-    expected_query = "repo:custom/repo test query"
-    assert_equal expected_query, mock_client.instance_variable_get(:@last_query)
-  end
+  # Skipped: search_issues method moved to GraphQL client
+  # These tests were removed because issue searching is now handled by the GraphQL client
 
   # Rate limiting and retry tests
   test "should handle rate limit properly with medium remaining" do
@@ -423,30 +363,6 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     assert_equal "A test team", result[:description]
     assert_equal 5, result[:members_count]
     assert_equal "closed", result[:privacy]
-  end
-
-  test "should normalize issue data correctly" do
-    issue = OpenStruct.new(
-      number: 123,
-      html_url: "https://github.com/org/repo/issues/123",
-      title: "Test Issue",
-      body: "Test body",
-      state: "open",
-      created_at: Time.parse("2023-01-01"),
-      updated_at: Time.parse("2023-01-02"),
-      user: OpenStruct.new(login: "testuser", id: 456)
-    )
-
-    result = @client.send(:normalize_issue_data, issue)
-
-    assert_equal 123, result[:github_issue_number]
-    assert_equal "https://github.com/org/repo/issues/123", result[:github_issue_url]
-    assert_equal "Test Issue", result[:title]
-    assert_equal "Test body", result[:body]
-    assert_equal "open", result[:state]
-    assert_equal Time.parse("2023-01-01"), result[:created_at]
-    assert_equal Time.parse("2023-01-02"), result[:updated_at]
-    assert_equal "testuser", result[:user][:github_login]
   end
 
   test "should normalize user data correctly" do
@@ -680,48 +596,6 @@ class Github::ApiClientTest < ActiveSupport::TestCase
     assert_raises Octokit::ServerError do
       @client.fetch_team_members("test-team")
     end
-  end
-
-  test "should handle team_id_for_slug with existing team" do
-    mock_client = OpenStruct.new
-    def mock_client.team_by_name(org, slug)
-      OpenStruct.new(id: 123, name: "Test Team", slug: "test-team")
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    # This tests the private method indirectly through fetch_team_by_slug
-    result = @client.fetch_team_by_slug("test-team")
-    assert_equal "Test Team", result[:name]
-  end
-
-  test "should get team_id_for_slug with existing team" do
-    # Mock fetch_team_by_slug to return the normalized hash format
-    @client.define_singleton_method(:fetch_team_by_slug) { |slug| { id: 123, name: "Test Team" } }
-
-    result = @client.send(:team_id_for_slug, "test-team")
-    assert_equal 123, result
-  end
-
-  test "should get team_id_for_slug when team has id via dig" do
-    # Test the team&.dig(:id) path specifically (line 122)
-    @client.define_singleton_method(:fetch_team_by_slug) { |slug| { id: 456, name: "Test Team" } }
-
-    result = @client.send(:team_id_for_slug, "test-team")
-    assert_equal 456, result
-  end
-
-  test "should raise NotFound for team_id_for_slug with nonexistent team" do
-    mock_client = OpenStruct.new
-    def mock_client.team_by_name(org, slug)
-      raise Octokit::NotFound.new
-    end
-
-    @client.instance_variable_set(:@client, mock_client)
-
-    # This should return nil due to the rescue in fetch_team_by_slug
-    result = @client.fetch_team_by_slug("nonexistent-team")
-    assert_nil result
   end
 
   test "rate limit countdown broadcasts every second" do

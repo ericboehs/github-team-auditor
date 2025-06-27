@@ -6,14 +6,14 @@ class IssueCorrelationFinderJob < ApplicationJob
   # Retry on transient errors but not on permanent failures
   retry_on StandardError, wait: :polynomially_longer, attempts: 3 do |job, error|
     # Don't retry on configuration errors
-    raise error if error.is_a?(Github::ApiClient::ConfigurationError)
+    raise error if error.is_a?(Github::GraphqlClient::ConfigurationError)
 
     # Log retry attempt
     Rails.logger.warn "Issue correlation job retrying due to: #{error.message}"
   end
 
   # Don't retry on configuration errors
-  discard_on Github::ApiClient::ConfigurationError
+  discard_on Github::GraphqlClient::ConfigurationError
 
   def perform(team_id, search_terms: nil, exclusion_terms: nil, repository: nil)
     setup_job(team_id, search_terms, exclusion_terms, repository)
@@ -30,12 +30,6 @@ class IssueCorrelationFinderJob < ApplicationJob
   def setup_job(team_id, search_terms, exclusion_terms, repository)
     @team = Team.find(team_id)
     @organization = @team.organization
-
-    # Create API client with rate limit callback for countdown display
-    rate_limit_callback = lambda do |remaining_seconds|
-      update_rate_limit_status(remaining_seconds)
-    end
-    @api_client = @api_client || Github::ApiClient.new(@organization, rate_limit_callback: rate_limit_callback)
 
     # Use team's search configuration, with fallbacks to parameters or defaults
     @search_terms = search_terms || @team.effective_search_terms
@@ -54,7 +48,6 @@ class IssueCorrelationFinderJob < ApplicationJob
   def process_correlations
     @correlation_service = IssueCorrelationService.new(
       @team,
-      api_client: @api_client,
       search_terms: @search_terms,
       exclusion_terms: @exclusion_terms,
       repository: @repository
@@ -77,6 +70,9 @@ class IssueCorrelationFinderJob < ApplicationJob
     # Announce completion to screen readers
     broadcast_live_announcement(@team, I18n.t("jobs.issue_correlation.completed_announcement", team_name: @team.name, count: total_issues))
 
+    # Update team members table with new first/last seen data
+    broadcast_team_members_update
+
     Rails.logger.info "Broadcasted correlation completion message for team #{@team.id}: #{message}"
     Rails.logger.info "Issue correlation finder completed for team #{@team.name}"
   end
@@ -93,64 +89,31 @@ class IssueCorrelationFinderJob < ApplicationJob
   end
 
   def find_correlations_for_team
-    members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
-    total_members = members.count
-    @current_index = 0
-
-    members.each do |team_member|
-      @current_index += 1
-      @current_member = team_member.github_login
-      @total_members = total_members
-
-      # Update status with current progress
-      update_progress_status
-
-      find_correlations_for_member(team_member)
-    rescue StandardError => e
-      Rails.logger.error "Failed to find correlations for member #{team_member.github_login}: #{e.message}"
-      # Continue with other members even if one fails
-    end
+    # Use the batch GraphQL approach which is much faster
+    @correlation_service.find_correlations_for_team
   end
 
-  def find_correlations_for_member(team_member)
-    @correlation_service.find_correlations_for_member(team_member)
-  end
+  def broadcast_team_members_update
+    # TODO: Fix real-time updates for first/last seen columns
+    # The broadcast is sent correctly (confirmed in logs) but first/last seen dates
+    # don't update in the browser until page refresh. This may be due to:
+    # - WebSocket connection timing issues
+    # - Association caching between sync and correlation jobs
+    # - Turbo stream processing timing in browser
+    # Works correctly: sync -> refresh -> correlate
+    # Doesn't work: sync -> correlate (without refresh)
 
+    # Refresh team members with updated issue correlation data
+    team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
 
-  def update_progress_status
-    progress_message = I18n.t("jobs.issue_correlation.progress_status", member: @current_member, current: @current_index, total: @total_members)
-
-    # Broadcast only the message text update (keeps spinner spinning smoothly)
-    Turbo::StreamsChannel.broadcast_update_to(
+    # Broadcast updated team members table to replace the existing one
+    Turbo::StreamsChannel.broadcast_replace_to(
       "team_#{@team.id}",
-      target: "status-message",
-      html: progress_message
+      target: "team-members-content",
+      partial: "teams/team_members_table",
+      locals: { team_members: team_members, team: @team }
     )
 
-    # Announce progress to screen readers every 5th member to avoid spam
-    if @current_index % 5 == 0 || @current_index == @total_members
-      Turbo::StreamsChannel.broadcast_update_to(
-        "team_#{@team.id}",
-        target: "live-announcements",
-        html: I18n.t("jobs.issue_correlation.progress_announcement", current: @current_index, total: @total_members, member: @current_member)
-      )
-    end
-  end
-
-  def update_rate_limit_status(remaining_seconds)
-    if remaining_seconds > 0
-      # Combine progress and rate limit information
-      combined_message = I18n.t("jobs.issue_correlation.rate_limit_status", member: @current_member, current: @current_index, total: @total_members, seconds: remaining_seconds)
-
-      # Broadcast only the message text update (keeps spinner spinning smoothly)
-      Turbo::StreamsChannel.broadcast_update_to(
-        "team_#{@team.id}",
-        target: "status-message",
-        html: combined_message
-      )
-    else
-      # Resume with progress information
-      update_progress_status
-    end
+    Rails.logger.info "Broadcasted team members table update for team #{@team.id}"
   end
 end

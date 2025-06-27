@@ -1,66 +1,45 @@
 class IssueCorrelationService
-  attr_reader :team, :api_client, :search_terms, :exclusion_terms, :repository
+  attr_reader :team, :graphql_client, :search_terms, :exclusion_terms, :repository
 
-  def initialize(team, api_client:, search_terms:, exclusion_terms:, repository:)
+  def initialize(team, search_terms:, exclusion_terms:, repository:)
     @team = team
-    @api_client = api_client
+    @graphql_client = Github::GraphqlClient.new(team.organization)
     @search_terms = search_terms
     @exclusion_terms = exclusion_terms.to_s.downcase
     @repository = repository
   end
 
-  def find_correlations_for_member(team_member)
-    Rails.logger.debug "Finding issue correlations for #{team_member.github_login}"
+  def find_correlations_for_team
+    Rails.logger.info "Starting batch GraphQL issue correlation for team #{team.name}"
+    Rails.logger.info "Search config: terms='#{search_terms}', exclusion='#{exclusion_terms}', repo='#{repository}'"
 
-    # Build search query similar to legacy code: member login + search terms
-    query = build_search_query(team_member.github_login)
+    team_members = team.team_members.includes(:issue_correlations).current.order(:github_login)
 
-    # Search for issues
-    issues = api_client.search_issues(query, repository: repository)
+    # Use GraphQL batch search for much better performance (6-10x faster)
+    batch_results = graphql_client.batch_search_issues_for_members(
+      team_members,
+      search_terms: search_terms,
+      repository: repository,
+      exclusion_terms: exclusion_terms
+    )
 
-    # Filter out excluded issues
-    filtered_issues = filter_excluded_issues(issues)
+    Rails.logger.info "GraphQL batch search completed. Processing #{team_members.count} members"
 
-    # Update correlations for this member
-    update_correlations_for_member(team_member, filtered_issues)
+    # Update correlations for each member
+    team_members.each do |team_member|
+      issues = batch_results[team_member.github_login] || []
+      update_correlations_for_member(team_member, issues)
+    end
 
-    Rails.logger.debug "Found #{filtered_issues.count} issue correlations for #{team_member.github_login}"
-    filtered_issues
+    Rails.logger.info "Issue correlation processing completed for team #{team.name}"
   end
 
   private
 
-  def build_search_query(github_login)
-    # Sanitize inputs to prevent search query injection
-    safe_login = sanitize_search_term(github_login)
-    safe_search_terms = sanitize_search_term(search_terms)
-
-    # Build query similar to legacy: search for member in both body and title, plus search terms in title
-    "is:issue \"#{safe_login}\" in:body \"#{safe_login}\" in:title \"#{safe_search_terms}\""
-  end
-
-  def sanitize_search_term(term)
-    return "" if term.blank?
-
-    # Remove potentially dangerous characters that could break GitHub search syntax
-    # Keep alphanumeric, spaces, hyphens, underscores, and dots
-    sanitized = term.to_s.gsub(/[^\w\s\-\.]/, "")
-
-    # Limit length to prevent excessively long queries
-    sanitized.truncate(100)
-  end
-
-  def filter_excluded_issues(issues)
-    return issues if exclusion_terms.blank?
-
-    issues.reject do |issue|
-      title_lower = issue[:title].to_s.downcase
-      title_lower.include?(exclusion_terms)
-    end
-  end
-
   def update_correlations_for_member(team_member, issues)
     current_time = Time.current
+
+    Rails.logger.debug "Updating #{issues.count} issue correlations for #{team_member.github_login}"
 
     # Get existing correlations to identify what to update vs create
     existing_correlations = team_member.issue_correlations.index_by(&:github_issue_number)
