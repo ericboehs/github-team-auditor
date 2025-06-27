@@ -65,4 +65,69 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
     result = sort_link("member", "Member")
     assert_includes result, "Member"
   end
+
+  test "sort_link adds active styling for current column" do
+    @mock_controller.set_sort("member", "asc")
+    def url_for(options)
+      "/test?#{options.to_query}"
+    end
+    def link_to(url, options = {})
+      assert_includes options[:class], "text-gray-700 dark:text-gray-300"
+      yield if block_given?
+    end
+    def content_tag(tag, content, options = {})
+      content
+    end
+
+    result = sort_link("member", "Member")
+    assert_includes result, "Member"
+  end
+
+  test "sort_link shows up arrow for asc sort" do
+    @mock_controller.set_sort("member", "asc")
+    def url_for(options)
+      "/test?#{options.to_query}"
+    end
+    def link_to(url, options = {})
+      yield if block_given?
+    end
+    def content_tag(tag, content, options = {})
+      content
+    end
+
+    result = sort_link("member", "Member")
+    assert_includes result, "<svg"
+    assert_includes result, "M14.77 12.79" # Up arrow path
+  end
+
+  test "sort_link shows down arrow for desc sort" do
+    @mock_controller.set_sort("member", "desc")
+    def url_for(options)
+      "/test?#{options.to_query}"
+    end
+    def link_to(url, options = {})
+      yield if block_given?
+    end
+    def content_tag(tag, content, options = {})
+      content
+    end
+
+    result = sort_link("member", "Member")
+    assert_includes result, "<svg"
+    assert_includes result, "M5.23 7.21" # Down arrow path
+  end
+
+  test "chevron icon methods return SVG" do
+    result = send(:chevron_up_icon)
+    assert_includes result, "<svg"
+    assert_includes result, "fill-rule"
+
+    result = send(:chevron_down_icon)
+    assert_includes result, "<svg"
+    assert_includes result, "fill-rule"
+
+    result = send(:chevron_up_down_icon)
+    assert_includes result, "<svg"
+    assert_includes result, "fill-rule"
+  end
 end
