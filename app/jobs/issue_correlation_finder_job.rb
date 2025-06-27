@@ -94,6 +94,15 @@ class IssueCorrelationFinderJob < ApplicationJob
   end
 
   def broadcast_team_members_update
+    # TODO: Fix real-time updates for first/last seen columns
+    # The broadcast is sent correctly (confirmed in logs) but first/last seen dates
+    # don't update in the browser until page refresh. This may be due to:
+    # - WebSocket connection timing issues
+    # - Association caching between sync and correlation jobs
+    # - Turbo stream processing timing in browser
+    # Works correctly: sync -> refresh -> correlate
+    # Doesn't work: sync -> correlate (without refresh)
+
     # Refresh team members with updated issue correlation data
     team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
 
