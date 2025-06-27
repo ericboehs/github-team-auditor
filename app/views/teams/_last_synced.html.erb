@@ -5,6 +5,7 @@
     </svg>
     <% if last_synced_at %>
       <span title="<%= last_synced_at.iso8601 %>">
+        <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
         <span class="sm:hidden"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
         <span class="hidden sm:inline"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
       </span>
@@ -18,6 +19,7 @@
     </svg>
     <% if last_issue_correlation_at %>
       <span title="<%= last_issue_correlation_at.iso8601 %>">
+        <!-- TODO: Replace gsub with proper i18n-friendly time formatting helper -->
         <span class="sm:hidden"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
         <span class="hidden sm:inline"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
       </span>
