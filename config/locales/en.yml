@@ -167,6 +167,9 @@ en:
     sync_buttons:
       sync_github_team: "Sync GitHub Team"
       find_github_issues: "Find GitHub Issues"
+    actions:
+      view_audits: "View Audits"
+      view_on_github: "View on GitHub"
     index:
       title: "Teams"
       new_button: "New Team"
