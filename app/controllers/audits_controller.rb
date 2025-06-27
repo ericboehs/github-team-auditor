@@ -146,11 +146,8 @@ class AuditsController < ApplicationController
     when "started"
       relation.order("audit_sessions.started_at #{sort_direction}")
     when "due_date"
-      if sort_direction == "asc"
-        relation.order("audit_sessions.due_date ASC NULLS LAST")
-      else
-        relation.order("audit_sessions.due_date DESC NULLS LAST")
-      end
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.due_date #{direction} NULLS LAST"))
     else
       # Default sorting
       relation.recent
