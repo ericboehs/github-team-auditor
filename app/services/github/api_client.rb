@@ -110,11 +110,6 @@ module Github
       @client.per_page = ApiConfiguration::DEFAULT_PAGE_SIZE
     end
 
-    def team_id_for_slug(team_slug)
-      team = fetch_team_by_slug(team_slug)
-      team&.dig(:id) || raise(Octokit::NotFound.new("Team not found: #{team_slug}"))
-    end
-
     def with_rate_limiting(&block)
       retries = 0
       begin
@@ -196,21 +191,6 @@ module Github
         description: team.description,
         members_count: team.members_count,
         privacy: team.privacy
-      }
-    end
-
-    def normalize_issue_data(issue)
-      {
-        github_issue_number: issue.number,
-        github_issue_url: issue.html_url,
-        title: issue.title,
-        body: issue.body,
-        state: issue.state,
-        created_at: issue.created_at,
-        updated_at: issue.updated_at,
-        user: {
-          github_login: issue.user.login
-        }
       }
     end
 
