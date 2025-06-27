@@ -138,13 +138,17 @@ class AuditsController < ApplicationController
   def apply_audit_sorting(relation)
     case sort_column
     when "name"
-      relation.order("audit_sessions.name #{sort_direction}")
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.name #{direction}"))
     when "team"
-      relation.joins(:team).order("teams.name #{sort_direction}")
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.joins(:team).order(Arel.sql("teams.name #{direction}"))
     when "status"
-      relation.order("audit_sessions.status #{sort_direction}")
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.status #{direction}"))
     when "started"
-      relation.order("audit_sessions.started_at #{sort_direction}")
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.started_at #{direction}"))
     when "due_date"
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       relation.order(Arel.sql("audit_sessions.due_date #{direction} NULLS LAST"))
