@@ -5,11 +5,11 @@
     </svg>
     <% if last_synced_at %>
       <span title="<%= last_synced_at.iso8601 %>">
-        <span class="sm:hidden">Synced team <%= time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %> ago</span>
-        <span class="hidden sm:inline">Synced team <%= time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now') %> ago</span>
+        <span class="sm:hidden"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
+        <span class="hidden sm:inline"><%= t('sync.synced_team_ago', time: time_ago_in_words(last_synced_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
       </span>
     <% else %>
-      Never synced team
+      <%= t('sync.never_synced_team') %>
     <% end %>
   </div>
   <div class="flex items-center justify-start md:justify-end">
@@ -18,11 +18,11 @@
     </svg>
     <% if last_issue_correlation_at %>
       <span title="<%= last_issue_correlation_at.iso8601 %>">
-        <span class="sm:hidden">Synced issues <%= time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins') %> ago</span>
-        <span class="hidden sm:inline">Synced issues <%= time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now') %> ago</span>
+        <span class="sm:hidden"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now').gsub(/\b1 minutes\b/, '1 min').gsub(/\bminutes\b/, 'mins')) %></span>
+        <span class="hidden sm:inline"><%= t('sync.synced_issues_ago', time: time_ago_in_words(last_issue_correlation_at).gsub(/\babout /, '').gsub(/less than a minute/, 'just now')) %></span>
       </span>
     <% else %>
-      Never synced issues
+      <%= t('sync.never_synced_issues') %>
     <% end %>
   </div>
 </div>

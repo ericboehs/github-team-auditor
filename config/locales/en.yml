@@ -136,6 +136,10 @@ en:
   sync:
     synced_ago: "Synced %{time} ago"
     never_synced: "Never synced"
+    synced_team_ago: "Synced team %{time} ago"
+    never_synced_team: "Never synced team"
+    synced_issues_ago: "Synced issues %{time} ago"
+    never_synced_issues: "Never synced issues"
 
   due_date:
     due_label: "Due:"
