@@ -94,8 +94,10 @@ class IssueCorrelationFinderJob < ApplicationJob
   end
 
   def broadcast_team_members_update
+    Rails.logger.info "STARTING broadcast_team_members_update for team #{@team.id}"
     # Refresh team members with updated issue correlation data
     team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
+    Rails.logger.info "Found #{team_members.count} team members to broadcast"
 
     # Broadcast updated team members table to replace the existing one
     Turbo::StreamsChannel.broadcast_replace_to(
@@ -105,6 +107,6 @@ class IssueCorrelationFinderJob < ApplicationJob
       locals: { team_members: team_members, team: @team }
     )
 
-    Rails.logger.debug "Broadcasted team members table update for team #{@team.id}"
+    Rails.logger.info "Broadcasted team members table update for team #{@team.id}"
   end
 end
