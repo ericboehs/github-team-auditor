@@ -70,6 +70,9 @@ class IssueCorrelationFinderJob < ApplicationJob
     # Announce completion to screen readers
     broadcast_live_announcement(@team, I18n.t("jobs.issue_correlation.completed_announcement", team_name: @team.name, count: total_issues))
 
+    # Update team members table with new first/last seen data
+    broadcast_team_members_update
+
     Rails.logger.info "Broadcasted correlation completion message for team #{@team.id}: #{message}"
     Rails.logger.info "Issue correlation finder completed for team #{@team.name}"
   end
@@ -88,5 +91,20 @@ class IssueCorrelationFinderJob < ApplicationJob
   def find_correlations_for_team
     # Use the batch GraphQL approach which is much faster
     @correlation_service.find_correlations_for_team
+  end
+
+  def broadcast_team_members_update
+    # Refresh team members with updated issue correlation data
+    team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
+
+    # Broadcast updated team members table to replace the existing one
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "team_#{@team.id}",
+      target: "team-members-content",
+      partial: "teams/team_members_table",
+      locals: { team_members: team_members, team: @team }
+    )
+
+    Rails.logger.debug "Broadcasted team members table update for team #{@team.id}"
   end
 end
