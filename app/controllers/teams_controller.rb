@@ -1,4 +1,6 @@
 class TeamsController < ApplicationController
+  include Sortable
+
   before_action :set_team, only: [ :show, :edit, :update, :destroy, :sync, :find_issue_correlations ]
 
   def index
@@ -7,7 +9,11 @@ class TeamsController < ApplicationController
 
   def show
     # Get current team members from team_members table with issue correlations preloaded
-    @team_members = @team.team_members.includes(:issue_correlations).current.order(:github_login)
+    @team_members = @team.team_members.includes(:issue_correlations).current
+
+    # Apply sorting for team members
+    @team_members = apply_team_member_sorting(@team_members)
+
     @recent_audits_count = @team.audit_sessions.where(created_at: 30.days.ago..).count
     @total_members_count = @team_members.count
     @validated_members_count = 0 # Not applicable for team-level view
@@ -130,5 +136,35 @@ class TeamsController < ApplicationController
 
   def team_params
     params.require(:team).permit(:name, :github_slug, :description, :organization_id, :search_terms, :exclusion_terms, :search_repository)
+  end
+
+  def apply_team_member_sorting(relation)
+    case sort_column
+    when "member"
+      relation.order(team_members: { github_login: sort_direction })
+    when "role"
+      # For role, we want maintainers first when ascending
+      direction = sort_direction == 'asc' ? :desc : :asc
+      relation.order(team_members: { maintainer_role: direction })
+    when "first_seen"
+      # Sort by minimum issue_created_at from issue_correlations
+      # For ascending: NULLs first, then oldest to newest
+      # For descending: newest to oldest, then NULLs last
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+      relation.joins("LEFT JOIN issue_correlations ic_first ON ic_first.team_member_id = team_members.id")
+              .group("team_members.id")
+              .order(Arel.sql("MIN(ic_first.issue_created_at) #{sort_direction} #{nulls_position}"))
+    when "last_seen"
+      # Sort by maximum issue_updated_at from issue_correlations
+      # For ascending: NULLs first, then oldest to newest
+      # For descending: newest to oldest, then NULLs last
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+      relation.joins("LEFT JOIN issue_correlations ic_last ON ic_last.team_member_id = team_members.id")
+              .group("team_members.id")
+              .order(Arel.sql("MAX(ic_last.issue_updated_at) #{sort_direction} #{nulls_position}"))
+    else
+      # Default sorting
+      relation.order(team_members: { github_login: :asc })
+    end
   end
 end

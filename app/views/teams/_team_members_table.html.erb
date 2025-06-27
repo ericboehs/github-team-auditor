@@ -1,85 +1,86 @@
 <% if team_members.any? %>
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-      <caption class="sr-only"><%= t('accessibility.organization_members_table', team_name: team.name) %></caption>
-    <thead>
-      <tr>
-        <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
-          <%= t('common.member') %>
-        </th>
-        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          <%= t('common.role') %>
-        </th>
-        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          <%= t('common.status') %>
-        </th>
-        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          <%= t('common.issues') %>
-        </th>
-        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          <%= t('common.first_seen') %>
-        </th>
-        <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          <%= t('common.last_seen') %>
-        </th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-      <% team_members.each do |member| %>
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-          <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap sm:pl-6">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 h-10 w-10">
-                <img class="h-10 w-10 rounded-full" src="<%= member.avatar_url %>" alt="<%= member.display_name %>">
-              </div>
-              <div class="ml-4">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                  <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": t('accessibility.view_github_profile', name: member.display_name), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500") %>
+    <%= turbo_frame_tag "sortable-table" do %>
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <caption class="sr-only"><%= t('accessibility.organization_members_table', team_name: team.name) %></caption>
+        <thead>
+          <tr>
+            <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6">
+              <%= sort_link("member", t('common.member')) %>
+            </th>
+            <th scope="col" class="px-3 py-3.5">
+              <%= sort_link("role", t('common.role')) %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.status') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <%= t('common.issues') %>
+            </th>
+            <th scope="col" class="px-3 py-3.5">
+              <%= sort_link("first_seen", t('common.first_seen')) %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
+              <%= sort_link("last_seen", t('common.last_seen')) %>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% team_members.each do |member| %>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap sm:pl-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <img class="h-10 w-10 rounded-full" src="<%= member.avatar_url %>" alt="<%= member.display_name %>">
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": t('accessibility.view_github_profile', name: member.display_name), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500") %>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
+                  </div>
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
-              </div>
-            </div>
-          </td>
-          <td class="px-3 py-4 text-sm whitespace-nowrap">
-            <% if member.maintainer_role? %>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
-                <%= t('status_badges.maintainer') %>
-              </span>
-            <% else %>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">
-                <%= t('status_badges.member') %>
-              </span>
-            <% end %>
-          </td>
-          <td class="px-3 py-4 text-sm whitespace-nowrap">
-            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
-              <%= t('status_badges.current') %>
-            </span>
-          </td>
-          <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-            <div id="member-issues-<%= member.id %>">
-              <%= render 'teams/member_issues', member: member %>
-            </div>
-          </td>
-          <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-            <% if member.first_seen_at %>
-              <%= time_ago_in_words(member.first_seen_at) %> ago
-            <% else %>
-              -
-            <% end %>
-          </td>
-          <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
-            <% if member.last_seen_at %>
-              <%= time_ago_in_words(member.last_seen_at) %> ago
-            <% else %>
-              -
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <% if member.maintainer_role? %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
+                    <%= t('status_badges.maintainer') %>
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200">
+                    <%= t('status_badges.member') %>
+                  </span>
+                <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
+                  <%= t('status_badges.current') %>
+                </span>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                <div id="member-issues-<%= member.id %>">
+                  <%= render 'teams/member_issues', member: member %>
+                </div>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                <% if member.first_seen_at %>
+                  <%= time_ago_in_words(member.first_seen_at) %> ago
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+                <% if member.last_seen_at %>
+                  <%= time_ago_in_words(member.last_seen_at) %> ago
+                <% else %>
+                  -
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
       </table>
-    </div>
+    <% end %>
   </div>
 <% else %>
   <%= render EmptyStateComponent.new(
