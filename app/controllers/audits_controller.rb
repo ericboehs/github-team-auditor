@@ -42,7 +42,7 @@ class AuditsController < ApplicationController
         @teams = @audit_session.organization.teams.recently_synced
 
         # Pre-select the most recently synced team
-        most_recent_team = @teams.where.not(last_synced_at: nil).first
+        most_recent_team = @teams.where.not(sync_completed_at: nil).first
         @audit_session.team = most_recent_team if most_recent_team
       else
         @teams = []

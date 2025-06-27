@@ -23,10 +23,10 @@ class TeamSyncJobTest < ActiveJob::TestCase
 
     mock_service.verify
 
-    # Check that team's last_synced_at was updated
+    # Check that team's sync_completed_at was updated
     @team.reload
-    assert_not_nil @team.last_synced_at
-    assert_in_delta Time.current, @team.last_synced_at, 5.seconds
+    assert_not_nil @team.sync_completed_at
+    assert_in_delta Time.current, @team.sync_completed_at, 5.seconds
   end
 
   test "should handle missing team" do
@@ -37,8 +37,8 @@ class TeamSyncJobTest < ActiveJob::TestCase
     end
   end
 
-  test "should update team last_synced_at timestamp" do
-    old_timestamp = @team.last_synced_at
+  test "should update team sync_completed_at timestamp" do
+    old_timestamp = @team.sync_completed_at
 
     # Mock the sync service
     mock_service = Minitest::Mock.new
@@ -49,8 +49,8 @@ class TeamSyncJobTest < ActiveJob::TestCase
     end
 
     @team.reload
-    assert_not_equal old_timestamp, @team.last_synced_at
-    assert_in_delta Time.current, @team.last_synced_at, 5.seconds
+    assert_not_equal old_timestamp, @team.sync_completed_at
+    assert_in_delta Time.current, @team.sync_completed_at, 5.seconds
   end
 
   test "should be queued in default queue" do

@@ -19,7 +19,7 @@ class Team < ApplicationRecord
     search_repository.presence || "#{organization.github_login}/va.gov-team"
   end
 
-  scope :recently_synced, -> { order(last_synced_at: :desc) }
+  scope :recently_synced, -> { order(sync_completed_at: :desc) }
 
   def github_url
     "https://github.com/orgs/#{organization.github_login}/teams/#{github_slug}"

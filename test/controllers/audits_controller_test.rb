@@ -211,7 +211,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     recent_team = @organization.teams.create!(
       name: "Recently Synced Team",
       github_slug: "recent-team",
-      last_synced_at: 1.hour.ago
+      sync_completed_at: 1.hour.ago
     )
 
     get new_audit_url

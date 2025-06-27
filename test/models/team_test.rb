@@ -56,7 +56,7 @@ class TeamTest < ActiveSupport::TestCase
     # Should update sync status to running initially, then complete
     @team.reload
     assert_nil @team.sync_status # Should be cleared after completion
-    assert_not_nil @team.last_synced_at
+    assert_not_nil @team.sync_completed_at
 
     mock_service.verify
   end
@@ -199,38 +199,34 @@ class TeamTest < ActiveSupport::TestCase
     assert_nil @team.current_job_status
   end
 
-  test "start_sync_job! should set sync status and timestamp" do
+  test "start_sync_job! should set sync status" do
     @team.start_sync_job!
 
     assert_equal "running", @team.sync_status
-    assert_not_nil @team.sync_started_at
-    assert_in_delta Time.current, @team.sync_started_at, 1.second
   end
 
-  test "complete_sync_job! should clear sync status and set last_synced_at" do
-    @team.update!(sync_status: "running", sync_started_at: 1.hour.ago)
+  test "complete_sync_job! should clear sync status and set sync_completed_at" do
+    @team.update!(sync_status: "running")
     @team.complete_sync_job!
 
     assert_nil @team.sync_status
-    assert_nil @team.sync_started_at
-    assert_not_nil @team.last_synced_at
-    assert_in_delta Time.current, @team.last_synced_at, 1.second
+    assert_not_nil @team.sync_completed_at
+    assert_in_delta Time.current, @team.sync_completed_at, 1.second
   end
 
-  test "start_issue_correlation_job! should set issue correlation status and timestamp" do
+  test "start_issue_correlation_job! should set issue correlation status" do
     @team.start_issue_correlation_job!
 
     assert_equal "running", @team.issue_correlation_status
-    assert_not_nil @team.issue_correlation_started_at
-    assert_in_delta Time.current, @team.issue_correlation_started_at, 1.second
   end
 
-  test "complete_issue_correlation_job! should clear issue correlation status and timestamp" do
-    @team.update!(issue_correlation_status: "running", issue_correlation_started_at: 1.hour.ago)
+  test "complete_issue_correlation_job! should clear issue correlation status and set timestamp" do
+    @team.update!(issue_correlation_status: "running")
     @team.complete_issue_correlation_job!
 
     assert_nil @team.issue_correlation_status
-    assert_nil @team.issue_correlation_started_at
+    assert_not_nil @team.issue_correlation_completed_at
+    assert_in_delta Time.current, @team.issue_correlation_completed_at, 1.second
   end
 
   test "any_jobs_running? should only include running jobs" do

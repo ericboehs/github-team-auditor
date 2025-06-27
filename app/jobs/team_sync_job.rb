@@ -88,7 +88,7 @@ class TeamSyncJob < ApplicationJob
       "team_#{team.id}",
       target: "last-synced",
       partial: "teams/last_synced",
-      locals: { last_synced_at: team.last_synced_at, last_issue_correlation_at: team.issue_correlation_completed_at }
+      locals: { last_synced_at: team.sync_completed_at, last_issue_correlation_at: team.issue_correlation_completed_at }
     )
 
     # Update team members table to replace empty state with actual members

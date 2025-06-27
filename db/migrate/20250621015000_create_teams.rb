@@ -5,7 +5,7 @@ class CreateTeams < ActiveRecord::Migration[8.0]
       t.string :name
       t.string :github_slug
       t.text :description
-      t.datetime :last_synced_at
+      t.datetime :sync_completed_at
 
       t.timestamps
     end

@@ -12,7 +12,7 @@ class TeamsController < ApplicationController
     @total_members_count = @team_members.count
     @validated_members_count = 0 # Not applicable for team-level view
     @maintainer_members_count = @team_members.where(maintainer_role: true).count
-    @last_synced_at = @team.last_synced_at
+    @last_synced_at = @team.sync_completed_at
     @last_issue_correlation_at = @team.issue_correlation_completed_at
 
     respond_to do |format|

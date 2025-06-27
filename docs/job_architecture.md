@@ -192,7 +192,7 @@ team.start_job!(:sync)
 team.start_job!(:issue_correlation)
 
 # Complete any job type
-team.complete_job!(:sync, completion_field: :last_synced_at)
+team.complete_job!(:sync, completion_field: :sync_completed_at)
 team.complete_job!(:issue_correlation, completion_field: :issue_correlation_completed_at)
 ```
 
