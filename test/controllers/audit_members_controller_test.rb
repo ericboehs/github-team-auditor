@@ -133,7 +133,7 @@ class AuditMembersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "turbo-stream", response.body
-    
+
     @audit_member.reload
     assert_equal "Test note", @audit_member.notes
   end
