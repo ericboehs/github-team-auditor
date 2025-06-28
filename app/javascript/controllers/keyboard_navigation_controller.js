@@ -4,8 +4,7 @@ export default class extends Controller {
   static targets = ["cell"]
   
   connect() {
-    this.currentCellIndex = 0
-    this.highlightCurrentCell()
+    this.currentCellIndex = null
     
     // Add global keydown listener
     document.addEventListener("keydown", this.handleKeydown.bind(this))
@@ -29,6 +28,11 @@ export default class extends Controller {
   
   processNavigationKey(event) {
     const key = event.key.toLowerCase()
+    
+    // Initialize if this is the first navigation
+    if (this.currentCellIndex === null) {
+      this.initializeNavigation()
+    }
     
     switch (key) {
       // Vim-style navigation
@@ -54,6 +58,12 @@ export default class extends Controller {
       default:
         return false
     }
+  }
+  
+  initializeNavigation() {
+    // Start at the first cell
+    this.currentCellIndex = 0
+    this.focusCurrentCell()
   }
   
   moveLeft() {
@@ -103,13 +113,10 @@ export default class extends Controller {
   }
   
   moveTo(row, col) {
-    this.clearHighlight()
-    
     const targetIndex = this.getCellIndex(row, col)
     if (targetIndex >= 0 && targetIndex < this.cellTargets.length) {
       this.currentCellIndex = targetIndex
-      this.highlightCurrentCell()
-      this.scrollToCurrentCell()
+      this.focusCurrentCell()
     }
   }
   
@@ -155,28 +162,18 @@ export default class extends Controller {
     return -1
   }
   
-  highlightCurrentCell() {
+  focusCurrentCell() {
     const currentCell = this.cellTargets[this.currentCellIndex]
     if (currentCell) {
-      currentCell.classList.add('bg-blue-100', 'dark:bg-blue-900', 'ring-2', 'ring-blue-500', 'ring-inset')
-      currentCell.setAttribute('data-keyboard-focus', 'true')
-    }
-  }
-  
-  clearHighlight() {
-    this.cellTargets.forEach(cell => {
-      cell.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'ring-2', 'ring-blue-500', 'ring-inset')
-      cell.removeAttribute('data-keyboard-focus')
-    })
-  }
-  
-  scrollToCurrentCell() {
-    const currentCell = this.cellTargets[this.currentCellIndex]
-    if (currentCell) {
-      currentCell.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center', 
-        inline: 'nearest' 
+      // Make cell focusable and focus it
+      currentCell.tabIndex = 0
+      currentCell.focus()
+      
+      // Remove tabIndex from other cells to keep tab order clean
+      this.cellTargets.forEach((cell, index) => {
+        if (index !== this.currentCellIndex) {
+          cell.tabIndex = -1
+        }
       })
     }
   }
