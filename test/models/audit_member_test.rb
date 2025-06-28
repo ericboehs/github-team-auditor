@@ -123,4 +123,47 @@ class AuditMemberTest < ActiveSupport::TestCase
     result = @audit_member.has_open_issues?
     assert [ true, false ].include?(result)
   end
+
+  test "validates notes length" do
+    @audit_member.notes = "a" * 1000
+    assert @audit_member.valid?
+
+    @audit_member.notes = "a" * 1001
+    refute @audit_member.valid?
+    assert_includes @audit_member.errors[:notes], "is too long (maximum is 1000 characters)"
+  end
+
+  test "validates comment length" do
+    @audit_member.comment = "a" * 1000
+    assert @audit_member.valid?
+
+    @audit_member.comment = "a" * 1001
+    refute @audit_member.valid?
+    assert_includes @audit_member.errors[:comment], "is too long (maximum is 1000 characters)"
+  end
+
+  test "notes_updated_by association works" do
+    user = users(:one)
+    @audit_member.notes_updated_by = user
+    @audit_member.save!
+
+    assert_equal user, @audit_member.notes_updated_by
+    assert_equal user.email_address, @audit_member.notes_updated_by.email_address
+  end
+
+  test "notes_updated_by can be nil" do
+    @audit_member.notes_updated_by = nil
+    assert @audit_member.valid?
+    @audit_member.save!
+
+    assert_nil @audit_member.notes_updated_by
+  end
+
+  test "notes_updated_at can be set" do
+    time = 1.hour.ago
+    @audit_member.notes_updated_at = time
+    @audit_member.save!
+
+    assert_equal time.to_i, @audit_member.notes_updated_at.to_i
+  end
 end
