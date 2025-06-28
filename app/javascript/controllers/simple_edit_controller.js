@@ -12,10 +12,18 @@ export default class extends Controller {
   }
 
   handleKeydown(event) {
-    if (event.key === "Enter") {
-      this.save()
-    } else if (event.key === "Escape") {
-      this.cancel()
+    // If we're in the input field
+    if (event.target === this.inputTarget) {
+      if (event.key === "Enter") {
+        this.save()
+      } else if (event.key === "Escape") {
+        this.cancel()
+      }
+    }
+    // If we're on the display element and Enter is pressed, start editing
+    else if (event.target === this.displayTarget && event.key === "Enter") {
+      event.preventDefault()
+      this.edit()
     }
   }
 
@@ -51,6 +59,7 @@ export default class extends Controller {
 
         this.inputTarget.classList.add("hidden")
         this.displayTarget.classList.remove("hidden")
+        this.displayTarget.focus()
       } else {
         console.error('Failed to save note')
         this.cancel()
@@ -66,5 +75,6 @@ export default class extends Controller {
     // Reset input to original value and switch back
     this.inputTarget.classList.add("hidden")
     this.displayTarget.classList.remove("hidden")
+    this.displayTarget.focus()
   }
 }

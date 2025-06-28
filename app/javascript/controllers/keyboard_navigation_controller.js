@@ -1,23 +1,23 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["cell"]
-  
+  static targets = ["actionable"]
+
   connect() {
-    this.currentCellIndex = null
-    
+    this.currentItemIndex = null
+
     // Add global keydown listener
     document.addEventListener("keydown", this.handleKeydown.bind(this))
   }
-  
+
   disconnect() {
     document.removeEventListener("keydown", this.handleKeydown.bind(this))
   }
-  
+
   handleKeydown(event) {
     // Only handle navigation when Ctrl is pressed
     if (!event.ctrlKey) return
-    
+
     // Prevent default browser behavior for our shortcuts
     const handled = this.processNavigationKey(event)
     if (handled) {
@@ -25,156 +25,150 @@ export default class extends Controller {
       event.stopPropagation()
     }
   }
-  
+
   processNavigationKey(event) {
     const key = event.key.toLowerCase()
-    
+
     // Initialize if this is the first navigation
-    if (this.currentCellIndex === null) {
+    if (this.currentItemIndex === null) {
       this.initializeNavigation()
     }
-    
+
     switch (key) {
       // Vim-style navigation
-      case 'h': // Left
-        return this.moveLeft()
-      case 'j': // Down
-        return this.moveDown()
-      case 'k': // Up
+      case 'h': // Previous item in row
+        return this.movePrevious()
+      case 'l': // Next item in row
+        return this.moveNext()
+      case 'k': // Previous item in same column
         return this.moveUp()
-      case 'l': // Right
-        return this.moveRight()
-        
+      case 'j': // Next item in same column
+        return this.moveDown()
+
       // Emacs-style navigation
-      case 'b': // Backward (Left)
-        return this.moveLeft()
-      case 'n': // Next line (Down)
-        return this.moveDown()
-      case 'p': // Previous line (Up)
+      case 'b': // Previous item in row
+        return this.movePrevious()
+      case 'f': // Next item in row
+        return this.moveNext()
+      case 'p': // Previous item in same column
         return this.moveUp()
-      case 'f': // Forward (Right)
-        return this.moveRight()
-        
+      case 'n': // Next item in same column
+        return this.moveDown()
+
       default:
         return false
     }
   }
-  
+
   initializeNavigation() {
-    // Start at the first cell
-    this.currentCellIndex = 0
-    this.focusCurrentCell()
+    // Start at the first actionable item
+    this.currentItemIndex = 0
+    this.focusCurrentItem()
   }
-  
-  moveLeft() {
-    const currentRow = this.getCurrentRow()
-    const currentCol = this.getCurrentCol()
-    
-    if (currentCol > 0) {
-      this.moveTo(currentRow, currentCol - 1)
+
+  movePrevious() {
+    if (this.currentItemIndex > 0) {
+      this.currentItemIndex--
+      this.focusCurrentItem()
       return true
     }
     return false
   }
-  
-  moveRight() {
-    const currentRow = this.getCurrentRow()
-    const currentCol = this.getCurrentCol()
-    const rowCellCount = this.getRowCellCount(currentRow)
-    
-    if (currentCol < rowCellCount - 1) {
-      this.moveTo(currentRow, currentCol + 1)
+
+  moveNext() {
+    if (this.currentItemIndex < this.actionableTargets.length - 1) {
+      this.currentItemIndex++
+      this.focusCurrentItem()
       return true
     }
     return false
   }
-  
+
   moveUp() {
-    const currentRow = this.getCurrentRow()
-    const currentCol = this.getCurrentCol()
-    
-    if (currentRow > 0) {
-      this.moveTo(currentRow - 1, currentCol)
+    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const currentColumn = this.getColumnIndex(currentItem)
+    const currentRow = this.getRowIndex(currentItem)
+
+    // Find the same column in the previous row
+    const targetItem = this.findItemInColumn(currentColumn, currentRow - 1)
+    if (targetItem) {
+      const targetIndex = this.actionableTargets.indexOf(targetItem)
+      this.currentItemIndex = targetIndex
+      this.focusCurrentItem()
       return true
     }
     return false
   }
-  
+
   moveDown() {
-    const currentRow = this.getCurrentRow()
-    const currentCol = this.getCurrentCol()
-    const totalRows = this.getTotalRows()
-    
-    if (currentRow < totalRows - 1) {
-      this.moveTo(currentRow + 1, currentCol)
+    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const currentColumn = this.getColumnIndex(currentItem)
+    const currentRow = this.getRowIndex(currentItem)
+
+    // Find the same column in the next row
+    const targetItem = this.findItemInColumn(currentColumn, currentRow + 1)
+    if (targetItem) {
+      const targetIndex = this.actionableTargets.indexOf(targetItem)
+      this.currentItemIndex = targetIndex
+      this.focusCurrentItem()
       return true
     }
     return false
   }
-  
-  moveTo(row, col) {
-    const targetIndex = this.getCellIndex(row, col)
-    if (targetIndex >= 0 && targetIndex < this.cellTargets.length) {
-      this.currentCellIndex = targetIndex
-      this.focusCurrentCell()
+
+  focusCurrentItem() {
+    const currentItem = this.actionableTargets[this.currentItemIndex]
+    if (currentItem) {
+      currentItem.focus()
     }
   }
-  
-  getCurrentRow() {
-    const cell = this.cellTargets[this.currentCellIndex]
+
+  getColumnIndex(item) {
+    // Find which table cell contains this item, then determine its column index
+    const cell = item.closest('td, th')
+    if (!cell) return -1
+
     const row = cell.closest('tr')
-    const tbody = row.closest('tbody')
-    const rows = Array.from(tbody.querySelectorAll('tr'))
-    return rows.indexOf(row)
-  }
-  
-  getCurrentCol() {
-    const cell = this.cellTargets[this.currentCellIndex]
-    const row = cell.closest('tr')
+    if (!row) return -1
+
     const cells = Array.from(row.querySelectorAll('td, th'))
     return cells.indexOf(cell)
   }
-  
-  getRowCellCount(rowIndex) {
-    const tbody = this.element.querySelector('tbody')
+
+  getRowIndex(item) {
+    // Find which table row contains this item, then determine its row index
+    const row = item.closest('tr')
+    if (!row) return -1
+
+    const tbody = row.closest('tbody')
+    if (!tbody) return -1
+
     const rows = Array.from(tbody.querySelectorAll('tr'))
-    if (rows[rowIndex]) {
-      return rows[rowIndex].querySelectorAll('td, th').length
-    }
-    return 0
+    return rows.indexOf(row)
   }
-  
-  getTotalRows() {
+
+  findItemInColumn(columnIndex, rowIndex) {
+    // Find the table body and get the specific row
     const tbody = this.element.querySelector('tbody')
-    return tbody.querySelectorAll('tr').length
-  }
-  
-  getCellIndex(row, col) {
-    const tbody = this.element.querySelector('tbody')
+    if (!tbody) return null
+
     const rows = Array.from(tbody.querySelectorAll('tr'))
-    
-    if (rows[row]) {
-      const cells = Array.from(rows[row].querySelectorAll('td, th'))
-      if (cells[col]) {
-        return this.cellTargets.indexOf(cells[col])
-      }
+    if (rowIndex < 0 || rowIndex >= rows.length) return null
+
+    const targetRow = rows[rowIndex]
+    const cells = Array.from(targetRow.querySelectorAll('td, th'))
+    if (columnIndex < 0 || columnIndex >= cells.length) return null
+
+    const targetCell = cells[columnIndex]
+
+    // Find the first actionable item in this cell
+    const actionableInCell = targetCell.querySelector('[data-keyboard-navigation-target="actionable"]')
+
+    // Only return if this item is in our actionable targets list
+    if (actionableInCell && this.actionableTargets.includes(actionableInCell)) {
+      return actionableInCell
     }
-    return -1
-  }
-  
-  focusCurrentCell() {
-    const currentCell = this.cellTargets[this.currentCellIndex]
-    if (currentCell) {
-      // Make cell focusable and focus it
-      currentCell.tabIndex = 0
-      currentCell.focus()
-      
-      // Remove tabIndex from other cells to keep tab order clean
-      this.cellTargets.forEach((cell, index) => {
-        if (index !== this.currentCellIndex) {
-          cell.tabIndex = -1
-        }
-      })
-    }
+
+    return null
   }
 }
