@@ -3,6 +3,9 @@ class AuditMember < ApplicationRecord
   belongs_to :team_member
   has_many :audit_notes, dependent: :destroy
 
+  validates :comment, length: { maximum: 1000 }
+  validates :notes, length: { maximum: 1000 }
+
   # Delegate member data to team_member
   delegate :github_login, :name, :avatar_url, :maintainer_role, :government_employee,
             :maintainer_role?, :government_employee?, :last_seen_at, :first_seen_at,

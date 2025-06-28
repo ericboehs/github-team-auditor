@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_27_213441) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_28_001921) do
   create_table "audit_members", force: :cascade do |t|
     t.integer "audit_session_id", null: false
     t.integer "team_member_id", null: false
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_27_213441) do
     t.text "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "notes"
     t.index ["access_validated"], name: "index_audit_members_on_access_validated"
     t.index ["audit_session_id", "team_member_id"], name: "index_audit_members_on_session_and_member", unique: true
     t.index ["audit_session_id"], name: "index_audit_members_on_audit_session_id"

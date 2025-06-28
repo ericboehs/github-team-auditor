@@ -211,6 +211,9 @@
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <%= t('common.issues') %>
               </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Comments
+              </th>
               <th scope="col" class="px-3 py-3.5">
                 <%= sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
               </th>
@@ -328,6 +331,9 @@
                 <% else %>
                   <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
                 <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+                <%= render "comment_cell", member: member %>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                 <% if member.team_member.first_seen_at %>

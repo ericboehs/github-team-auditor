@@ -10,7 +10,7 @@ Rails.application.routes.draw do
       patch :toggle_status
     end
   end
-  resources :audit_members, only: [] do
+  resources :audit_members, only: [ :update ] do
     member do
       patch :toggle_status
     end

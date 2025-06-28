@@ -1,0 +1,34 @@
+<%= turbo_frame_tag "notes_#{member.id}" do %>
+  <div data-controller="inline-edit" data-inline-edit-id-value="<%= member.id %>">
+    <div data-inline-edit-target="display" class="<%= 'hidden' if member.notes.blank? %>">
+      <div class="flex items-center gap-2">
+        <span data-inline-edit-target="text" class="text-gray-900 dark:text-white"><%= member.notes %></span>
+        <button type="button" data-action="click->inline-edit#edit" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div data-inline-edit-target="form" class="<%= 'hidden' unless member.notes.blank? %>">
+      <%= form_with model: member, url: audit_member_path(member), method: :patch, local: false, data: { turbo_frame: "notes_#{member.id}", action: "turbo:submit-end->inline-edit#handleSubmit" } do |form| %>
+        <div class="flex items-center gap-2">
+          <%= form.text_field :notes,
+              value: member.notes,
+              placeholder: "Add a note...",
+              data: { inline_edit_target: "input" },
+              class: "flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <%= form.submit "Save", class: "px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <button type="button" data-action="click->inline-edit#cancel" class="px-3 py-1 text-xs bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            Cancel
+          </button>
+        </div>
+      <% end %>
+    </div>
+    <div data-inline-edit-target="empty" class="<%= 'hidden' unless member.notes.blank? %>">
+      <button type="button" data-action="click->inline-edit#edit" class="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 text-sm">
+        Add note...
+      </button>
+    </div>
+  </div>
+<% end %>
