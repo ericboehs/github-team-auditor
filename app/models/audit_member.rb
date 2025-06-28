@@ -1,6 +1,7 @@
 class AuditMember < ApplicationRecord
   belongs_to :audit_session
   belongs_to :team_member
+  belongs_to :notes_updated_by, class_name: "User", optional: true
   has_many :audit_notes, dependent: :destroy
 
   validates :comment, length: { maximum: 1000 }

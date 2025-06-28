@@ -211,14 +211,14 @@
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <%= t('common.issues') %>
               </th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Comments
-              </th>
               <th scope="col" class="px-3 py-3.5">
                 <%= sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
               </th>
-              <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
+              <th scope="col" class="px-3 py-3.5">
                 <%= sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
+              </th>
+              <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-64">
+                Comment
               </th>
             </tr>
           </thead>
@@ -332,22 +332,66 @@
                   <span class="text-gray-400 dark:text-gray-500"><%= t('common.no_issues') %></span>
                 <% end %>
               </td>
-              <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                <%= render "comment_cell", member: member %>
-              </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                 <% if member.team_member.first_seen_at %>
-                  <%= time_ago_in_words(member.team_member.first_seen_at) %> ago
+                  <% if member.team_member.first_seen_at.year == Date.current.year %>
+                    <%= member.team_member.first_seen_at.strftime("%b %d") %>
+                  <% else %>
+                    <%= member.team_member.first_seen_at.strftime("%b %d, %Y") %>
+                  <% end %>
                 <% else %>
                   -
                 <% end %>
               </td>
-              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                 <% if member.team_member.last_seen_at %>
-                  <%= time_ago_in_words(member.team_member.last_seen_at) %> ago
+                  <%
+                    months_ago = ((Date.current - member.team_member.last_seen_at.to_date) / 30.44).round
+                    highlight_class = if member.validation_status == "pending" && months_ago > 6
+                                      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 px-2 py-1 rounded"
+                                    elsif member.validation_status == "pending" && months_ago > 5
+                                      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 px-2 py-1 rounded"
+                                    else
+                                      ""
+                                    end
+                  %>
+                  <span class="<%= highlight_class %>">
+                    <% if member.team_member.last_seen_at.year == Date.current.year %>
+                      <%= member.team_member.last_seen_at.strftime("%b %d") %>
+                    <% else %>
+                      <%= member.team_member.last_seen_at.strftime("%b %d, %Y") %>
+                    <% end %>
+                  </span>
                 <% else %>
                   -
                 <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 pr-4 sm:pr-6 w-64">
+                <div data-controller="simple-edit tooltip" data-simple-edit-id-value="<%= member.id %>" class="w-full relative">
+                  <span data-simple-edit-target="display" data-action="click->simple-edit#edit mouseenter->tooltip#show mouseleave->tooltip#hide" class="cursor-pointer min-h-[1.5rem] block px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded w-full overflow-hidden text-ellipsis <%= member.notes.present? ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500' %>"><%= member.notes.present? ? member.notes : "None" %></span>
+                  <input data-simple-edit-target="input" type="text" value="<%= member.notes %>" placeholder="Enter comment..." class="hidden w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" data-action="keydown->simple-edit#handleKeydown blur->simple-edit#save">
+
+                  <% if member.notes.present? && member.notes_updated_by %>
+                    <div data-tooltip-target="content" class="hidden absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg -top-2 left-0 transform -translate-y-full whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <img src="<%= member.notes_updated_by.avatar_url(size: 24) %>" alt="<%= member.notes_updated_by.email_address %>" class="w-6 h-6 rounded-full">
+                        <div>
+                          <div class="font-medium"><%= member.notes_updated_by.email_address %></div>
+                          <div class="text-xs text-gray-300">
+                            <% if member.notes_updated_at %>
+                              <% if member.notes_updated_at.year == Date.current.year %>
+                                <%= member.notes_updated_at.strftime("%b %d at %l:%M %p") %>
+                              <% else %>
+                                <%= member.notes_updated_at.strftime("%b %d, %Y at %l:%M %p") %>
+                              <% end %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

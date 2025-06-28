@@ -17,10 +17,22 @@ class AuditMembersController < ApplicationController
   end
 
   def update
+    # Track notes metadata if notes are being updated
+    if audit_member_params[:notes] && audit_member_params[:notes] != @audit_member.notes
+      @audit_member.notes_updated_by = Current.user
+      @audit_member.notes_updated_at = Time.current
+    end
+
     if @audit_member.update(audit_member_params)
-      render turbo_stream: turbo_stream.replace("notes_#{@audit_member.id}", partial: "audits/comment_cell", locals: { member: @audit_member })
+      respond_to do |format|
+        format.json { render json: { status: "success" } }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("notes_#{@audit_member.id}", partial: "audits/comment_cell", locals: { member: @audit_member }) }
+      end
     else
-      render turbo_stream: turbo_stream.replace("notes_#{@audit_member.id}", partial: "audits/comment_cell", locals: { member: @audit_member })
+      respond_to do |format|
+        format.json { render json: { status: "error", errors: @audit_member.errors } }
+        format.turbo_stream { render turbo_stream: turbo_stream.replace("notes_#{@audit_member.id}", partial: "audits/comment_cell", locals: { member: @audit_member }) }
+      end
     end
   end
 

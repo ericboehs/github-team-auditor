@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_28_001921) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_28_003449) do
   create_table "audit_members", force: :cascade do |t|
     t.integer "audit_session_id", null: false
     t.integer "team_member_id", null: false
@@ -20,9 +20,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_28_001921) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "notes"
+    t.integer "notes_updated_by_id"
+    t.datetime "notes_updated_at"
     t.index ["access_validated"], name: "index_audit_members_on_access_validated"
     t.index ["audit_session_id", "team_member_id"], name: "index_audit_members_on_session_and_member", unique: true
     t.index ["audit_session_id"], name: "index_audit_members_on_audit_session_id"
+    t.index ["notes_updated_by_id"], name: "index_audit_members_on_notes_updated_by_id"
     t.index ["team_member_id"], name: "index_audit_members_on_team_member_id"
   end
 
@@ -134,6 +137,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_28_001921) do
 
   add_foreign_key "audit_members", "audit_sessions"
   add_foreign_key "audit_members", "team_members"
+  add_foreign_key "audit_members", "users", column: "notes_updated_by_id"
   add_foreign_key "audit_notes", "audit_members"
   add_foreign_key "audit_notes", "users"
   add_foreign_key "audit_sessions", "organizations"
