@@ -1,4 +1,6 @@
 class AuditsController < ApplicationController
+  include Sortable
+
   before_action :set_audit_session, only: [ :show, :update, :destroy, :toggle_status ]
 
   def index
@@ -10,7 +12,10 @@ class AuditsController < ApplicationController
       @filtered_team = Team.find(params[:team_id])
     end
 
-    @audit_sessions = @audit_sessions.recent.limit(20)
+    # Apply sorting
+    @audit_sessions = apply_audit_sorting(@audit_sessions)
+
+    @audit_sessions = @audit_sessions.limit(20)
     @organizations = Organization.all
   end
 
@@ -20,7 +25,10 @@ class AuditsController < ApplicationController
         .audit_members
         .includes(:audit_notes, :team_member)
         .joins(:team_member)
-        .order("team_members.github_login")
+
+    # Apply sorting for team members
+    @team_members = apply_team_member_sorting(@team_members)
+
     @progress = @audit_session.progress_percentage
     @compliance_status = @audit_session.compliance_ready?
   end
@@ -125,5 +133,61 @@ class AuditsController < ApplicationController
 
   def audit_session_params
     params.require(:audit_session).permit(:name, :organization_id, :team_id, :notes, :due_date)
+  end
+
+  def apply_audit_sorting(relation)
+    case sort_column
+    when "name"
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.name #{direction}"))
+    when "team"
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.joins(:team).order(Arel.sql("teams.name #{direction}"))
+    when "status"
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.status #{direction}"))
+    when "started"
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.started_at #{direction}"))
+    when "due_date"
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      relation.order(Arel.sql("audit_sessions.due_date #{direction} NULLS LAST"))
+    else
+      # Default sorting
+      relation.recent
+    end
+  end
+
+  def apply_team_member_sorting(relation)
+    case sort_column
+    when "member"
+      relation.order(team_members: { github_login: sort_direction })
+    when "role"
+      direction = sort_direction == "asc" ? :desc : :asc
+      relation.order(team_members: { maintainer_role: direction })
+    when "status"
+      relation.order(audit_members: { access_validated: sort_direction })
+    when "first_seen"
+      # Sort by minimum issue_created_at from issue_correlations
+      # For ascending: NULLs first, then oldest to newest
+      # For descending: newest to oldest, then NULLs last
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+      relation.joins("LEFT JOIN issue_correlations ic_first ON ic_first.team_member_id = team_members.id")
+              .group("audit_members.id, team_members.id")
+              .order(Arel.sql("MIN(ic_first.issue_created_at) #{direction} #{nulls_position}"))
+    when "last_seen"
+      # Sort by maximum issue_updated_at from issue_correlations
+      # For ascending: NULLs first, then oldest to newest
+      # For descending: newest to oldest, then NULLs last
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+      relation.joins("LEFT JOIN issue_correlations ic_last ON ic_last.team_member_id = team_members.id")
+              .group("audit_members.id, team_members.id")
+              .order(Arel.sql("MAX(ic_last.issue_updated_at) #{direction} #{nulls_position}"))
+    else
+      # Default sorting
+      relation.order(team_members: { github_login: :asc })
+    end
   end
 end

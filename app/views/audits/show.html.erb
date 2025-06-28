@@ -194,30 +194,31 @@
   <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
     <div class="flow-root">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <caption class="sr-only"><%= t('accessibility.team_members_table', audit_name: @audit_session.name) %></caption>
-        <thead>
-          <tr>
-            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sm:pl-6">
-              <%= t('common.member') %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.role') %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.status') %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.issues') %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.first_seen') %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.last_seen') %>
-            </th>
-          </tr>
-        </thead>
+        <%= turbo_frame_tag "sortable-table" do %>
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <caption class="sr-only"><%= t('accessibility.team_members_table', audit_name: @audit_session.name) %></caption>
+          <thead>
+            <tr>
+              <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6">
+                <%= sort_link("member", t('common.member'), { id: @audit_session.id }) %>
+              </th>
+              <th scope="col" class="px-3 py-3.5">
+                <%= sort_link("role", t('common.role'), { id: @audit_session.id }) %>
+              </th>
+              <th scope="col" class="px-3 py-3.5">
+                <%= sort_link("status", t('common.status'), { id: @audit_session.id }) %>
+              </th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <%= t('common.issues') %>
+              </th>
+              <th scope="col" class="px-3 py-3.5">
+                <%= sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
+              </th>
+              <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
+                <%= sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
+              </th>
+            </tr>
+          </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
           <% @team_members.each do |member| %>
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -344,10 +345,11 @@
               </td>
             </tr>
           <% end %>
-        </tbody>
-        </table>
+          </tbody>
+            </table>
+          <% end %>
+        </div>
       </div>
-    </div>
 
     <% if @team_members.empty? %>
       <%= render EmptyStateComponent.new(
