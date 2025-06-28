@@ -11,31 +11,15 @@ export default class extends Controller {
       'dropdown'
     )
 
-    // Add mobile-specific event handlers
-    this.handleDateFieldInteraction = this.handleDateFieldInteraction.bind(this)
-    this.handleFormSubmit = this.handleFormSubmit.bind(this)
-    this.handleIOSDateInput = this.handleIOSDateInput.bind(this)
-
-    // Detect iOS
-    this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
-
     if (this.hasDateFieldTarget) {
-      // Prevent dropdown from closing when interacting with date field on mobile
-      this.dateFieldTarget.addEventListener('focus', this.handleDateFieldInteraction)
-      this.dateFieldTarget.addEventListener('click', this.handleDateFieldInteraction)
-      this.dateFieldTarget.addEventListener('change', this.handleIOSDateInput)
-
-      // iOS-specific: lighter touch approach
-      if (this.isIOS) {
-        this.dateFieldTarget.addEventListener('input', this.handleIOSDateInput)
-        // Monitor for when the date picker opens/closes
-        this.dateFieldTarget.addEventListener('blur', this.handleDateFieldBlur.bind(this))
-      }
+      // Prevent dropdown from closing when interacting with date field
+      this.dateFieldTarget.addEventListener('focus', this.handleDateFieldInteraction.bind(this))
+      this.dateFieldTarget.addEventListener('click', this.handleDateFieldInteraction.bind(this))
+      this.dateFieldTarget.addEventListener('change', this.handleDateFieldInteraction.bind(this))
     }
 
     if (this.hasFormTarget) {
-      this.formTarget.addEventListener('submit', this.handleFormSubmit)
+      this.formTarget.addEventListener('submit', this.handleFormSubmit.bind(this))
     }
   }
 
@@ -43,12 +27,7 @@ export default class extends Controller {
     if (this.hasDateFieldTarget) {
       this.dateFieldTarget.removeEventListener('focus', this.handleDateFieldInteraction)
       this.dateFieldTarget.removeEventListener('click', this.handleDateFieldInteraction)
-      this.dateFieldTarget.removeEventListener('change', this.handleIOSDateInput)
-
-      if (this.isIOS) {
-        this.dateFieldTarget.removeEventListener('input', this.handleIOSDateInput)
-        this.dateFieldTarget.removeEventListener('blur', this.handleDateFieldBlur)
-      }
+      this.dateFieldTarget.removeEventListener('change', this.handleDateFieldInteraction)
     }
 
     if (this.hasFormTarget) {
@@ -69,64 +48,13 @@ export default class extends Controller {
         clearTimeout(this.dropdownController.dateFieldTimeout)
       }
 
-      // Re-enable after a longer delay for iOS to allow for date picker interactions
-      const delay = this.isIOS ? 2000 : 500
+      // Re-enable after a short delay to allow for date picker interactions
       this.dropdownController.dateFieldTimeout = setTimeout(() => {
         if (this.dropdownController) {
           this.dropdownController.dateFieldActive = false
           this.dropdownController.dateFieldTimeout = null
         }
-      }, delay)
-    }
-  }
-
-  handleIOSDateInput(event) {
-    // iOS-specific handler for date input events
-    if (!this.isIOS) return
-
-    // Prevent any event that might close the dropdown
-    event.stopPropagation()
-
-    // Keep the dropdown protection active during iOS date picking
-    if (this.dropdownController) {
-      this.dropdownController.dateFieldActive = true
-
-      // Clear existing timeout and set a new one
-      if (this.dropdownController.dateFieldTimeout) {
-        clearTimeout(this.dropdownController.dateFieldTimeout)
-      }
-
-      // Extended timeout for iOS date picker interactions
-      this.dropdownController.dateFieldTimeout = setTimeout(() => {
-        if (this.dropdownController) {
-          this.dropdownController.dateFieldActive = false
-          this.dropdownController.dateFieldTimeout = null
-        }
-      }, 1500)
-    }
-  }
-
-  handleDateFieldBlur(event) {
-    // Handle blur events from the date field on iOS
-    if (!this.isIOS) return
-
-    // When the date field loses focus, give a short grace period
-    // before allowing dropdown to close again
-    if (this.dropdownController) {
-      this.dropdownController.dateFieldActive = true
-
-      // Clear existing timeout
-      if (this.dropdownController.dateFieldTimeout) {
-        clearTimeout(this.dropdownController.dateFieldTimeout)
-      }
-
-      // Short timeout to allow user to interact with Save/Cancel buttons
-      this.dropdownController.dateFieldTimeout = setTimeout(() => {
-        if (this.dropdownController) {
-          this.dropdownController.dateFieldActive = false
-          this.dropdownController.dateFieldTimeout = null
-        }
-      }, 300)
+      }, 1000)
     }
   }
 
