@@ -25,7 +25,7 @@
         <%= sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
-        <%= sort_link("comment", "Comment", { id: @audit_session.id }) %>
+        <%= sort_link("comment", t("common.comment"), { id: @audit_session.id }) %>
       </th>
     </tr>
   </thead>
@@ -101,7 +101,7 @@
                   data-action="click->issue-list#toggle"
                   data-issue-list-target="toggleButton"
                   data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
-                  data-collapse-text="Show less">
+                  data-collapse-text="<%= t('common.show_less') %>">
                   +<%= member.team_member.issue_correlations.count - 2 %> more
                 </button>
               <% end %>
@@ -132,8 +132,8 @@
                 data-action="click->issue-list#toggle"
                 data-issue-list-target="toggleButton"
                 data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
-                data-collapse-text="Show less">
-                Show less
+                data-collapse-text="<%= t('common.show_less') %>">
+                <%= t('common.show_less') %>
               </button>
             </div>
           </div>
@@ -177,8 +177,8 @@
       </td>
       <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
         <div data-controller="simple-edit tooltip" data-simple-edit-id-value="<%= member.id %>" class="w-full relative">
-          <span data-simple-edit-target="display" data-action="click->simple-edit#edit keydown->simple-edit#handleKeydown mouseenter->tooltip#show mouseleave->tooltip#hide" class="cursor-pointer min-h-[1.5rem] block px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded w-full overflow-hidden text-ellipsis <%= member.notes.present? ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500' %>" tabindex="0" data-keyboard-navigation-target="actionable"><%= member.notes.present? ? member.notes : "None" %></span>
-          <input data-simple-edit-target="input" type="text" value="<%= member.notes %>" placeholder="Enter comment..." class="hidden w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" data-action="keydown->simple-edit#handleKeydown blur->simple-edit#save">
+          <span data-simple-edit-target="display" data-action="click->simple-edit#edit keydown->simple-edit#handleKeydown mouseenter->tooltip#show mouseleave->tooltip#hide" class="cursor-pointer min-h-[1.5rem] block px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded w-full overflow-hidden text-ellipsis <%= member.notes.present? ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500' %>" tabindex="0" data-keyboard-navigation-target="actionable"><%= member.notes.present? ? member.notes : t("common.none") %></span>
+          <input data-simple-edit-target="input" type="text" value="<%= member.notes %>" placeholder="<%= t('placeholders.enter_comment') %>" class="hidden w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" data-action="keydown->simple-edit#handleKeydown blur->simple-edit#save">
 
           <% if member.notes.present? && member.notes_updated_by %>
             <div data-tooltip-target="content" class="hidden absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg -top-2 left-0 transform -translate-y-full whitespace-nowrap">
