@@ -80,14 +80,41 @@ export default class extends Controller {
   }
 
   close(event) {
+    // Don't close if date field is currently active (mobile date picker interaction)
+    if (this.dateFieldActive) {
+      return
+    }
+
+    // Don't close if the target is a date input (iOS date picker might not be contained)
+    if (event.target && event.target.type === 'date') {
+      return
+    }
+
     if (!this.element.contains(event.target)) {
       this.closeMenu()
     }
   }
 
   handleFocusOut(event) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+
     // Use setTimeout to allow focus to move to the new element first
     setTimeout(() => {
+      // Don't close if date field is currently active (mobile date picker interaction)
+      if (this.dateFieldActive) {
+        return
+      }
+
+      // On iOS, be more lenient with focus changes from date inputs
+      const isIOSDateInput = isIOS &&
+                          event.target &&
+                          event.target.type === 'date'
+
+      if (isIOSDateInput) {
+        // Give iOS more time for date picker interactions
+        return
+      }
+
       // Check if focus has moved outside the dropdown
       if (this.isOpen() && !this.element.contains(document.activeElement)) {
         this.closeMenu()

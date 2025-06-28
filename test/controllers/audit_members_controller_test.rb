@@ -138,6 +138,107 @@ class AuditMembersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Test note", @audit_member.notes
   end
 
+  test "should handle turbo stream toggle status requests" do
+    patch toggle_status_audit_member_path(@audit_member),
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+    assert_match "turbo-stream", response.body
+    assert_match "sortable-table", response.body
+
+    @audit_member.reload
+    assert_equal true, @audit_member.access_validated
+  end
+
+  test "should preserve sort parameters in turbo stream toggle" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "member", direction: "desc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+    assert_match "turbo-stream", response.body
+  end
+
+  test "should preserve sort parameters in HTML redirect" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "member", direction: "desc" }
+
+    assert_redirected_to audit_path(@audit_session, sort: "member", direction: "desc")
+  end
+
+  test "should apply member sorting" do
+    # Create another audit member to test sorting
+    other_member = team_members(:jane_smith_team_member)
+    other_audit_member = AuditMember.create!(
+      audit_session: @audit_session,
+      team_member: other_member,
+      access_validated: nil,
+      removed: false
+    )
+
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "member", direction: "asc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+    # Should have applied sorting without errors
+  end
+
+  test "should apply role sorting" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "role", direction: "desc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply status sorting" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "status", direction: "asc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply first_seen sorting" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "first_seen", direction: "desc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply last_seen sorting" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "last_seen", direction: "asc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply comment sorting ascending" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "comment", direction: "asc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply comment sorting descending" do
+    patch toggle_status_audit_member_path(@audit_member),
+          params: { sort: "comment", direction: "desc" },
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
+  test "should apply default sorting when no sort param" do
+    patch toggle_status_audit_member_path(@audit_member),
+          headers: { "Accept": "text/vnd.turbo-stream.html" }
+
+    assert_response :success
+  end
+
   private
 
   def sign_in_as(user)

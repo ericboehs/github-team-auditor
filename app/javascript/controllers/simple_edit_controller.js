@@ -4,7 +4,12 @@ export default class extends Controller {
   static targets = ["display", "input"]
   static values = { id: String }
 
+  connect() {
+    this.isCanceling = false
+  }
+
   edit() {
+    this.isCanceling = false
     this.displayTarget.classList.add("hidden")
     this.inputTarget.classList.remove("hidden")
     this.inputTarget.focus()
@@ -15,8 +20,18 @@ export default class extends Controller {
     // If we're in the input field
     if (event.target === this.inputTarget) {
       if (event.key === "Enter") {
-        this.save()
+        if (event.ctrlKey) {
+          // Ctrl+Enter: Save and stay in place
+          this.saveAndStay()
+        } else if (event.shiftKey) {
+          // Shift+Enter: Save and go to cell above
+          this.saveAndMoveUp()
+        } else {
+          // Enter: Save and go to cell below
+          this.saveAndMoveDown()
+        }
       } else if (event.key === "Escape") {
+        this.isCanceling = true
         this.cancel()
       }
     }
@@ -27,7 +42,13 @@ export default class extends Controller {
     }
   }
 
-  save() {
+  save(onSuccess = null) {
+    // Don't save if we're canceling
+    if (this.isCanceling) {
+      this.isCanceling = false
+      return
+    }
+
     const value = this.inputTarget.value.trim()
 
     // Send AJAX request to save the value
@@ -59,7 +80,13 @@ export default class extends Controller {
 
         this.inputTarget.classList.add("hidden")
         this.displayTarget.classList.remove("hidden")
-        this.displayTarget.focus()
+
+        // Call the success callback if provided, after UI updates are complete
+        if (onSuccess) {
+          setTimeout(() => {
+            onSuccess()
+          }, 0)
+        }
       } else {
         console.error('Failed to save note')
         this.cancel()
@@ -71,8 +98,72 @@ export default class extends Controller {
     })
   }
 
+  saveAndStay() {
+    this.save(() => {
+      this.displayTarget.focus()
+    })
+  }
+
+  saveAndMoveDown() {
+    this.save(() => {
+      this.moveToNextCell('down')
+    })
+  }
+
+  saveAndMoveUp() {
+    this.save(() => {
+      this.moveToNextCell('up')
+    })
+  }
+
+  moveToNextCell(direction) {
+    // Find the keyboard navigation controller
+    const navController = this.application.getControllerForElementAndIdentifier(
+      document.querySelector('[data-controller*="keyboard-navigation"]'),
+      'keyboard-navigation'
+    )
+
+    if (navController) {
+      // Get current position
+      const currentItem = this.displayTarget
+      const currentColumn = navController.getColumnIndex(currentItem)
+      const currentRow = navController.getRowIndex(currentItem)
+
+      // Find target row
+      const targetRow = direction === 'down' ? currentRow + 1 : currentRow - 1
+      const targetItem = navController.findItemInColumn(currentColumn, targetRow)
+
+      if (targetItem) {
+        // Update navigation controller's current index
+        const targetIndex = navController.actionableTargets.indexOf(targetItem)
+        if (targetIndex !== -1) {
+          navController.currentItemIndex = targetIndex
+
+          // If the target is a comment field, start editing directly without focusing first
+          if (targetItem.hasAttribute('data-simple-edit-target') &&
+              targetItem.getAttribute('data-simple-edit-target') === 'display') {
+            // Find the simple-edit controller for this element
+            const editController = this.application.getControllerForElementAndIdentifier(
+              targetItem.closest('[data-controller*="simple-edit"]'),
+              'simple-edit'
+            )
+            if (editController) {
+              // Use setTimeout to ensure the current save operation's UI updates are complete
+              setTimeout(() => {
+                editController.edit()
+              }, 0)
+            }
+          } else {
+            // Only focus if we're not going to start editing
+            targetItem.focus()
+          }
+        }
+      }
+    }
+  }
+
   cancel() {
-    // Reset input to original value and switch back
+    // Don't reset input value - preserve it for next edit
     this.inputTarget.classList.add("hidden")
     this.displayTarget.classList.remove("hidden")
     this.displayTarget.focus()

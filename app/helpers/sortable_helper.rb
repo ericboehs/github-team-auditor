@@ -24,9 +24,19 @@ module SortableHelper
       permitted_params = path_params.respond_to?(:permit) ? path_params.to_unsafe_h : path_params
       link_params = permitted_params.merge(sort: column, direction: direction)
 
-      link_to(url_for(link_params),
+      # Always use audit_path when we have an audit ID to avoid route confusion
+      target_url = if link_params[:id]
+        audit_path(link_params[:id], link_params.except(:id))
+      else
+        url_for(link_params)
+      end
+
+      link_to(target_url,
               class: css_class,
-              data: { turbo_frame: "sortable-table" }) do
+              data: {
+                turbo_frame: "sortable-table",
+                action: "click->sort-link#updateUrl"
+              }) do
         content = title.dup
 
         # Add sort indicator

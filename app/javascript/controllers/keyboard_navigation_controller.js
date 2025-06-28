@@ -29,6 +29,11 @@ export default class extends Controller {
   processNavigationKey(event) {
     const key = event.key.toLowerCase()
 
+    // Handle help modal toggle (Ctrl+/)
+    if (key === '/') {
+      return this.toggleHelpModal()
+    }
+
     // Initialize if this is the first navigation
     if (this.currentItemIndex === null) {
       this.initializeNavigation()
@@ -170,5 +175,21 @@ export default class extends Controller {
     }
 
     return null
+  }
+
+  toggleHelpModal() {
+    // Find the help modal controller
+    const helpModalElement = document.querySelector('[data-controller*="help-modal"]')
+    if (helpModalElement) {
+      const helpModalController = this.application.getControllerForElementAndIdentifier(
+        helpModalElement,
+        'help-modal'
+      )
+      if (helpModalController) {
+        helpModalController.toggle()
+        return true
+      }
+    }
+    return false
   }
 }

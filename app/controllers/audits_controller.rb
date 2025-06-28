@@ -168,23 +168,37 @@ class AuditsController < ApplicationController
     when "status"
       relation.order(audit_members: { access_validated: sort_direction })
     when "first_seen"
-      # Sort by minimum issue_created_at from issue_correlations
-      # For ascending: NULLs first, then oldest to newest
-      # For descending: newest to oldest, then NULLs last
+      # Sort by minimum issue_created_at from issue_correlations using subquery
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
-      relation.joins("LEFT JOIN issue_correlations ic_first ON ic_first.team_member_id = team_members.id")
-              .group("audit_members.id, team_members.id")
-              .order(Arel.sql("MIN(ic_first.issue_created_at) #{direction} #{nulls_position}"))
+
+      relation.joins(
+        "LEFT JOIN (
+          SELECT team_member_id, MIN(issue_created_at) as first_seen_at
+          FROM issue_correlations
+          GROUP BY team_member_id
+        ) ic_first_agg ON ic_first_agg.team_member_id = team_members.id"
+      ).order(Arel.sql("ic_first_agg.first_seen_at #{direction} #{nulls_position}"))
+
     when "last_seen"
-      # Sort by maximum issue_updated_at from issue_correlations
-      # For ascending: NULLs first, then oldest to newest
-      # For descending: newest to oldest, then NULLs last
+      # Sort by maximum issue_updated_at from issue_correlations using subquery
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
-      relation.joins("LEFT JOIN issue_correlations ic_last ON ic_last.team_member_id = team_members.id")
-              .group("audit_members.id, team_members.id")
-              .order(Arel.sql("MAX(ic_last.issue_updated_at) #{direction} #{nulls_position}"))
+
+      relation.joins(
+        "LEFT JOIN (
+          SELECT team_member_id, MAX(issue_updated_at) as last_seen_at
+          FROM issue_correlations
+          GROUP BY team_member_id
+        ) ic_last_agg ON ic_last_agg.team_member_id = team_members.id"
+      ).order(Arel.sql("ic_last_agg.last_seen_at #{direction} #{nulls_position}"))
+    when "comment"
+      # Sort by comments/notes - empty comments first when ascending
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+
+      # Use COALESCE to treat empty strings as NULL for proper sorting
+      relation.order(Arel.sql("COALESCE(NULLIF(TRIM(audit_members.notes), ''), NULL) #{direction} #{nulls_position}"))
     else
       # Default sorting
       relation.order(team_members: { github_login: :asc })
