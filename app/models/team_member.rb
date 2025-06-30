@@ -135,8 +135,6 @@ class TeamMember < ApplicationRecord
   def extract_expiration_dates_from_comments_with_maintainer_check(issue)
     return [] if issue.comments.blank? || issue.comment_authors.blank?
 
-    dates = []
-
     # Get team maintainer usernames
     maintainer_usernames = team.team_members.where(maintainer_role: true).pluck(:github_login).map(&:downcase)
 
@@ -147,36 +145,50 @@ class TeamMember < ApplicationRecord
     # Get issue author to exclude from fallback
     issue_author = issue.issue_author&.downcase
 
+    maintainer_dates = []
+    fallback_dates = []
+
     comment_parts.each_with_index do |comment_text, index|
       # Skip if we don't have author info for this comment
       next if index >= comment_authors.length
 
       comment_author = comment_authors[index]&.downcase
 
-      # First priority: Extract dates from comments by current team maintainers
+      # Skip comments from the issue author for both maintainer and fallback checks
+      next if comment_author == issue_author
+
       if maintainer_usernames.include?(comment_author)
-        dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
+        # Extract dates from current team maintainers
+        maintainer_dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
+      else
+        # Extract dates from other commenters (historical maintainers, etc.)
+        fallback_dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
       end
     end
 
-    # If no dates found from current maintainers, fall back to checking all comments
-    # but exclude comments from the original issue author to reduce false positives
-    if dates.empty?
-      comment_parts.each_with_index do |comment_text, index|
-        # Skip if we don't have author info for this comment
-        next if index >= comment_authors.length
-
-        comment_author = comment_authors[index]&.downcase
-
-        # Skip comments from the issue author (original reporter)
-        next if comment_author == issue_author
-
-        # Extract dates from any other commenter (historical maintainers, etc.)
-        dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
+    # Prefer maintainer dates when available, but fall back to historical dates
+    # Always take the latest date to handle legitimate access extensions
+    if maintainer_dates.any?
+      # If maintainers have commented with dates, prioritize those but also consider fallback
+      # in case a historical maintainer granted a longer extension
+      all_dates = (maintainer_dates + fallback_dates).uniq
+      # Return the latest date, giving priority to maintainer dates in case of ties
+      latest_maintainer = maintainer_dates.max
+      latest_fallback = fallback_dates.max
+      
+      if latest_fallback && latest_maintainer && latest_fallback > latest_maintainer
+        # Historical maintainer granted longer access - use that
+        [ latest_fallback ]
+      else
+        # Use maintainer date
+        [ latest_maintainer ]
       end
+    elsif fallback_dates.any?
+      # No current maintainer dates, use fallback (historical maintainers)
+      [ fallback_dates.max ]
+    else
+      []
     end
-
-    dates
   end
 
   # Extract relative expiration dates from text (e.g., "approved for 6 months")

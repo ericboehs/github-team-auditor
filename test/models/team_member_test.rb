@@ -383,10 +383,10 @@ class TeamMemberTest < ActiveSupport::TestCase
     assert_equal [ expected_date ], dates
   end
 
-  test "extract_expiration_dates_from_comments_with_maintainer_check prefers maintainer over fallback" do
+  test "extract_expiration_dates_from_comments_with_maintainer_check prefers later date when historical maintainer grants longer access" do
     @team_member.save!
 
-    # Create issue with both maintainer and non-maintainer comments containing dates
+    # Create issue where historical maintainer grants longer access than current maintainer
     issue = @team_member.issue_correlations.create!(
       github_issue_number: 128,
       github_issue_url: "https://github.com/test/repo/issues/128",
@@ -395,14 +395,37 @@ class TeamMemberTest < ActiveSupport::TestCase
       issue_created_at: Date.new(2024, 10, 9),
       issue_updated_at: Date.new(2024, 10, 9),
       issue_author: "requester_user",
-      comments: "I think 12 months would be good\n\n---\n\nApproved for 6 months access",
+      comments: "Approved for 6 months access\n\n---\n\nActually, extending to 12 months access",
+      comment_authors: [ "john_doe", "jane_smith" ]  # john_doe is maintainer, jane_smith is not but grants longer access
+    )
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments_with_maintainer_check, issue)
+
+    # Should use the later date (12 months) even though it's from non-current maintainer
+    expected_date = Date.new(2024, 10, 9) + 12.months
+    assert_equal [ expected_date ], dates
+  end
+
+  test "extract_expiration_dates_from_comments_with_maintainer_check prefers maintainer when maintainer date is later" do
+    @team_member.save!
+
+    # Create issue where maintainer grants longer access than historical maintainer
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 129,
+      github_issue_url: "https://github.com/test/repo/issues/129",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 10, 9),
+      issue_updated_at: Date.new(2024, 10, 9),
+      issue_author: "requester_user",
+      comments: "Approved for 6 months access\n\n---\n\nExtending to 12 months access",
       comment_authors: [ "jane_smith", "john_doe" ]  # jane_smith is not maintainer, john_doe is
     )
 
     dates = @team_member.send(:extract_expiration_dates_from_comments_with_maintainer_check, issue)
 
-    # Should only extract from john_doe's comment (maintainer), not use fallback
-    expected_date = Date.new(2024, 10, 9) + 6.months
+    # Should use maintainer's date (12 months) since it's later
+    expected_date = Date.new(2024, 10, 9) + 12.months
     assert_equal [ expected_date ], dates
   end
 
