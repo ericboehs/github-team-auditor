@@ -20,7 +20,17 @@ export default class extends Controller {
   }
 
   handleKeydown(event) {
-    // Only handle navigation when Ctrl is pressed
+    // Handle Enter key for expanding issue lists
+    if (event.key === 'Enter' && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+      const activeElement = document.activeElement
+      if (activeElement && this.isExpandToggleButton(activeElement)) {
+        // Let the default action happen first, then handle navigation after expansion
+        setTimeout(() => this.handleIssueExpansion(activeElement), 0)
+        return
+      }
+    }
+
+    // Only handle other navigation when Ctrl is pressed
     if (!event.ctrlKey) return
 
     // Prevent default browser behavior for our shortcuts
@@ -290,6 +300,56 @@ export default class extends Controller {
       this.currentItemIndex = 0
       // Don't actually focus visually, just set up the state for keyboard navigation
       // This way users won't see an unexpected focus ring on page load
+    }
+  }
+
+  isExpandToggleButton(element) {
+    // Check if this is a "+more" expand button in the issues column
+    return element.hasAttribute('data-issue-list-target') && 
+           element.getAttribute('data-issue-list-target') === 'toggleButton' &&
+           element.textContent.includes('more')
+  }
+
+  handleIssueExpansion(toggleButton) {
+    // Find the cell containing this toggle button
+    const cell = toggleButton.closest('td')
+    if (!cell) return
+
+    // Find the expanded section that should now be visible
+    const expandedSection = cell.querySelector('[data-issue-list-target="expanded"]')
+    if (!expandedSection || expandedSection.hidden) return
+
+    // Find the first issue link in the expanded section that wasn't in the summary
+    // The summary shows first 2 issues, so we want to focus on the 3rd issue (index 2)
+    const allIssueLinks = Array.from(expandedSection.querySelectorAll('[data-keyboard-navigation-target="issue_link"]'))
+    
+    // Focus on the first issue that wasn't visible in the summary (3rd issue, index 2)
+    if (allIssueLinks.length > 2) {
+      const targetIssue = allIssueLinks[2] // 3rd issue (0-indexed)
+      targetIssue.focus()
+      
+      // Update our navigation state to track this new position
+      this.updateNavigationStateAfterExpansion(targetIssue)
+    }
+  }
+
+  updateNavigationStateAfterExpansion(focusedElement) {
+    // Find this element in our actionable targets and update indices
+    const cell = focusedElement.closest('td')
+    const actionableInCell = cell.querySelector('[data-keyboard-navigation-target="actionable"]')
+    
+    if (actionableInCell) {
+      const actionableIndex = this.actionableTargets.indexOf(actionableInCell)
+      if (actionableIndex !== -1) {
+        this.currentItemIndex = actionableIndex
+        
+        // Find which issue index this corresponds to within the cell
+        const allIssueLinksInCell = this.getIssueLinksInSameCell(actionableInCell)
+        const issueIndex = allIssueLinksInCell.indexOf(focusedElement)
+        if (issueIndex !== -1) {
+          this.currentIssueIndex = issueIndex
+        }
+      }
     }
   }
 
