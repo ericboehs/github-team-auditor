@@ -63,4 +63,30 @@ class TurboBroadcastingTest < ActiveSupport::TestCase
     assert_equal I18n.t("jobs.shared.errors.network"),
                 @job.send(:translate_error_message, mock_error)
   end
+
+  test "translate_error_message handles Octokit unauthorized errors" do
+    # Test Octokit::Unauthorized error
+    mock_error = Object.new
+    mock_error.define_singleton_method(:class) do
+      mock_class = Object.new
+      mock_class.define_singleton_method(:name) { "Octokit::Unauthorized" }
+      mock_class
+    end
+
+    assert_equal I18n.t("jobs.shared.errors.unauthorized"),
+                @job.send(:translate_error_message, mock_error)
+  end
+
+  test "translate_error_message handles Octokit rate limit errors" do
+    # Test Octokit::TooManyRequests error
+    mock_error = Object.new
+    mock_error.define_singleton_method(:class) do
+      mock_class = Object.new
+      mock_class.define_singleton_method(:name) { "Octokit::TooManyRequests" }
+      mock_class
+    end
+
+    assert_equal I18n.t("jobs.shared.errors.rate_limit"),
+                @job.send(:translate_error_message, mock_error)
+  end
 end

@@ -388,8 +388,14 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
 
   test "new with dept of VA when it exists" do
     sign_in_as(@user)
-    # Skip this test due to organization uniqueness constraint
-    skip "Skipping due to organization fixture conflicts"
+    # Update existing organization to be the dept of VA instead of creating a new one
+    @organization.update!(github_login: "department-of-veterans-affairs")
+    
+    get new_audit_url
+    assert_response :success
+    # Should auto-select dept of VA  
+    # We can't use assigns anymore, so let's just verify the page loads correctly
+    assert_select "form"
   end
 
   test "new when dept VA doesn't exist and single organization" do
@@ -448,6 +454,56 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     # Test default sorting (should use .recent)
     get audits_path, params: { sort: "unknown_column" }
     assert_response :success
+  end
+
+  test "new action covers single organization with most_recent_team nil branches" do
+    sign_in_as(@user)
+    # Test lines 61-62: single organization but most_recent_team is nil
+    Organization.where.not(id: @organization.id).destroy_all
+    # Remove sync_completed_at from all teams to make most_recent_team nil
+    @organization.teams.update_all(sync_completed_at: nil)
+
+    get new_audit_url
+    assert_response :success
+    assert_select "form"
+  end
+
+  test "new action covers team_id provided with most_recent_team nil branch" do
+    sign_in_as(@user)
+    # Test lines 65: team_id provided but most_recent_team ends up being nil
+    team_without_sync = @organization.teams.create!(
+      name: "Team Without Sync",
+      github_slug: "no-sync-team",
+      sync_completed_at: nil
+    )
+    # Remove sync from other teams too
+    @organization.teams.update_all(sync_completed_at: nil)
+
+    get new_audit_url(team_id: team_without_sync.id)
+    assert_response :success
+  end
+
+  test "new action covers multiple organizations else branch" do
+    sign_in_as(@user)
+    # Test line 68: multiple organizations - covers the else branch
+    Organization.create!(name: "Second Org", github_login: "second-org")
+
+    get new_audit_url
+    assert_response :success
+    # Should set @teams to [] when multiple organizations exist
+    assert_select "form"
+  end
+
+  test "toggle status with invalid status parameter falls back to toggle logic then else branch" do
+    sign_in_as(@user)
+    # Test line 132: when an invalid status gets through validation but doesn't match any case
+    # Force an unknown status directly in the database
+    @audit_session.update_column(:status, "unknown_weird_status")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "invalid_status_param" }
+
+    assert_redirected_to audit_path(@audit_session)
+    # Should use the fallback logic
   end
 
   private

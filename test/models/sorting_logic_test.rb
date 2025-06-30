@@ -105,6 +105,11 @@ class SortingLogicTest < ActiveSupport::TestCase
       result = controller.send(:apply_team_member_sorting, relation)
       assert_not_nil result
     end
+
+    # Test default sorting with invalid column (covers line 116 - else branch)
+    controller.params = { sort: "invalid_column", direction: "asc" }
+    result = controller.send(:apply_team_member_sorting, relation)
+    assert_not_nil result
   end
 
   test "teams controller apply_team_member_sorting handles all columns" do
