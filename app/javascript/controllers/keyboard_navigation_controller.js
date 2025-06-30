@@ -164,6 +164,9 @@ export default class extends Controller {
   }
 
   focusCurrentItem() {
+    // Clear any text selection when changing focus
+    this.clearTextSelection()
+
     const currentItem = this.actionableTargets[this.currentItemIndex]
     if (currentItem) {
       // If we're in an issues column, focus on the appropriate issue link
@@ -185,6 +188,16 @@ export default class extends Controller {
   focusIssueLink(issueLink) {
     if (issueLink) {
       issueLink.focus()
+    }
+  }
+
+  clearTextSelection() {
+    // Clear any text selection in the document
+    if (window.getSelection) {
+      const selection = window.getSelection()
+      if (selection.rangeCount > 0) {
+        selection.removeAllRanges()
+      }
     }
   }
 
