@@ -1,12 +1,66 @@
 module SortableHelper
   # Delegate to controller's Sortable concern methods
-  delegate :sort_column, :sort_direction, to: :controller
+  delegate :sort_column, :sort_direction, :effective_sort_column_for_team_members, to: :controller
 
   def next_sort_direction(current_column)
     if sort_column == current_column
       sort_direction == "asc" ? "desc" : "asc"
     else
       "asc"
+    end
+  end
+
+  def team_member_sort_link(column, title, path_params = {})
+    # For team member sorting, use the effective sort column to show the correct active state
+    effective_column = effective_sort_column_for_team_members
+    direction = if effective_column == column
+      sort_direction == "asc" ? "desc" : "asc"
+    else
+      "asc"
+    end
+
+    css_class = "group inline-flex items-center space-x-1 text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-300"
+
+    # Add active styling if this is the current effective sort column
+    if effective_column == column
+      css_class += " text-gray-700 dark:text-gray-300"
+    end
+
+    begin
+      # Convert path_params to permitted hash and merge sort params
+      permitted_params = path_params.respond_to?(:permit) ? path_params.to_unsafe_h : path_params
+      link_params = permitted_params.merge(sort: column, direction: direction)
+
+      # Always use audit_path when we have an audit ID to avoid route confusion
+      target_url = if link_params[:id]
+        audit_path(link_params[:id], link_params.except(:id))
+      else
+        url_for(link_params)
+      end
+
+      link_to(target_url,
+              class: css_class,
+              data: {
+                turbo_frame: "sortable-table"
+              }) do
+        content = title.dup
+
+        # Add sort indicator
+        if effective_column == column
+          if sort_direction == "asc"
+            content += " " + chevron_up_icon
+          else
+            content += " " + chevron_down_icon
+          end
+        else
+          content += " " + chevron_up_down_icon
+        end
+
+        content.html_safe
+      end
+    rescue ActionController::UrlGenerationError, NoMethodError
+      # Fallback when no route context (e.g., in job context)
+      content_tag(:span, title, class: "text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider")
     end
   end
 

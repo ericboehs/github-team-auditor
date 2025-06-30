@@ -11,10 +11,16 @@ module Sortable
     %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
   end
 
+  def effective_sort_column_for_team_members
+    sort_column || "github"
+  end
+
   private
 
   def apply_team_member_sorting(relation)
-    case sort_column
+    case effective_sort_column_for_team_members
+    when "github"
+      relation.order(team_members: { github_login: sort_direction })
     when "member"
       relation.order(team_members: { github_login: sort_direction })
     when "role"
@@ -54,6 +60,18 @@ module Sortable
 
       # Use COALESCE to treat empty strings as NULL for proper sorting
       relation.order(Arel.sql("COALESCE(NULLIF(TRIM(audit_members.notes), ''), NULL) #{direction} #{nulls_position}"))
+    when "issue"
+      # Sort by first (lowest/earliest) GitHub issue number
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+
+      relation.joins(
+        "LEFT JOIN (
+          SELECT team_member_id, MIN(github_issue_number) as first_issue_number
+          FROM issue_correlations
+          GROUP BY team_member_id
+        ) ic_issue_agg ON ic_issue_agg.team_member_id = team_members.id"
+      ).order(Arel.sql("ic_issue_agg.first_issue_number #{direction} #{nulls_position}"))
     else
       # Default sorting
       relation.order(team_members: { github_login: :asc })

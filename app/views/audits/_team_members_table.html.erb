@@ -3,29 +3,29 @@
     <caption class="sr-only"><%= t('accessibility.team_members_table', audit_name: @audit_session.name) %></caption>
   <thead>
     <tr>
-      <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-        GitHub
+      <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6">
+        <%= team_member_sort_link("github", "GitHub", { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= sort_link("member", t('common.member'), { id: @audit_session.id }) %>
+        <%= team_member_sort_link("member", t('common.member'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= sort_link("role", t('common.role'), { id: @audit_session.id }) %>
+        <%= team_member_sort_link("role", t('common.role'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= sort_link("status", t('common.status'), { id: @audit_session.id }) %>
-      </th>
-      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-        <%= t('common.issues') %>
+        <%= team_member_sort_link("status", t('common.status'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
+        <%= team_member_sort_link("issue", t('common.issues'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
+        <%= team_member_sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
+      </th>
+      <th scope="col" class="px-3 py-3.5">
+        <%= team_member_sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
-        <%= sort_link("comment", t("common.comment"), { id: @audit_session.id }) %>
+        <%= team_member_sort_link("comment", t("common.comment"), { id: @audit_session.id }) %>
       </th>
     </tr>
   </thead>
