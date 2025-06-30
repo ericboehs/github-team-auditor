@@ -30,7 +30,14 @@ class AuditMembersController < ApplicationController
         # Calculate progress for stats update
         @progress = @audit_session.progress_percentage
 
-        render turbo_stream: turbo_stream.replace("sortable-table", partial: "audits/team_members_table")
+        render turbo_stream: [
+          turbo_stream.replace("sortable-table", partial: "audits/team_members_table"),
+          turbo_stream.replace("audit-stats", partial: "audits/audit_stats", locals: { 
+            team_members: @team_members, 
+            audit_session: @audit_session, 
+            progress: @progress 
+          })
+        ]
       end
       format.html { redirect_to audit_path(@audit_member.audit_session, sort: params[:sort], direction: params[:direction]) }
     end

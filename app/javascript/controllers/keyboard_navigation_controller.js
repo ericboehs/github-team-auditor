@@ -81,10 +81,30 @@ export default class extends Controller {
   }
 
   initializeNavigation() {
-    // Start at the first actionable item and focus it
-    this.currentItemIndex = 0
-    this.currentIssueIndex = 0
-    this.focusCurrentItem()
+    // Check if the currently focused element is one of our actionable targets
+    const currentlyFocused = document.activeElement
+    const focusedIndex = this.actionableTargets.indexOf(currentlyFocused)
+    
+    if (focusedIndex !== -1) {
+      // Sync with the currently focused element from tab navigation
+      this.currentItemIndex = focusedIndex
+      this.currentIssueIndex = 0
+      
+      // Don't change focus since it's already where it should be
+      // Just update our internal tracking and issue index if needed
+      if (this.isInIssuesColumn(currentlyFocused)) {
+        const issueLinks = this.getIssueLinksInSameCell(currentlyFocused)
+        const issueIndex = issueLinks.indexOf(currentlyFocused)
+        if (issueIndex !== -1) {
+          this.currentIssueIndex = issueIndex
+        }
+      }
+    } else {
+      // No actionable element is focused, start at the first one
+      this.currentItemIndex = 0
+      this.currentIssueIndex = 0
+      this.focusCurrentItem()
+    }
   }
 
   movePrevious() {

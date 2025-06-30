@@ -125,7 +125,8 @@
   </div>
 
   <!-- Status Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-8" aria-live="polite" aria-atomic="false">
+  <%= turbo_frame_tag "audit-stats" do %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 mt-8" aria-live="polite" aria-atomic="false">
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex items-center">
         <div class="flex-shrink-0">
@@ -187,8 +188,8 @@
       </div>
     </div>
 
-  </div>
-
+    </div>
+  <% end %>
 
   <!-- Team Members Table -->
   <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
