@@ -10,6 +10,9 @@ export default class extends Controller {
 
     // Add global keydown listener
     document.addEventListener("keydown", this.handleKeydown.bind(this))
+    
+    // Auto-initialize navigation on page load for immediate keyboard nav
+    this.autoInitializeNavigation()
   }
 
   disconnect() {
@@ -279,6 +282,15 @@ export default class extends Controller {
     }
 
     return null
+  }
+
+  autoInitializeNavigation() {
+    // Auto-focus the first actionable element to enable immediate keyboard navigation
+    if (this.actionableTargets.length > 0) {
+      this.currentItemIndex = 0
+      // Don't actually focus visually, just set up the state for keyboard navigation
+      // This way users won't see an unexpected focus ring on page load
+    }
   }
 
   toggleHelpModal() {
