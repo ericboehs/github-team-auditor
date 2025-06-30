@@ -6,6 +6,9 @@
         <thead>
           <tr>
             <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6">
+              <%= sort_link("github", "GitHub") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5">
               <%= sort_link("member", t('common.member')) %>
             </th>
             <th scope="col" class="px-3 py-3.5">
@@ -14,8 +17,8 @@
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <%= t('common.status') %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <%= t('common.issues') %>
+            <th scope="col" class="px-3 py-3.5">
+              <%= sort_link("issue", t('common.issues')) %>
             </th>
             <th scope="col" class="px-3 py-3.5">
               <%= sort_link("first_seen", t('common.first_seen')) %>
@@ -34,12 +37,14 @@
                     <img class="h-10 w-10 rounded-full" src="<%= member.avatar_url %>" alt="<%= member.display_name %>">
                   </div>
                   <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">
-                      <%= link_to(member.display_name, "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": t('accessibility.view_github_profile', name: member.display_name), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500") %>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      <%= link_to("@#{member.github_login}", "https://github.com/#{member.github_login.gsub(/[^a-zA-Z0-9\-_]/, '')}", target: "_blank", "aria-label": t('accessibility.view_github_profile', name: member.display_name), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500") %>
                     </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">@<%= member.github_login %></div>
                   </div>
                 </div>
+              </td>
+              <td class="px-3 py-4 text-sm font-medium whitespace-nowrap">
+                <span class="text-gray-900 dark:text-white"><%= member.display_name %></span>
               </td>
               <td class="px-3 py-4 text-sm whitespace-nowrap">
                 <% if member.maintainer_role? %>

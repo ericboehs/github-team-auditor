@@ -115,7 +115,7 @@ class SortingLogicTest < ActiveSupport::TestCase
     relation = TeamMember.all
 
     # Test each sort column
-    %w[member role first_seen last_seen].each do |column|
+    %w[github member role first_seen last_seen issue].each do |column|
       controller.params = { sort: column, direction: "asc" }
       result = controller.send(:apply_team_member_sorting, relation)
       assert_not_nil result
