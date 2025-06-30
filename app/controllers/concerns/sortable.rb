@@ -53,7 +53,7 @@ module Sortable
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
 
-      table_ref = is_team_member_direct ? "id" : "team_members.id"
+      table_ref = "team_members.id"
       relation.joins(
         "LEFT JOIN (
           SELECT team_member_id, MIN(issue_created_at) as first_seen_at
@@ -67,7 +67,7 @@ module Sortable
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
 
-      table_ref = is_team_member_direct ? "id" : "team_members.id"
+      table_ref = "team_members.id"
       relation.joins(
         "LEFT JOIN (
           SELECT team_member_id, MAX(issue_updated_at) as last_seen_at
@@ -90,7 +90,7 @@ module Sortable
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
 
-      table_ref = is_team_member_direct ? "id" : "team_members.id"
+      table_ref = "team_members.id"
       relation.joins(
         "LEFT JOIN (
           SELECT team_member_id, MIN(github_issue_number) as first_issue_number
