@@ -58,6 +58,8 @@ class IssueCorrelationService
         issue_created_at: issue[:created_at],
         issue_updated_at: issue[:updated_at],
         issue_author: issue.dig(:user, :github_login),
+        comments: issue[:comments],
+        comment_authors: issue[:comment_authors]&.to_json,
         created_at: existing&.created_at || current_time,
         updated_at: current_time
       }
@@ -112,13 +114,13 @@ class IssueCorrelationService
   end
 
   def fetch_comments_for_issues(team_member)
-    # Always re-fetch comments during issue correlation to catch comment updates/corrections
-    # This ensures typo fixes and other comment edits are captured for access expiration extraction
-    issues_needing_comments = team_member.issue_correlations
+    # Comments are now included in the GraphQL batch response, so this method is only needed
+    # as a fallback for issues that might have missing comment data
+    issues_needing_comments = team_member.issue_correlations.where(comments: [ nil, "" ])
 
     return if issues_needing_comments.empty?
 
-    Rails.logger.debug "Fetching comments for #{issues_needing_comments.count} issues for #{team_member.github_login}"
+    Rails.logger.debug "Fetching missing comments for #{issues_needing_comments.count} issues for #{team_member.github_login} (GraphQL fallback)"
 
     github_client = Github::ApiClient.new(team_member.team.organization)
 
@@ -128,7 +130,7 @@ class IssueCorrelationService
         repo_name = extract_repo_name_from_url(issue_correlation.github_issue_url)
         next unless repo_name
 
-        # Fetch comments for this issue
+        # Fetch comments for this issue using REST API as fallback
         comments = github_client.fetch_issue_comments(repo_name, issue_correlation.github_issue_number)
 
         # Combine all comment bodies into a single text field
@@ -140,7 +142,7 @@ class IssueCorrelationService
         # Update the issue correlation with comments and authors
         issue_correlation.update!(comments: comments_text, comment_authors: comment_authors)
 
-        Rails.logger.debug "Fetched #{comments.count} comments for issue ##{issue_correlation.github_issue_number}"
+        Rails.logger.debug "Fetched #{comments.count} comments for issue ##{issue_correlation.github_issue_number} via REST fallback"
 
       rescue StandardError => e
         Rails.logger.error "Failed to fetch comments for issue ##{issue_correlation.github_issue_number}: #{e.message}"
