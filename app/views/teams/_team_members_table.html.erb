@@ -6,25 +6,25 @@
         <thead>
           <tr>
             <th scope="col" class="py-3.5 pr-3 pl-4 sm:pl-6">
-              <%= sort_link("github", "GitHub") %>
+              <%= team_member_sort_link("github", "GitHub") %>
             </th>
             <th scope="col" class="px-3 py-3.5">
-              <%= sort_link("member", t('common.member')) %>
+              <%= team_member_sort_link("member", t('common.member')) %>
             </th>
             <th scope="col" class="px-3 py-3.5">
-              <%= sort_link("role", t('common.role')) %>
+              <%= team_member_sort_link("role", t('common.role')) %>
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <%= t('common.status') %>
             </th>
             <th scope="col" class="px-3 py-3.5">
-              <%= sort_link("issue", t('common.issues')) %>
+              <%= team_member_sort_link("issue", t('common.issues')) %>
             </th>
             <th scope="col" class="px-3 py-3.5">
-              <%= sort_link("first_seen", t('common.first_seen')) %>
+              <%= team_member_sort_link("first_seen", t('common.first_seen')) %>
             </th>
             <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
-              <%= sort_link("last_seen", t('common.last_seen')) %>
+              <%= team_member_sort_link("last_seen", t('common.last_seen')) %>
             </th>
           </tr>
         </thead>
