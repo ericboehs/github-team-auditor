@@ -434,7 +434,7 @@ class TeamMemberTest < ActiveSupport::TestCase
 
     # Test line 104: when match_pos is nil (text.index returns nil)
     # This should never happen in normal flow but tests the nil guard
-    text_with_weird_match = "Access until 12/31/24"
+    text_with_weird_match = "Access until 12/31/24".dup
 
     # Stub text.index to return nil for testing the guard
     text_with_weird_match.define_singleton_method(:index) { |_| nil }
@@ -543,5 +543,117 @@ class TeamMemberTest < ActiveSupport::TestCase
 
     assert_equal Date.new(2025, 6, 1), result
     assert_equal original_updated_at.to_i, @team_member.reload.updated_at.to_i
+  end
+
+  test "extract_expiration_dates_from_comments_with_maintainer_check handles empty comment_authors array" do
+    @team_member.save!
+
+    # Create issue with empty comment_authors array
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 130,
+      github_issue_url: "https://github.com/test/repo/issues/130",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 10, 9),
+      issue_updated_at: Date.new(2024, 10, 9),
+      comments: "I've approved you for 6 months of access",
+      comment_authors: []
+    )
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments_with_maintainer_check, issue)
+
+    # Should return empty array when comment_authors is empty
+    assert_equal [], dates
+  end
+
+  test "parse_date_string handles YYYY format in comments" do
+    @team_member.save!
+
+    # Test the specific issue mentioned by user - YYYY format
+    # "set reminder for 9/9/2025" - this should be parsed correctly
+    date = @team_member.send(:parse_date_string, "9/9/2025")
+    assert_equal Date.new(2025, 9, 9), date
+
+    # Test other YYYY formats
+    date = @team_member.send(:parse_date_string, "12/31/2025")
+    assert_equal Date.new(2025, 12, 31), date
+
+    # Test single digit month/day with YYYY
+    date = @team_member.send(:parse_date_string, "1/1/2025")
+    assert_equal Date.new(2025, 1, 1), date
+  end
+
+  test "extract_expiration_dates_from_text handles complex slack message format" do
+    @team_member.save!
+
+    # Test the specific message format mentioned by user - need context words for date extraction
+    text = "Granted Prod Access to Adrian for 6 months and access expires 9/9/2025 and made him aware of the 72 hours prior will be contacted for possible extension if needed."
+    dates = @team_member.send(:extract_expiration_dates_from_text, text)
+
+    # Should find the expiration date 9/9/2025
+    assert_includes dates, Date.new(2025, 9, 9)
+  end
+
+  test "extract_expiration_dates_from_comments_with_maintainer_check handles maintainer with empty dates" do
+    @team_member.save!
+
+    # Create issue where maintainer has no valid dates in their comment
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 131,
+      github_issue_url: "https://github.com/test/repo/issues/131",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 10, 9),
+      issue_updated_at: Date.new(2024, 10, 9),
+      issue_author: "requester_user",
+      comments: "Looks good to me\\n\\n---\\n\\nApproved for 6 months access",
+      comment_authors: [ "john_doe", "jane_smith" ]  # john_doe (maintainer) has no dates, jane_smith has dates
+    )
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments_with_maintainer_check, issue)
+
+    # Should fall back to historical dates when maintainer has no dates
+    expected_date = Date.new(2024, 10, 9) + 6.months
+    assert_equal [ expected_date ], dates
+  end
+
+  test "extract_relative_expiration_dates handles zero months edge case" do
+    @team_member.save!
+    reference_date = Date.new(2024, 10, 9)
+
+    # Test zero months (should return empty)
+    text = "approved for 0 months"
+    dates = @team_member.send(:extract_relative_expiration_dates, text, reference_date)
+    assert_equal [], dates
+
+    # Test negative months (should return empty)
+    text = "approved for -3 months"
+    dates = @team_member.send(:extract_relative_expiration_dates, text, reference_date)
+    assert_equal [], dates
+  end
+
+  test "extract_expiration_dates_from_comments handles both comment and body text patterns" do
+    @team_member.save!
+    reference_date = Date.new(2024, 10, 9)
+
+    # Test text that has both absolute and relative patterns
+    # Should prefer absolute (line 123 condition)
+    text_with_both = "Access expires 12/31/2024. Also approved for 6 months."
+    dates = @team_member.send(:extract_expiration_dates_from_comments, text_with_both, reference_date)
+
+    # Should only include absolute date, not relative
+    assert_includes dates, Date.new(2024, 12, 31)
+    refute_includes dates, reference_date + 6.months
+  end
+
+  test "extract_expiration_dates_from_comments with blank reference date and relative text" do
+    @team_member.save!
+
+    # Test line 127: when dates.empty? but reference_date is nil
+    text = "approved for 6 months"
+    dates = @team_member.send(:extract_expiration_dates_from_comments, text, nil)
+
+    # Should return empty array when no reference date provided
+    assert_equal [], dates
   end
 end

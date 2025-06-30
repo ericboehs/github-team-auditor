@@ -26,6 +26,10 @@ class AuditsController < ApplicationController
         .includes(:audit_notes, :team_member)
         .joins(:team_member)
 
+    # Set default sort to access_expires if no sort specified
+    params[:sort] ||= "access_expires"
+    params[:direction] ||= "asc"
+
     # Apply sorting for team members
     @team_members = apply_team_member_sorting(@team_members)
 

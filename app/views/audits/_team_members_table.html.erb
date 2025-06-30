@@ -134,43 +134,79 @@
         <% end %>
       </td>
       <td class="px-3 py-4 text-sm whitespace-nowrap text-center">
-        <% if member.team_member.access_expires_at %>
-          <% if member.team_member.access_expired? %>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
-              <%= t('status_badges.expired') %>
-            </span>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <% if member.team_member.access_expires_at.year == Date.current.year %>
-                <%= member.team_member.access_expires_at.strftime("%b %d") %>
+        <div data-controller="tooltip" class="relative">
+          <div data-action="mouseenter->tooltip#show mouseleave->tooltip#hide" class="cursor-help">
+            <% if member.team_member.access_expires_at %>
+              <% if member.team_member.access_expired? %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
+                  <%= t('status_badges.expired') %>
+                </span>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <% if member.team_member.access_expires_at.year == Date.current.year %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d") %>
+                  <% else %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </div>
+              <% elsif member.team_member.access_expiring_soon? %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
+                  <%= t('status_badges.expiring_soon') %>
+                </span>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <% if member.team_member.access_expires_at.year == Date.current.year %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d") %>
+                  <% else %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </div>
               <% else %>
-                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+                <div class="text-sm text-gray-900 dark:text-white">
+                  <% if member.team_member.access_expires_at.year == Date.current.year %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d") %>
+                  <% else %>
+                    <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <span class="text-gray-400 dark:text-gray-500 text-xs">
+                <%= t('access_expiration.no_expiration') %>
+              </span>
+            <% end %>
+          </div>
+
+          <!-- Tooltip content -->
+          <div data-tooltip-target="content" class="hidden absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full whitespace-nowrap">
+            <div class="text-center">
+              <% if member.team_member.first_seen_at %>
+                <div class="font-medium text-xs text-gray-300">First Seen</div>
+                <div class="text-sm">
+                  <% if member.team_member.first_seen_at.year == Date.current.year %>
+                    <%= member.team_member.first_seen_at.strftime("%b %d at %l:%M %p") %>
+                  <% else %>
+                    <%= member.team_member.first_seen_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="text-sm text-gray-400">No first seen date</div>
+              <% end %>
+
+              <% if member.team_member.last_seen_at %>
+                <div class="font-medium text-xs text-gray-300 mt-2">Last Seen</div>
+                <div class="text-sm">
+                  <% if member.team_member.last_seen_at.year == Date.current.year %>
+                    <%= member.team_member.last_seen_at.strftime("%b %d at %l:%M %p") %>
+                  <% else %>
+                    <%= member.team_member.last_seen_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="text-sm text-gray-400 mt-2">No last seen date</div>
               <% end %>
             </div>
-          <% elsif member.team_member.access_expiring_soon? %>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
-              <%= t('status_badges.expiring_soon') %>
-            </span>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              <% if member.team_member.access_expires_at.year == Date.current.year %>
-                <%= member.team_member.access_expires_at.strftime("%b %d") %>
-              <% else %>
-                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
-              <% end %>
-            </div>
-          <% else %>
-            <div class="text-sm text-gray-900 dark:text-white">
-              <% if member.team_member.access_expires_at.year == Date.current.year %>
-                <%= member.team_member.access_expires_at.strftime("%b %d") %>
-              <% else %>
-                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
-              <% end %>
-            </div>
-          <% end %>
-        <% else %>
-          <span class="text-gray-400 dark:text-gray-500 text-xs">
-            <%= t('access_expiration.no_expiration') %>
-          </span>
-        <% end %>
+            <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+          </div>
+        </div>
       </td>
       <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
         <div data-controller="simple-edit tooltip" data-simple-edit-id-value="<%= member.id %>" class="w-full relative">
@@ -180,7 +216,7 @@
           <% if member.notes.present? && member.notes_updated_by %>
             <div data-tooltip-target="content" class="hidden absolute z-50 px-3 py-2 text-sm bg-gray-900 text-white rounded-lg shadow-lg -top-2 left-0 transform -translate-y-full whitespace-nowrap">
               <div class="flex items-center gap-2">
-                <img src="<%= member.notes_updated_by.avatar_url(size: 24) %>" alt="<%= member.notes_updated_by.email_address %>" class="w-6 h-6 rounded-full">
+                <%= render AvatarComponent.new(user: member.notes_updated_by, size: 6, text_size: "xs") %>
                 <div>
                   <div class="font-medium"><%= member.notes_updated_by.email_address %></div>
                   <div class="text-xs text-gray-300">

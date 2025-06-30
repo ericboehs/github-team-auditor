@@ -38,6 +38,8 @@ class TeamSyncJobTest < ActiveJob::TestCase
   end
 
   test "should update team sync_completed_at timestamp" do
+    # Ensure we have a previous timestamp to compare against
+    @team.update!(sync_completed_at: 1.hour.ago)
     old_timestamp = @team.sync_completed_at
 
     # Mock the sync service

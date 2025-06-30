@@ -14,6 +14,6 @@ class AvatarComponent < ViewComponent::Base
   end
 
   def text_classes
-    "text-#{text_size} font-medium text-white hidden"
+    "text-#{text_size} font-medium text-white hidden flex items-center justify-center"
   end
 end

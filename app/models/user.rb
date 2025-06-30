@@ -15,7 +15,11 @@ class User < ApplicationRecord
 
   def initials
     email_prefix = email_address&.split("@")&.first
-    email_prefix&.first&.upcase || "?"
+    if email_prefix&.length&.> 0
+      email_prefix.first.upcase
+    else
+      "?"
+    end
   end
 
   def self.find_by_password_reset_token!(token)
