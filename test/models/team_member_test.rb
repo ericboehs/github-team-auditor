@@ -429,6 +429,47 @@ class TeamMemberTest < ActiveSupport::TestCase
     assert_equal [ expected_date ], dates
   end
 
+  test "extract_expiration_dates_from_text handles edge cases" do
+    @team_member.save!
+
+    # Test line 104: when match_pos is nil (text.index returns nil)
+    # This should never happen in normal flow but tests the nil guard
+    text_with_weird_match = "Access until 12/31/24"
+
+    # Stub text.index to return nil for testing the guard
+    text_with_weird_match.define_singleton_method(:index) { |_| nil }
+
+    dates = @team_member.send(:extract_expiration_dates_from_text, text_with_weird_match)
+
+    # Should handle nil gracefully and not crash
+    assert_instance_of Array, dates
+  end
+
+  test "extract_expiration_dates_from_comments handles blank comments" do
+    @team_member.save!
+
+    # Test line 119: blank comments_text
+    dates = @team_member.send(:extract_expiration_dates_from_comments, "", Date.current)
+    assert_equal [], dates
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments, nil, Date.current)
+    assert_equal [], dates
+  end
+
+  test "extract_expiration_dates_from_comments uses relative when no absolute dates" do
+    @team_member.save!
+
+    # Test line 127: when dates.empty? && reference_date
+    comments_without_absolute_dates = "You have been approved for 6 months access"
+    reference_date = Date.new(2024, 1, 1)
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments, comments_without_absolute_dates, reference_date)
+
+    # Should find the relative date (6 months from reference)
+    expected_date = reference_date + 6.months
+    assert_equal [ expected_date ], dates
+  end
+
   test "parse_date_string handles various formats" do
     @team_member.save!
 

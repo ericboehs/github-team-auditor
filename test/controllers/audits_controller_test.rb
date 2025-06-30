@@ -304,6 +304,22 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     # Should not crash when most_recent_team is nil
   end
 
+  test "new with single organization and recently synced teams" do
+    sign_in_as(@user)
+    # Test lines 57-58: when single organization with teams
+    Organization.where.not(id: @organization.id).destroy_all
+
+    # Ensure teams have sync_completed_at dates
+    @organization.teams.update_all(sync_completed_at: 1.day.ago)
+
+    get new_audit_url
+    assert_response :success
+
+    # Should auto-select organization and populate teams
+    assert_select "select[name='audit_session[organization_id]'] option[selected]", text: @organization.name
+    assert_select "select[name='audit_session[team_id]'] option"
+  end
+
   test "new with single organization but no recently synced teams" do
     sign_in_as(@user)
     # Test lines 61-62: when single organization but no teams with sync_completed_at

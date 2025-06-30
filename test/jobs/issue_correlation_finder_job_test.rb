@@ -269,6 +269,7 @@ class IssueCorrelationFinderJobTest < ActiveJob::TestCase
     end
   end
 
+
   # Note: Testing retry_on and discard_on behavior is complex in ActiveJob
   # The functionality is tested at the framework level and configured correctly in the job class
 end
