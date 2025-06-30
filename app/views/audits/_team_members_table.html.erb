@@ -24,6 +24,9 @@
       <th scope="col" class="px-3 py-3.5">
         <%= team_member_sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
       </th>
+      <th scope="col" class="px-3 py-3.5">
+        <%= team_member_sort_link("access_expires", t('common.access_expires'), { id: @audit_session.id }) %>
+      </th>
       <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
         <%= team_member_sort_link("comment", t("common.comment"), { id: @audit_session.id }) %>
       </th>
@@ -173,6 +176,45 @@
           </span>
         <% else %>
           -
+        <% end %>
+      </td>
+      <td class="px-3 py-4 text-sm whitespace-nowrap text-center">
+        <% if member.team_member.access_expires_at %>
+          <% if member.team_member.access_expired? %>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
+              <%= t('status_badges.expired') %>
+            </span>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <% if member.team_member.access_expires_at.year == Date.current.year %>
+                <%= member.team_member.access_expires_at.strftime("%b %d") %>
+              <% else %>
+                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+              <% end %>
+            </div>
+          <% elsif member.team_member.access_expiring_soon? %>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
+              <%= t('status_badges.expiring_soon') %>
+            </span>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <% if member.team_member.access_expires_at.year == Date.current.year %>
+                <%= member.team_member.access_expires_at.strftime("%b %d") %>
+              <% else %>
+                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-sm text-gray-900 dark:text-white">
+              <% if member.team_member.access_expires_at.year == Date.current.year %>
+                <%= member.team_member.access_expires_at.strftime("%b %d") %>
+              <% else %>
+                <%= member.team_member.access_expires_at.strftime("%b %d, %Y") %>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <span class="text-gray-400 dark:text-gray-500 text-xs">
+            <%= t('access_expiration.no_expiration') %>
+          </span>
         <% end %>
       </td>
       <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">

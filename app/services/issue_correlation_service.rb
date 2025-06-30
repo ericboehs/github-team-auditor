@@ -87,6 +87,18 @@ class IssueCorrelationService
     # Reload the team member to get fresh issue correlations
     team_member.reload
 
+    # Fetch comments for issue correlations that don't have them yet
+    fetch_comments_for_issues(team_member)
+
+    # Extract and update access expiration date from issue descriptions and comments
+    begin
+      team_member.extract_and_update_access_expires_at!
+      Rails.logger.debug "Updated access expiration for #{team_member.github_login}: #{team_member.access_expires_at}"
+    rescue StandardError => e
+      Rails.logger.error "Failed to extract access expiration for #{team_member.github_login}: #{e.message}"
+      # Don't raise the error - expiration extraction is not critical to the main workflow
+    end
+
     # Broadcast updated issues for this member via Turbo Stream
     broadcast_member_issues_update(team_member)
   end
@@ -96,6 +108,48 @@ class IssueCorrelationService
 
     # Truncate to reasonable length for database storage
     body.to_s.truncate(1000)
+  end
+
+  def fetch_comments_for_issues(team_member)
+    # Only fetch comments for issues that don't have them yet (to avoid unnecessary API calls)
+    issues_needing_comments = team_member.issue_correlations.where(comments: nil)
+    
+    return if issues_needing_comments.empty?
+
+    Rails.logger.debug "Fetching comments for #{issues_needing_comments.count} issues for #{team_member.github_login}"
+
+    github_client = Github::ApiClient.new(team_member.team.organization)
+    
+    issues_needing_comments.find_each do |issue_correlation|
+      begin
+        # Extract repo name from issue URL (e.g., "va.gov-team" from GitHub URL)
+        repo_name = extract_repo_name_from_url(issue_correlation.github_issue_url)
+        next unless repo_name
+
+        # Fetch comments for this issue
+        comments = github_client.fetch_issue_comments(repo_name, issue_correlation.github_issue_number)
+        
+        # Combine all comment bodies into a single text field
+        comments_text = comments.map { |comment| comment[:body] }.join("\n\n---\n\n")
+        
+        # Update the issue correlation with comments
+        issue_correlation.update!(comments: comments_text)
+        
+        Rails.logger.debug "Fetched #{comments.count} comments for issue ##{issue_correlation.github_issue_number}"
+        
+      rescue StandardError => e
+        Rails.logger.error "Failed to fetch comments for issue ##{issue_correlation.github_issue_number}: #{e.message}"
+        # Continue with other issues even if one fails
+        next
+      end
+    end
+  end
+
+  def extract_repo_name_from_url(github_url)
+    # Extract repo name from URLs like:
+    # https://github.com/department-of-veterans-affairs/va.gov-team/issues/12345
+    match = github_url.match(%r{github\.com/[^/]+/([^/]+)/issues/})
+    match&.[](1)
   end
 
   def map_issue_status(github_state)

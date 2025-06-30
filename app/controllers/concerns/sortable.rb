@@ -98,6 +98,16 @@ module Sortable
           GROUP BY team_member_id
         ) ic_issue_agg ON ic_issue_agg.team_member_id = #{table_ref}"
       ).order(Arel.sql("ic_issue_agg.first_issue_number #{direction} #{nulls_position}"))
+    when "access_expires"
+      # Sort by access expiration date
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+
+      if is_team_member_direct
+        relation.order(Arel.sql("team_members.access_expires_at #{direction} #{nulls_position}"))
+      else
+        relation.order(Arel.sql("team_members.access_expires_at #{direction} #{nulls_position}"))
+      end
     else
       # Default sorting
       if is_team_member_direct
