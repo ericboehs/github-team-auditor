@@ -102,6 +102,7 @@ en:
     view: "View"
     sync: "Sync"
     find_issues: "Find Issues"
+    close: "Close"
 
   common:
     member: "Member"
@@ -120,6 +121,8 @@ en:
     actions: "Actions"
     show_more: "+%{count} more"
     show_less: "Show less"
+    comment: "Comment"
+    none: "None"
 
   status_badges:
     current: "Current"
@@ -406,3 +409,28 @@ en:
       body_html: "You can reset your password within the next 15 minutes on"
       body_text: "You can reset your password within the next 15 minutes on this password reset page:"
       reset_link_text: "this password reset page"
+
+  keyboard_shortcuts:
+    title: "Keyboard Shortcuts"
+    sections:
+      navigation:
+        title: "Navigation"
+        move_left_right: "Move left/right in row"
+        move_up_down_column: "Move up/down in column"
+      emacs_style:
+        title: "Emacs Style"
+        move_left_right: "Move left/right in row"
+        move_up_down_column: "Move up/down in column"
+      actions:
+        title: "Actions"
+        edit_comment: "Edit comment"
+        save_stay_place: "Save and stay in place"
+        save_move_down: "Save and move down"
+        save_move_up: "Save and move up"
+        cancel_edit: "Cancel edit"
+      help:
+        title: "Help"
+        show_hide_help: "Show/hide this help"
+
+  placeholders:
+    enter_comment: "Enter comment..."

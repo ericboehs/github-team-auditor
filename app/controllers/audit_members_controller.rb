@@ -1,4 +1,6 @@
 class AuditMembersController < ApplicationController
+  include Sortable
+
   before_action :set_audit_member, only: [ :toggle_status, :update ]
 
   def toggle_status
@@ -13,7 +15,25 @@ class AuditMembersController < ApplicationController
       @audit_member.update!(access_validated: true)
     end
 
-    redirect_to audit_path(@audit_member.audit_session)
+    respond_to do |format|
+      format.turbo_stream do
+        # Re-fetch the sorted team members for the audit session
+        @audit_session = @audit_member.audit_session
+        @team_members = @audit_session
+          .audit_members
+          .includes(:audit_notes, :team_member)
+          .joins(:team_member)
+
+        # Apply the same sorting logic as the show action
+        @team_members = apply_team_member_sorting(@team_members)
+
+        # Calculate progress for stats update
+        @progress = @audit_session.progress_percentage
+
+        render turbo_stream: turbo_stream.replace("sortable-table", partial: "audits/team_members_table")
+      end
+      format.html { redirect_to audit_path(@audit_member.audit_session, sort: params[:sort], direction: params[:direction]) }
+    end
   end
 
   def update
