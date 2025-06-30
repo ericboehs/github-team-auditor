@@ -187,8 +187,45 @@ class TeamMember < ApplicationRecord
       # No current maintainer dates, use fallback (historical maintainers)
       [ fallback_dates.max ]
     else
-      []
+      # Last resort: look for generic grant access patterns from maintainers
+      # If a maintainer said something like "granted access" without specifying duration,
+      # assume 6 months from the comment date
+      fallback_grant_dates = extract_generic_grant_access_dates(issue, maintainer_usernames)
+      fallback_grant_dates.any? ? [ fallback_grant_dates.max ] : []
     end
+  end
+
+  # Extract generic grant access patterns and assume 6 months from comment date
+  # This is a fallback when no explicit expiration date or duration is found
+  def extract_generic_grant_access_dates(issue, maintainer_usernames)
+    return [] if issue.comments.blank? || issue.comment_authors.blank?
+
+    dates = []
+    comment_parts = issue.comments.split("\n\n---\n\n")
+    comment_authors = issue.comment_authors || []
+    issue_author = issue.issue_author&.downcase
+
+    comment_parts.each_with_index do |comment_text, index|
+      # Skip if we don't have author info for this comment
+      next if index >= comment_authors.length
+
+      comment_author = comment_authors[index]&.downcase
+
+      # Skip comments from the issue author
+      next if comment_author == issue_author
+
+      # Only consider comments from current team maintainers
+      next unless maintainer_usernames.include?(comment_author)
+
+      # Look for generic grant/access patterns
+      if comment_text.match?(/(?:grant|approv|giv|allow)(?:e|ed|ing|s)?\s+(?:you\s+)?(?:access|approval|permission)/i)
+        # Found a generic grant access pattern, assume 6 months from issue creation date
+        expiration_date = issue.issue_created_at.to_date + 6.months
+        dates << expiration_date
+      end
+    end
+
+    dates.compact.uniq
   end
 
   # Extract relative expiration dates from text (e.g., "approved for 6 months")

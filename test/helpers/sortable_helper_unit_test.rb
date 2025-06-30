@@ -183,17 +183,17 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
 
   test "team_member_sort_link uses url_for when no id parameter present" do
     @mock_controller.set_sort("member", "desc")
-    
+
     # Mock params to not include :id to trigger else branch (line 91)
     def params
       { sort: "member", direction: "desc" }  # No :id key
     end
-    
+
     def url_for(options)
       # Should hit this path since no :id is present
       "/teams?#{options.to_query}"
     end
-    
+
     def link_to(url, options = {})
       # Parameters might be in different order due to hash ordering
       assert_includes url, "sort=member"
@@ -201,7 +201,7 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
       assert_includes url, "/teams?"
       yield if block_given?
     end
-    
+
     def content_tag(tag, content, options = {})
       content
     end

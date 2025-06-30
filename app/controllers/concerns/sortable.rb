@@ -93,9 +93,9 @@ module Sortable
       table_ref = "team_members.id"
       relation.joins(
         "LEFT JOIN (
-          SELECT team_member_id, 
-                 github_issue_number,
-                 ROW_NUMBER() OVER (PARTITION BY team_member_id ORDER BY issue_updated_at DESC) as rn
+          SELECT team_member_id,
+                github_issue_number,
+                ROW_NUMBER() OVER (PARTITION BY team_member_id ORDER BY issue_updated_at DESC) as rn
           FROM issue_correlations
         ) ic_ranked ON ic_ranked.team_member_id = #{table_ref} AND ic_ranked.rn = 1"
       ).order(Arel.sql("ic_ranked.github_issue_number #{direction} #{nulls_position}"))

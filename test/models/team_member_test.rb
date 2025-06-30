@@ -656,4 +656,166 @@ class TeamMemberTest < ActiveSupport::TestCase
     # Should return empty array when no reference date provided
     assert_equal [], dates
   end
+
+  test "extract_generic_grant_access_dates finds generic grant patterns" do
+    @team_member.save!
+
+    # Create issue with generic grant access pattern from maintainer
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 132,
+      github_issue_url: "https://github.com/test/repo/issues/132",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 5, 20),
+      issue_updated_at: Date.new(2024, 5, 20),
+      issue_author: "requester_user",
+      comments: "I have granted access to the team",
+      comment_authors: [ "john_doe" ]  # john_doe is a maintainer
+    )
+
+    maintainer_usernames = [ "john_doe" ]
+    dates = @team_member.send(:extract_generic_grant_access_dates, issue, maintainer_usernames)
+
+    # Should assume 6 months from issue creation date
+    expected_date = Date.new(2024, 5, 20) + 6.months
+    assert_equal [ expected_date ], dates
+  end
+
+  test "extract_generic_grant_access_dates handles various grant patterns" do
+    @team_member.save!
+
+    # Test different grant patterns
+    test_patterns = [
+      "I have granted access",
+      "granted you access to the team",
+      "approve access for this user",
+      "approved access",
+      "giving you access",
+      "give access to prod",
+      "allowing access",
+      "allowed permission"
+    ]
+
+    test_patterns.each_with_index do |pattern, index|
+      issue = @team_member.issue_correlations.create!(
+        github_issue_number: 133 + index,
+        github_issue_url: "https://github.com/test/repo/issues/#{133 + index}",
+        title: "Access request #{index}",
+        status: "open",
+        issue_created_at: Date.new(2024, 5, 20),
+        issue_updated_at: Date.new(2024, 5, 20),
+        issue_author: "requester_user",
+        comments: pattern,
+        comment_authors: [ "john_doe" ]
+      )
+
+      maintainer_usernames = [ "john_doe" ]
+      dates = @team_member.send(:extract_generic_grant_access_dates, issue, maintainer_usernames)
+
+      # Should find the pattern and assume 6 months
+      expected_date = Date.new(2024, 5, 20) + 6.months
+      assert_equal [ expected_date ], dates, "Failed for pattern: #{pattern}"
+    end
+  end
+
+  test "extract_generic_grant_access_dates ignores non-maintainers" do
+    @team_member.save!
+
+    # Create issue with grant pattern from non-maintainer
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 140,
+      github_issue_url: "https://github.com/test/repo/issues/140",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 5, 20),
+      issue_updated_at: Date.new(2024, 5, 20),
+      issue_author: "requester_user",
+      comments: "I have granted access to the team",
+      comment_authors: [ "jane_smith" ]  # jane_smith is not a maintainer
+    )
+
+    maintainer_usernames = [ "john_doe" ]
+    dates = @team_member.send(:extract_generic_grant_access_dates, issue, maintainer_usernames)
+
+    # Should return empty array since jane_smith is not a maintainer
+    assert_equal [], dates
+  end
+
+  test "extract_generic_grant_access_dates ignores issue author" do
+    @team_member.save!
+
+    # Create issue where issue author comments about granting access
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 141,
+      github_issue_url: "https://github.com/test/repo/issues/141",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 5, 20),
+      issue_updated_at: Date.new(2024, 5, 20),
+      issue_author: "john_doe",
+      comments: "I have granted access to myself",
+      comment_authors: [ "john_doe" ]  # john_doe is both maintainer and issue author
+    )
+
+    maintainer_usernames = [ "john_doe" ]
+    dates = @team_member.send(:extract_generic_grant_access_dates, issue, maintainer_usernames)
+
+    # Should return empty array since issue author comments are ignored
+    assert_equal [], dates
+  end
+
+  test "extract_expiration_dates_from_comments_with_maintainer_check uses generic grant fallback" do
+    @team_member.save!
+
+    # Create issue with only generic grant pattern (no explicit dates or durations)
+    issue = @team_member.issue_correlations.create!(
+      github_issue_number: 142,
+      github_issue_url: "https://github.com/test/repo/issues/142",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 5, 20),
+      issue_updated_at: Date.new(2024, 5, 20),
+      issue_author: "requester_user",
+      comments: "I have granted access to the team",
+      comment_authors: [ "john_doe" ]  # john_doe is a maintainer
+    )
+
+    dates = @team_member.send(:extract_expiration_dates_from_comments_with_maintainer_check, issue)
+
+    # Should use the generic grant fallback and assume 6 months
+    expected_date = Date.new(2024, 5, 20) + 6.months
+    assert_equal [ expected_date ], dates
+  end
+
+  test "extract_and_update_access_expires_at! uses generic grant fallback in full workflow" do
+    @team_member.save!
+
+    # Create issue with only generic grant pattern (mimics the rjain21/bdech scenario)
+    @team_member.issue_correlations.create!(
+      github_issue_number: 143,
+      github_issue_url: "https://github.com/test/repo/issues/143",
+      title: "Access request",
+      status: "open",
+      issue_created_at: Date.new(2024, 5, 20),
+      issue_updated_at: Date.new(2024, 5, 20),
+      issue_author: "rjain21",
+      comments: "I have granted access to the team",
+      comment_authors: [ "bdech" ]  # Simulate bdech as a maintainer
+    )
+
+    # Make bdech a maintainer for this test
+    @team.team_members.create!(
+      github_login: "bdech",
+      name: "bdech",
+      maintainer_role: true,
+      active: true
+    )
+
+    result = @team_member.extract_and_update_access_expires_at!
+
+    # Should extract 6 months from the issue creation date (May 20 + 6 months = Nov 20)
+    expected_date = Date.new(2024, 5, 20) + 6.months
+    assert_equal expected_date, result
+    assert_equal expected_date, @team_member.reload.access_expires_at.to_date
+  end
 end

@@ -32,10 +32,10 @@ class AuditMembersController < ApplicationController
 
         render turbo_stream: [
           turbo_stream.replace("sortable-table", partial: "audits/team_members_table"),
-          turbo_stream.replace("audit-stats", partial: "audits/audit_stats", locals: { 
-            team_members: @team_members, 
-            audit_session: @audit_session, 
-            progress: @progress 
+          turbo_stream.replace("audit-stats", partial: "audits/audit_stats", locals: {
+            team_members: @team_members,
+            audit_session: @audit_session,
+            progress: @progress
           })
         ]
       end

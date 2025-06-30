@@ -3,6 +3,13 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["actionable"]
 
+  // Get only visible and focusable actionable elements
+  get visibleActionableTargets() {
+    return this.actionableTargets.filter(element => {
+      return this.isElementVisible(element) && this.isElementFocusable(element)
+    })
+  }
+
   connect() {
     this.currentItemIndex = null
     this.inIssueColumn = false
@@ -10,7 +17,7 @@ export default class extends Controller {
 
     // Add global keydown listener
     document.addEventListener("keydown", this.handleKeydown.bind(this))
-    
+
     // Auto-initialize navigation on page load for immediate keyboard nav
     this.autoInitializeNavigation()
   }
@@ -49,6 +56,12 @@ export default class extends Controller {
       return this.toggleHelpModal()
     }
 
+    // Check if this is a valid navigation key before initializing
+    const isValidNavigationKey = ['h', 'l', 'k', 'j', 'b', 'f', 'p', 'n'].includes(key)
+    if (!isValidNavigationKey) {
+      return false
+    }
+
     // Initialize if this is the first navigation
     if (this.currentItemIndex === null) {
       this.initializeNavigation()
@@ -83,13 +96,14 @@ export default class extends Controller {
   initializeNavigation() {
     // Check if the currently focused element is one of our actionable targets
     const currentlyFocused = document.activeElement
-    const focusedIndex = this.actionableTargets.indexOf(currentlyFocused)
-    
+    const visibleTargets = this.visibleActionableTargets
+    const focusedIndex = visibleTargets.indexOf(currentlyFocused)
+
     if (focusedIndex !== -1) {
       // Sync with the currently focused element from tab navigation
       this.currentItemIndex = focusedIndex
       this.currentIssueIndex = 0
-      
+
       // Don't change focus since it's already where it should be
       // Just update our internal tracking and issue index if needed
       if (this.isInIssuesColumn(currentlyFocused)) {
@@ -117,7 +131,8 @@ export default class extends Controller {
   }
 
   moveNext() {
-    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const visibleTargets = this.visibleActionableTargets
+    const currentItem = visibleTargets[this.currentItemIndex]
 
     // Check if we're in an issues column and should navigate within it
     if (this.isInIssuesColumn(currentItem)) {
@@ -130,7 +145,7 @@ export default class extends Controller {
     }
 
     // Regular navigation to next column
-    if (this.currentItemIndex < this.actionableTargets.length - 1) {
+    if (this.currentItemIndex < visibleTargets.length - 1) {
       this.currentItemIndex++
       this.currentIssueIndex = 0 // Reset issue index when moving to different cell
       this.focusCurrentItem()
@@ -140,7 +155,8 @@ export default class extends Controller {
   }
 
   moveUp() {
-    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const visibleTargets = this.visibleActionableTargets
+    const currentItem = visibleTargets[this.currentItemIndex]
 
     // Check if we're in an issues column and should navigate within it
     if (this.isInIssuesColumn(currentItem)) {
@@ -158,18 +174,21 @@ export default class extends Controller {
 
     // Find the same column in the previous row
     const targetItem = this.findItemInColumn(currentColumn, currentRow - 1)
-    if (targetItem) {
-      const targetIndex = this.actionableTargets.indexOf(targetItem)
-      this.currentItemIndex = targetIndex
-      this.currentIssueIndex = 0 // Reset issue index when moving to different row
-      this.focusCurrentItem()
-      return true
+    if (targetItem && this.isElementVisible(targetItem) && this.isElementFocusable(targetItem)) {
+      const targetIndex = visibleTargets.indexOf(targetItem)
+      if (targetIndex !== -1) {
+        this.currentItemIndex = targetIndex
+        this.currentIssueIndex = 0 // Reset issue index when moving to different row
+        this.focusCurrentItem()
+        return true
+      }
     }
     return false
   }
 
   moveDown() {
-    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const visibleTargets = this.visibleActionableTargets
+    const currentItem = visibleTargets[this.currentItemIndex]
 
     // Check if we're in an issues column and should navigate within it
     if (this.isInIssuesColumn(currentItem)) {
@@ -187,12 +206,14 @@ export default class extends Controller {
 
     // Find the same column in the next row
     const targetItem = this.findItemInColumn(currentColumn, currentRow + 1)
-    if (targetItem) {
-      const targetIndex = this.actionableTargets.indexOf(targetItem)
-      this.currentItemIndex = targetIndex
-      this.currentIssueIndex = 0 // Reset issue index when moving to different row
-      this.focusCurrentItem()
-      return true
+    if (targetItem && this.isElementVisible(targetItem) && this.isElementFocusable(targetItem)) {
+      const targetIndex = visibleTargets.indexOf(targetItem)
+      if (targetIndex !== -1) {
+        this.currentItemIndex = targetIndex
+        this.currentIssueIndex = 0 // Reset issue index when moving to different row
+        this.focusCurrentItem()
+        return true
+      }
     }
     return false
   }
@@ -201,7 +222,8 @@ export default class extends Controller {
     // Clear any text selection when changing focus
     this.clearTextSelection()
 
-    const currentItem = this.actionableTargets[this.currentItemIndex]
+    const visibleTargets = this.visibleActionableTargets
+    const currentItem = visibleTargets[this.currentItemIndex]
     if (currentItem) {
       // If we're in an issues column, focus on the appropriate issue link
       if (this.isInIssuesColumn(currentItem)) {
@@ -263,7 +285,8 @@ export default class extends Controller {
     if (actionableInCell) allLinks.push(actionableInCell)
     allLinks.push(...issueLinks)
 
-    return allLinks
+    // Filter to only include visible and focusable elements
+    return allLinks.filter(link => this.isElementVisible(link) && this.isElementFocusable(link))
   }
 
   getColumnIndex(item) {
@@ -307,7 +330,7 @@ export default class extends Controller {
     // Find the first actionable item in this cell
     const actionableInCell = targetCell.querySelector('[data-keyboard-navigation-target="actionable"]')
 
-    // Only return if this item is in our actionable targets list
+    // Only return if this item is in our actionable targets list and is visible/focusable
     if (actionableInCell && this.actionableTargets.includes(actionableInCell)) {
       return actionableInCell
     }
@@ -322,9 +345,9 @@ export default class extends Controller {
 
   isExpandToggleButton(element) {
     // Check if this is a "+more" expand button in the issues column
-    return element.hasAttribute('data-issue-list-target') && 
-           element.getAttribute('data-issue-list-target') === 'toggleButton' &&
-           element.textContent.includes('more')
+    return element.hasAttribute('data-issue-list-target') &&
+          element.getAttribute('data-issue-list-target') === 'toggleButton' &&
+          element.textContent.includes('more')
   }
 
   handleIssueExpansion(toggleButton) {
@@ -339,12 +362,12 @@ export default class extends Controller {
     // Find the first issue link in the expanded section that wasn't in the summary
     // The summary shows first 2 issues, so we want to focus on the 3rd issue (index 2)
     const allIssueLinks = Array.from(expandedSection.querySelectorAll('[data-keyboard-navigation-target="issue_link"]'))
-    
+
     // Focus on the first issue that wasn't visible in the summary (3rd issue, index 2)
     if (allIssueLinks.length > 2) {
       const targetIssue = allIssueLinks[2] // 3rd issue (0-indexed)
       targetIssue.focus()
-      
+
       // Update our navigation state to track this new position
       this.updateNavigationStateAfterExpansion(targetIssue)
     }
@@ -354,12 +377,12 @@ export default class extends Controller {
     // Find this element in our actionable targets and update indices
     const cell = focusedElement.closest('td')
     const actionableInCell = cell.querySelector('[data-keyboard-navigation-target="actionable"]')
-    
+
     if (actionableInCell) {
       const actionableIndex = this.actionableTargets.indexOf(actionableInCell)
       if (actionableIndex !== -1) {
         this.currentItemIndex = actionableIndex
-        
+
         // Find which issue index this corresponds to within the cell
         const allIssueLinksInCell = this.getIssueLinksInSameCell(actionableInCell)
         const issueIndex = allIssueLinksInCell.indexOf(focusedElement)
@@ -384,5 +407,53 @@ export default class extends Controller {
       }
     }
     return false
+  }
+
+  isElementVisible(element) {
+    // Check if element is visible using multiple criteria
+    if (!element) return false
+
+    // Check if element or any parent is hidden
+    let current = element
+    while (current && current !== document.body) {
+      if (current.hidden ||
+          current.style.display === 'none' ||
+          current.style.visibility === 'hidden' ||
+          current.classList.contains('hidden')) {
+        return false
+      }
+      current = current.parentElement
+    }
+
+    // Check computed styles
+    const style = window.getComputedStyle(element)
+    if (style.display === 'none' ||
+        style.visibility === 'hidden' ||
+        style.opacity === '0') {
+      return false
+    }
+
+    // Check if element has actual dimensions
+    const rect = element.getBoundingClientRect()
+    return rect.width > 0 && rect.height > 0
+  }
+
+  isElementFocusable(element) {
+    // Check if element is focusable
+    if (!element) return false
+
+    // Check tabindex
+    const tabIndex = element.getAttribute('tabindex')
+    if (tabIndex === '-1') return false
+
+    // Check if element is disabled
+    if (element.disabled) return false
+
+    // Check if element is naturally focusable or has tabindex >= 0
+    const focusableElements = ['input', 'button', 'select', 'textarea', 'a']
+    const tagName = element.tagName.toLowerCase()
+
+    return focusableElements.includes(tagName) ||
+          (tabIndex !== null && parseInt(tabIndex) >= 0)
   }
 }

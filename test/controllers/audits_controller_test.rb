@@ -24,7 +24,7 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@user)
     get audit_url(@audit_session)
     assert_response :success
-    assert_select "h1", @audit_session.name
+    assert_select "h1", "#{@audit_session.name} - #{@audit_session.team.name}"
   end
 
   test "should get new" do
@@ -390,10 +390,10 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as(@user)
     # Update existing organization to be the dept of VA instead of creating a new one
     @organization.update!(github_login: "department-of-veterans-affairs")
-    
+
     get new_audit_url
     assert_response :success
-    # Should auto-select dept of VA  
+    # Should auto-select dept of VA
     # We can't use assigns anymore, so let's just verify the page loads correctly
     assert_select "form"
   end

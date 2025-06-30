@@ -55,7 +55,7 @@
       </td>
       <td class="px-3 py-4 text-sm whitespace-nowrap">
         <%= form_with url: toggle_status_audit_member_path(member, sort: params[:sort], direction: params[:direction]), method: :patch, local: true, data: { turbo_method: :patch, controller: "status-toggle", action: "submit->status-toggle#toggle" }, class: "inline-block" do |form| %>
-          <%= button_tag type: :submit, class: "cursor-pointer border-0 bg-transparent p-0 hover:opacity-75 hover:scale-105 transition-all duration-150", "data-keyboard-navigation-target": "actionable", "data-status-toggle-target": "button", "data-action": "keydown->status-toggle#handleKeydown" do %>
+          <%= button_tag type: :submit, class: "cursor-pointer border-0 bg-transparent p-0 hover:opacity-75 hover:scale-105 transition-all duration-150", "data-keyboard-navigation-target": "actionable", "data-status-toggle-target": "button" do %>
             <% if member.removed? %>
               <%= render StatusBadgeComponent.new(status: "removed") %>
             <% else %>
