@@ -47,6 +47,26 @@ class SortingLogicTest < ActiveSupport::TestCase
     assert_nil controller.send(:sort_column)
   end
 
+  test "sortable concern handles effective sort column for team members" do
+    controller = Class.new do
+      include Sortable
+      attr_accessor :params
+      def initialize; @params = {}; end
+    end.new
+
+    # Test with sort parameter
+    controller.params = { sort: "member" }
+    assert_equal "member", controller.effective_sort_column_for_team_members
+
+    # Test without sort parameter returns default "github"
+    controller.params = {}
+    assert_equal "github", controller.effective_sort_column_for_team_members
+
+    # Test with empty sort parameter returns default "github"
+    controller.params = { sort: "" }
+    assert_equal "github", controller.effective_sort_column_for_team_members
+  end
+
   test "audit controller apply_audit_sorting handles all columns" do
     controller = AuditsController.new
     controller.params = { sort: "name", direction: "asc" }
@@ -75,7 +95,7 @@ class SortingLogicTest < ActiveSupport::TestCase
     relation = AuditMember.joins(:team_member)
 
     # Test each sort column
-    %w[member role status first_seen last_seen].each do |column|
+    %w[github member role status first_seen last_seen comment issue].each do |column|
       controller.params = { sort: column, direction: "asc" }
       result = controller.send(:apply_team_member_sorting, relation)
       assert_not_nil result
