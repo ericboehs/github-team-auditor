@@ -114,7 +114,7 @@ class SortingLogicTest < ActiveSupport::TestCase
     # Mock team members relation
     relation = TeamMember.all
 
-    # Test each sort column
+    # Test each sort column (excluding comment and status which don't apply to teams)
     %w[github member role first_seen last_seen issue].each do |column|
       controller.params = { sort: column, direction: "asc" }
       result = controller.send(:apply_team_member_sorting, relation)
@@ -125,5 +125,30 @@ class SortingLogicTest < ActiveSupport::TestCase
       result = controller.send(:apply_team_member_sorting, relation)
       assert_not_nil result
     end
+
+    # Test that status and comment sorting are skipped for teams (returns relation without error)
+    %w[status comment].each do |column|
+      controller.params = { sort: column, direction: "asc" }
+      result = controller.send(:apply_team_member_sorting, relation)
+      # Should return a valid relation without error
+      assert_not_nil result
+      assert_respond_to result, :to_sql
+    end
+  end
+
+  test "team member sorting handles both direct and joined contexts" do
+    # Test direct TeamMember context
+    direct_controller = TeamsController.new
+    direct_controller.params = { sort: "github", direction: "asc" }
+    direct_relation = TeamMember.all
+    direct_result = direct_controller.send(:apply_team_member_sorting, direct_relation)
+    assert_not_nil direct_result
+
+    # Test joined AuditMember context
+    joined_controller = AuditsController.new
+    joined_controller.params = { sort: "github", direction: "asc" }
+    joined_relation = AuditMember.joins(:team_member)
+    joined_result = joined_controller.send(:apply_team_member_sorting, joined_relation)
+    assert_not_nil joined_result
   end
 end
