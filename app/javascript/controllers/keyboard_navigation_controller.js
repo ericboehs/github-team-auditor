@@ -5,6 +5,8 @@ export default class extends Controller {
 
   connect() {
     this.currentItemIndex = null
+    this.inIssueColumn = false
+    this.currentIssueIndex = 0
 
     // Add global keydown listener
     document.addEventListener("keydown", this.handleKeydown.bind(this))
@@ -81,8 +83,22 @@ export default class extends Controller {
   }
 
   moveNext() {
+    const currentItem = this.actionableTargets[this.currentItemIndex]
+
+    // Check if we're in an issues column and should navigate within it
+    if (this.isInIssuesColumn(currentItem)) {
+      const issueLinks = this.getIssueLinksInSameCell(currentItem)
+      if (issueLinks.length > 1 && this.currentIssueIndex < issueLinks.length - 1) {
+        this.currentIssueIndex++
+        this.focusIssueLink(issueLinks[this.currentIssueIndex])
+        return true
+      }
+    }
+
+    // Regular navigation to next column
     if (this.currentItemIndex < this.actionableTargets.length - 1) {
       this.currentItemIndex++
+      this.currentIssueIndex = 0 // Reset issue index when moving to different cell
       this.focusCurrentItem()
       return true
     }
@@ -91,6 +107,18 @@ export default class extends Controller {
 
   moveUp() {
     const currentItem = this.actionableTargets[this.currentItemIndex]
+
+    // Check if we're in an issues column and should navigate within it
+    if (this.isInIssuesColumn(currentItem)) {
+      const issueLinks = this.getIssueLinksInSameCell(currentItem)
+      if (issueLinks.length > 1 && this.currentIssueIndex > 0) {
+        this.currentIssueIndex--
+        this.focusIssueLink(issueLinks[this.currentIssueIndex])
+        return true
+      }
+    }
+
+    // Regular navigation to previous row
     const currentColumn = this.getColumnIndex(currentItem)
     const currentRow = this.getRowIndex(currentItem)
 
@@ -99,6 +127,7 @@ export default class extends Controller {
     if (targetItem) {
       const targetIndex = this.actionableTargets.indexOf(targetItem)
       this.currentItemIndex = targetIndex
+      this.currentIssueIndex = 0 // Reset issue index when moving to different row
       this.focusCurrentItem()
       return true
     }
@@ -107,6 +136,18 @@ export default class extends Controller {
 
   moveDown() {
     const currentItem = this.actionableTargets[this.currentItemIndex]
+
+    // Check if we're in an issues column and should navigate within it
+    if (this.isInIssuesColumn(currentItem)) {
+      const issueLinks = this.getIssueLinksInSameCell(currentItem)
+      if (issueLinks.length > 1 && this.currentIssueIndex < issueLinks.length - 1) {
+        this.currentIssueIndex++
+        this.focusIssueLink(issueLinks[this.currentIssueIndex])
+        return true
+      }
+    }
+
+    // Regular navigation to next row
     const currentColumn = this.getColumnIndex(currentItem)
     const currentRow = this.getRowIndex(currentItem)
 
@@ -115,6 +156,7 @@ export default class extends Controller {
     if (targetItem) {
       const targetIndex = this.actionableTargets.indexOf(targetItem)
       this.currentItemIndex = targetIndex
+      this.currentIssueIndex = 0 // Reset issue index when moving to different row
       this.focusCurrentItem()
       return true
     }
@@ -124,8 +166,57 @@ export default class extends Controller {
   focusCurrentItem() {
     const currentItem = this.actionableTargets[this.currentItemIndex]
     if (currentItem) {
+      // If we're in an issues column, focus on the appropriate issue link
+      if (this.isInIssuesColumn(currentItem)) {
+        const issueLinks = this.getIssueLinksInSameCell(currentItem)
+        if (issueLinks.length > 0) {
+          this.focusIssueLink(issueLinks[this.currentIssueIndex])
+          return
+        }
+      }
+
       currentItem.focus()
+
+      // Show tooltip if this is an access expires column
+      this.showTooltipIfAccessExpires(currentItem)
     }
+  }
+
+  focusIssueLink(issueLink) {
+    if (issueLink) {
+      issueLink.focus()
+    }
+  }
+
+  showTooltipIfAccessExpires(item) {
+    // Check if this item is in the access expires column (column index 4)
+    const columnIndex = this.getColumnIndex(item)
+    if (columnIndex === 4) { // Access expires column
+      // The tooltip will be shown automatically via focus event handler in the HTML
+      // No additional JavaScript needed since we added focus->tooltip#show to the element
+    }
+  }
+
+  isInIssuesColumn(item) {
+    // Check if this item is in the issues column (column index 3)
+    const columnIndex = this.getColumnIndex(item)
+    return columnIndex === 3
+  }
+
+  getIssueLinksInSameCell(item) {
+    const cell = item.closest('td')
+    if (!cell) return []
+
+    // Get all issue links and toggle buttons in this cell
+    const issueLinks = Array.from(cell.querySelectorAll('[data-keyboard-navigation-target="issue_link"]'))
+    const actionableInCell = cell.querySelector('[data-keyboard-navigation-target="actionable"]')
+
+    // Combine actionable item with issue links
+    const allLinks = []
+    if (actionableInCell) allLinks.push(actionableInCell)
+    allLinks.push(...issueLinks)
+
+    return allLinks
   }
 
   getColumnIndex(item) {

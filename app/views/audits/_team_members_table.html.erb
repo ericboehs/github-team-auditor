@@ -69,7 +69,7 @@
           <div data-controller="issue-list">
             <!-- Summary view (first 2 issues) -->
             <div data-issue-list-target="summary">
-              <% member.team_member.issue_correlations.order(issue_updated_at: :desc).limit(2).each do |issue| %>
+              <% member.team_member.issue_correlations.order(issue_updated_at: :desc).limit(2).each_with_index do |issue, index| %>
                 <div class="mb-1 flex items-center gap-1">
                   <% if issue.resolved? %>
                     <!-- Heroicons: check-circle outline (purple for resolved) -->
@@ -83,17 +83,22 @@
                     </svg>
                   <% end %>
                   <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
-                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number),
+                              class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded",
+                              tabindex: index == 0 ? "0" : "-1",
+                              data: { keyboard_navigation_target: index == 0 ? "actionable" : "issue_link" } %>
                 </div>
               <% end %>
               <% if member.team_member.issue_correlations.count > 2 %>
                 <button
                   type="button"
-                  class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                  class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
                   data-action="click->issue-list#toggle"
                   data-issue-list-target="toggleButton"
                   data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
-                  data-collapse-text="<%= t('common.show_less') %>">
+                  data-collapse-text="<%= t('common.show_less') %>"
+                  tabindex="-1"
+                  data-keyboard-navigation-target="issue_link">
                   +<%= member.team_member.issue_correlations.count - 2 %> more
                 </button>
               <% end %>
@@ -101,7 +106,7 @@
 
             <!-- Expanded view (all issues) -->
             <div data-issue-list-target="expanded" hidden>
-              <% member.team_member.issue_correlations.order(issue_updated_at: :desc).each do |issue| %>
+              <% member.team_member.issue_correlations.order(issue_updated_at: :desc).each_with_index do |issue, index| %>
                 <div class="mb-1 flex items-center gap-1">
                   <% if issue.resolved? %>
                     <!-- Heroicons: check-circle outline (purple for resolved) -->
@@ -115,16 +120,21 @@
                     </svg>
                   <% end %>
                   <%= link_to "##{issue.github_issue_number}", issue.github_issue_url,
-                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number), class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500" %>
+                              target: "_blank", "aria-label": t('accessibility.view_github_issue', number: issue.github_issue_number),
+                              class: "text-blue-800 dark:text-blue-600 hover:text-blue-700 dark:hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded",
+                              tabindex: index == 0 ? "0" : "-1",
+                              data: { keyboard_navigation_target: index == 0 ? "actionable" : "issue_link" } %>
                 </div>
               <% end %>
               <button
                 type="button"
-                class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer"
+                class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline cursor-pointer focus:outline-none focus:ring-2 focus:ring-2 focus:ring-blue-500 rounded"
                 data-action="click->issue-list#toggle"
                 data-issue-list-target="toggleButton"
                 data-expand-text="+<%= member.team_member.issue_correlations.count - 2 %> more"
-                data-collapse-text="<%= t('common.show_less') %>">
+                data-collapse-text="<%= t('common.show_less') %>"
+                tabindex="-1"
+                data-keyboard-navigation-target="issue_link">
                 <%= t('common.show_less') %>
               </button>
             </div>
@@ -135,7 +145,10 @@
       </td>
       <td class="px-3 py-4 text-sm whitespace-nowrap text-center">
         <div data-controller="tooltip" class="relative">
-          <div data-action="mouseenter->tooltip#show mouseleave->tooltip#hide" class="cursor-help">
+          <div data-action="mouseenter->tooltip#show mouseleave->tooltip#hide focus->tooltip#show blur->tooltip#hide"
+              class="cursor-help focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1 py-1"
+              tabindex="0"
+              data-keyboard-navigation-target="actionable">
             <% if member.team_member.access_expires_at %>
               <% if member.team_member.access_expired? %>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
