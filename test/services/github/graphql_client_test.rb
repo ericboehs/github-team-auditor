@@ -236,7 +236,7 @@ class Github::GraphqlClientTest < ActiveSupport::TestCase
     result = @client.send(:normalize_issue_data_from_graphql, issue_data)
 
     assert_equal "First comment\n\n---\n\nSecond comment", result[:comments]
-    assert_equal ["commenter1", "commenter2"], result[:comment_authors]
+    assert_equal [ "commenter1", "commenter2" ], result[:comment_authors]
     assert_equal "test_user", result[:user][:github_login]
   end
 

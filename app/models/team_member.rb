@@ -175,7 +175,7 @@ class TeamMember < ApplicationRecord
       # Return the latest date, giving priority to maintainer dates in case of ties
       latest_maintainer = maintainer_dates.max
       latest_fallback = fallback_dates.max
-      
+
       if latest_fallback && latest_maintainer && latest_fallback > latest_maintainer
         # Historical maintainer granted longer access - use that
         [ latest_fallback ]

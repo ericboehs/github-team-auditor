@@ -4,13 +4,13 @@ This directory contains custom rake tasks for managing the GitHub Team Auditor a
 
 ## Available Tasks
 
-### Job Management
+### Team Management
 
-#### `jobs:clear_failed`
+#### `teams:clear_failed_jobs`
 Clears all teams stuck in failed job states (sync or issue correlation).
 
 ```bash
-bin/rails jobs:clear_failed
+bin/rails teams:clear_failed_jobs
 ```
 
 **Use when:**
@@ -27,11 +27,11 @@ Done! Cleared 2 failed job states.
 All teams should be ready for new operations.
 ```
 
-#### `jobs:status`
+#### `teams:job_status`
 Shows the current job status for all teams with active job states.
 
 ```bash
-bin/rails jobs:status
+bin/rails teams:job_status
 ```
 
 **Use when:**

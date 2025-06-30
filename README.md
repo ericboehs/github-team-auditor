@@ -125,14 +125,14 @@ The application uses ViewComponent for UI components:
 
 ### Rake Tasks
 
-Custom rake tasks for application management:
+Custom rake tasks for team management:
 
 ```bash
 # Clear teams stuck in failed job states
-bin/rails jobs:clear_failed
+bin/rails teams:clear_failed_jobs
 
 # Show current job status for all teams
-bin/rails jobs:status
+bin/rails teams:job_status
 ```
 
 For full documentation: **[Rake Tasks](lib/tasks/README.md)**
