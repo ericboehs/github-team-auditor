@@ -7,6 +7,7 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
     @mock_controller = Object.new
     def @mock_controller.sort_column; @sort_column; end
     def @mock_controller.sort_direction; @sort_direction || "asc"; end
+    def @mock_controller.effective_sort_column_for_team_members; @sort_column || "github"; end
     def @mock_controller.set_sort(column, direction); @sort_column = column; @sort_direction = direction; end
   end
 
@@ -129,5 +130,54 @@ class SortableHelperUnitTest < ActiveSupport::TestCase
     result = send(:chevron_up_down_icon)
     assert_includes result, "<svg"
     assert_includes result, "fill-rule"
+  end
+
+  test "team_member_sort_link defaults to github when no sort is set" do
+    @mock_controller.set_sort(nil, "asc")
+    def url_for(options)
+      "/test?#{options.to_query}"
+    end
+    def link_to(url, options = {})
+      # Should show active styling for github column since it's the default
+      assert_includes options[:class], "text-gray-700 dark:text-gray-300"
+      yield if block_given?
+    end
+    def content_tag(tag, content, options = {})
+      content
+    end
+
+    result = team_member_sort_link("github", "GitHub")
+    assert_includes result, "GitHub"
+  end
+
+  test "team_member_sort_link handles url generation error gracefully" do
+    @mock_controller.set_sort(nil, "asc")
+    def url_for(options)
+      raise ActionController::UrlGenerationError, "No route matches"
+    end
+    def content_tag(tag, content, options = {})
+      "<#{tag} class='#{options[:class]}'>#{content}</#{tag}>"
+    end
+
+    result = team_member_sort_link("member", "Member")
+    assert_includes result, "Member"
+    assert_includes result, "span"
+  end
+
+  test "team_member_sort_link shows active styling for effective column" do
+    @mock_controller.set_sort("member", "desc")
+    def url_for(options)
+      "/test?#{options.to_query}"
+    end
+    def link_to(url, options = {})
+      assert_includes options[:class], "text-gray-700 dark:text-gray-300"
+      yield if block_given?
+    end
+    def content_tag(tag, content, options = {})
+      content
+    end
+
+    result = team_member_sort_link("member", "Member")
+    assert_includes result, "Member"
   end
 end

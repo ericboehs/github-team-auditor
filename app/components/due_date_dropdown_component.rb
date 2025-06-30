@@ -25,11 +25,12 @@ class DueDateDropdownComponent < ViewComponent::Base
   end
 
   def formatted_due_date
-    if audit_session.due_date.year == Date.current.year
+    date_str = if audit_session.due_date.year == Date.current.year
       audit_session.due_date.strftime("%b %d")
     else
       audit_session.due_date.strftime("%b %d, %Y")
     end
+    "Due: #{date_str}"
   end
 
   def calendar_icon

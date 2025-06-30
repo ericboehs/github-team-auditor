@@ -278,6 +278,18 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to audit_path(@audit_session)
   end
 
+  test "should sort by comment ascending" do
+    sign_in_as(@user)
+    get audit_path(@audit_session), params: { sort: "comment", direction: "asc" }
+    assert_response :success
+  end
+
+  test "should sort by comment descending" do
+    sign_in_as(@user)
+    get audit_path(@audit_session), params: { sort: "comment", direction: "desc" }
+    assert_response :success
+  end
+
   private
 
   def sign_in_as(user)

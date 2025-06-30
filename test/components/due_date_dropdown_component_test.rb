@@ -25,9 +25,18 @@ class DueDateDropdownComponentTest < ViewComponent::TestCase
     component = DueDateDropdownComponent.new(audit_session: @audit_session)
     render_inline(component)
 
-    assert_selector "button", text: /Dec 25, 2024/
+    assert_selector "button", text: /Due: Dec 25, 2024/
     assert_selector "input[type='date'][value='2024-12-25']"
     assert_selector "button", text: "Clear"
+  end
+
+  def test_renders_due_prefix_for_current_year
+    due_date = Date.new(Date.current.year, 12, 25)
+    @audit_session.update!(due_date: due_date)
+    component = DueDateDropdownComponent.new(audit_session: @audit_session)
+    render_inline(component)
+
+    assert_selector "button", text: /Due: Dec 25/
   end
 
   def test_form_submission_updates_due_date

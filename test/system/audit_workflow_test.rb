@@ -168,6 +168,41 @@ class AuditWorkflowTest < ApplicationSystemTestCase
     assert_selector "#due-date-form", visible: false
   end
 
+  test "due date dropdown remains open when interacting with date field" do
+    audit_session = AuditSession.create!(
+      name: "Test Due Date Dropdown Persistence",
+      organization: @organization,
+      team: @team,
+      user: @user,
+      status: "active"
+    )
+
+    sign_in_as(@user)
+    visit audit_path(audit_session)
+
+    # Click Set Due Date button to open dropdown
+    click_button "Set Due Date"
+
+    # Form should be visible
+    assert_selector "#due-date-form", visible: true
+
+    # Focus on the date field (simulates mobile interaction)
+    find("#audit_session_due_date").click
+
+    # Wait a moment to allow any premature close events
+    sleep(0.2)
+
+    # Form should still be visible - dropdown should not have closed
+    assert_selector "#due-date-form", visible: true
+
+    # Set a date and save
+    fill_in "audit_session_due_date", with: "2025-12-31"
+    click_button "Save"
+
+    # Should successfully save and show success message
+    assert_text I18n.t("flash.audits.updated")
+  end
+
   private
 
   def sign_in_as(user)
