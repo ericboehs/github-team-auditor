@@ -127,9 +127,10 @@ class SortableTest < ActiveSupport::TestCase
     relation = TeamMember.where(team: @team)
     result = @controller.send(:apply_team_member_sorting, relation)
 
-    # Should include subquery for issues
+    # Should include subquery for issues using most recently updated issue
     assert_includes result.to_sql, "issue_correlations"
-    assert_includes result.to_sql, "MIN(github_issue_number)"
+    assert_includes result.to_sql, "ROW_NUMBER"
+    assert_includes result.to_sql, "issue_updated_at DESC"
     assert_includes result.to_sql, "ASC"
     assert_includes result.to_sql, "NULLS FIRST"
   end

@@ -81,8 +81,9 @@ export default class extends Controller {
   }
 
   initializeNavigation() {
-    // Start at the first actionable item
+    // Start at the first actionable item and focus it
     this.currentItemIndex = 0
+    this.currentIssueIndex = 0
     this.focusCurrentItem()
   }
 
@@ -295,12 +296,8 @@ export default class extends Controller {
   }
 
   autoInitializeNavigation() {
-    // Auto-focus the first actionable element to enable immediate keyboard navigation
-    if (this.actionableTargets.length > 0) {
-      this.currentItemIndex = 0
-      // Don't actually focus visually, just set up the state for keyboard navigation
-      // This way users won't see an unexpected focus ring on page load
-    }
+    // Don't auto-initialize the index anymore - let the first Ctrl+J/L do the initialization
+    // This ensures the first keyboard navigation visually focuses the first element
   }
 
   isExpandToggleButton(element) {
