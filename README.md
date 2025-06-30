@@ -123,6 +123,20 @@ The application uses ViewComponent for UI components:
 - `AlertComponent` for flash messages and errors
 - `UserPageComponent` for profile page layouts
 
+### Rake Tasks
+
+Custom rake tasks for application management:
+
+```bash
+# Clear teams stuck in failed job states
+bin/rails jobs:clear_failed
+
+# Show current job status for all teams
+bin/rails jobs:status
+```
+
+For full documentation: **[Rake Tasks](lib/tasks/README.md)**
+
 ### Detailed Documentation
 
 For comprehensive guides on specific aspects of the application:
@@ -130,6 +144,7 @@ For comprehensive guides on specific aspects of the application:
 - **[App Components](app/components/README.md)** - ViewComponent architecture and reusable UI components
 - **[Background Jobs](app/jobs/README.md)** - Job architecture, real-time updates, and error handling
 - **[Services](app/services/README.md)** - Business logic services and GitHub API integration
+- **[Rake Tasks](lib/tasks/README.md)** - Custom rake tasks for application management
 - **[Development Guide](docs/development.md)** - Complete development setup and workflow
 - **[GitHub API Integration](docs/api_integration.md)** - Detailed API client documentation and usage
 - **[Job Architecture](docs/job_architecture.md)** - Background job patterns and shared concerns
