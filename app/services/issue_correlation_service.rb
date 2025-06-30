@@ -59,7 +59,7 @@ class IssueCorrelationService
         issue_updated_at: issue[:updated_at],
         issue_author: issue.dig(:user, :github_login),
         comments: issue[:comments],
-        comment_authors: issue[:comment_authors]&.to_json,
+        comment_authors: issue[:comment_authors],
         created_at: existing&.created_at || current_time,
         updated_at: current_time
       }
