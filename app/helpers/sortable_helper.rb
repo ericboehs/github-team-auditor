@@ -34,8 +34,7 @@ module SortableHelper
       link_to(target_url,
               class: css_class,
               data: {
-                turbo_frame: "sortable-table",
-                action: "click->sort-link#updateUrl"
+                turbo_frame: "sortable-table"
               }) do
         content = title.dup
 
