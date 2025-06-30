@@ -31,9 +31,15 @@ module SortableHelper
       permitted_params = path_params.respond_to?(:permit) ? path_params.to_unsafe_h : path_params
       link_params = permitted_params.merge(sort: column, direction: direction)
 
-      # Always use audit_path when we have an audit ID to avoid route confusion
+      # Use appropriate path based on controller context
       target_url = if link_params[:id]
-        audit_path(link_params[:id], link_params.except(:id))
+        if controller.is_a?(AuditsController)
+          audit_path(link_params[:id], link_params.except(:id))
+        elsif controller.is_a?(TeamsController)
+          team_path(link_params[:id], link_params.except(:id))
+        else
+          url_for(link_params)
+        end
       else
         url_for(link_params)
       end
