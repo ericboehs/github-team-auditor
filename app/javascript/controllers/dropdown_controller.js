@@ -7,6 +7,7 @@ export default class extends Controller {
     this.close = this.close.bind(this)
     this.closeOnGlobalEvent = this.closeOnGlobalEvent.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
+    this.handleFocusOut = this.handleFocusOut.bind(this)
 
     // Listen for global dropdown open events
     document.addEventListener("dropdown:open", this.closeOnGlobalEvent)
@@ -42,6 +43,7 @@ export default class extends Controller {
     // Add event listeners
     document.addEventListener("click", this.close)
     document.addEventListener("keydown", this.handleKeydown)
+    document.addEventListener("focusout", this.handleFocusOut)
   }
 
   closeOnGlobalEvent(event) {
@@ -63,6 +65,7 @@ export default class extends Controller {
     // Remove event listeners
     document.removeEventListener("click", this.close)
     document.removeEventListener("keydown", this.handleKeydown)
+    document.removeEventListener("focusout", this.handleFocusOut)
   }
 
   close(event) {
@@ -160,9 +163,25 @@ export default class extends Controller {
     return menuItems.findIndex(item => item === document.activeElement)
   }
 
+  handleFocusOut(event) {
+    // Use setTimeout to allow focus to move to the new element first
+    setTimeout(() => {
+      // Don't close if date field is currently active (mobile date picker interaction)
+      if (this.dateFieldActive) {
+        return
+      }
+
+      // Check if focus has moved outside the dropdown
+      if (this.isOpen() && !this.element.contains(document.activeElement)) {
+        this.closeMenu()
+      }
+    }, 0)
+  }
+
   disconnect() {
     document.removeEventListener("click", this.close)
     document.removeEventListener("keydown", this.handleKeydown)
+    document.removeEventListener("focusout", this.handleFocusOut)
     document.removeEventListener("dropdown:open", this.closeOnGlobalEvent)
   }
 }
