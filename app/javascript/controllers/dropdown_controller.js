@@ -83,10 +83,81 @@ export default class extends Controller {
   handleKeydown(event) {
     if (!this.isOpen()) return
 
-    if (event.key === "Escape") {
-      event.preventDefault()
-      this.closeMenu()
+    switch (event.key) {
+      case "Escape":
+        event.preventDefault()
+        this.closeMenu()
+        break
+      case "ArrowDown":
+        event.preventDefault()
+        this.focusNextMenuItem()
+        break
+      case "ArrowUp":
+        event.preventDefault()
+        this.focusPreviousMenuItem()
+        break
+      case "Home":
+        event.preventDefault()
+        this.focusFirstMenuItem()
+        break
+      case "End":
+        event.preventDefault()
+        this.focusLastMenuItem()
+        break
     }
+  }
+
+  focusFirstMenuItem() {
+    const menuItems = this.getMenuItems()
+    if (menuItems.length > 0) {
+      menuItems[0].focus()
+    }
+  }
+
+  focusLastMenuItem() {
+    const menuItems = this.getMenuItems()
+    if (menuItems.length > 0) {
+      menuItems[menuItems.length - 1].focus()
+    }
+  }
+
+  focusNextMenuItem() {
+    const menuItems = this.getMenuItems()
+    const currentIndex = this.getCurrentMenuItemIndex(menuItems)
+
+    if (currentIndex === -1) {
+      // No item focused, focus first item
+      if (menuItems.length > 0) {
+        menuItems[0].focus()
+      }
+    } else if (currentIndex < menuItems.length - 1) {
+      // Focus next item
+      menuItems[currentIndex + 1].focus()
+    }
+  }
+
+  focusPreviousMenuItem() {
+    const menuItems = this.getMenuItems()
+    const currentIndex = this.getCurrentMenuItemIndex(menuItems)
+
+    if (currentIndex === -1) {
+      // No item focused, focus last item
+      if (menuItems.length > 0) {
+        menuItems[menuItems.length - 1].focus()
+      }
+    } else if (currentIndex > 0) {
+      // Focus previous item
+      menuItems[currentIndex - 1].focus()
+    }
+  }
+
+  getMenuItems() {
+    // Get all focusable menu items, excluding dividers
+    return Array.from(this.menuTarget.querySelectorAll('[role="menuitem"]:not([disabled])'))
+  }
+
+  getCurrentMenuItemIndex(menuItems) {
+    return menuItems.findIndex(item => item === document.activeElement)
   }
 
   disconnect() {
