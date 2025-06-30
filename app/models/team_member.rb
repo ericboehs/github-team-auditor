@@ -59,15 +59,15 @@ class TeamMember < ApplicationRecord
   # Extract the latest expiration date from all issue descriptions and comments
   def extract_latest_expiration_date
     dates = []
-    
+
     issue_correlations.each do |issue|
       # Extract from issue description
       dates.concat(extract_expiration_dates_from_text(issue.description.to_s))
-      
-      # Extract from issue comments
-      dates.concat(extract_expiration_dates_from_text(issue.comments.to_s))
+
+      # Extract from issue comments (with relative date calculation and maintainer check)
+      dates.concat(extract_expiration_dates_from_comments_with_maintainer_check(issue))
     end
-    
+
     dates.compact.max
   end
 
@@ -112,6 +112,112 @@ class TeamMember < ApplicationRecord
     end
 
     dates.compact
+  end
+
+  # Extract expiration dates from comments, including relative date calculations
+  def extract_expiration_dates_from_comments(comments_text, reference_date = nil)
+    return [] if comments_text.blank?
+
+    dates = []
+
+    # First try absolute date patterns
+    dates.concat(extract_expiration_dates_from_text(comments_text))
+
+    # If no absolute dates found, try relative patterns
+    if dates.empty? && reference_date
+      dates.concat(extract_relative_expiration_dates(comments_text, reference_date))
+    end
+
+    dates
+  end
+
+  # Extract expiration dates from comments, only considering comments by team maintainers
+  def extract_expiration_dates_from_comments_with_maintainer_check(issue)
+    return [] if issue.comments.blank? || issue.comment_authors.blank?
+
+    dates = []
+
+    # Get team maintainer usernames
+    maintainer_usernames = team.team_members.where(maintainer_role: true).pluck(:github_login).map(&:downcase)
+
+    # Split comments by separator and check each comment with its author
+    comment_parts = issue.comments.split("\n\n---\n\n")
+    comment_authors = issue.comment_authors || []
+
+    # Get issue author to exclude from fallback
+    issue_author = issue.issue_author&.downcase
+
+    comment_parts.each_with_index do |comment_text, index|
+      # Skip if we don't have author info for this comment
+      next if index >= comment_authors.length
+
+      comment_author = comment_authors[index]&.downcase
+
+      # First priority: Extract dates from comments by current team maintainers
+      if maintainer_usernames.include?(comment_author)
+        dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
+      end
+    end
+
+    # If no dates found from current maintainers, fall back to checking all comments
+    # but exclude comments from the original issue author to reduce false positives
+    if dates.empty?
+      comment_parts.each_with_index do |comment_text, index|
+        # Skip if we don't have author info for this comment
+        next if index >= comment_authors.length
+
+        comment_author = comment_authors[index]&.downcase
+
+        # Skip comments from the issue author (original reporter)
+        next if comment_author == issue_author
+
+        # Extract dates from any other commenter (historical maintainers, etc.)
+        dates.concat(extract_expiration_dates_from_comments(comment_text, issue.issue_created_at))
+      end
+    end
+
+    dates
+  end
+
+  # Extract relative expiration dates from text (e.g., "approved for 6 months")
+  def extract_relative_expiration_dates(text, reference_date)
+    return [] if text.blank? || reference_date.blank?
+
+    dates = []
+    reference_date = reference_date.to_date if reference_date.respond_to?(:to_date)
+
+    # Pattern 1: "approved for X months", "granted you X months access", "given X months approval"
+    text.scan(/(?:approved|granted|given)(?:\s+you)?(?:\s+for)?\s+(\d+)\s+months?\s+(?:of\s+)?(?:access|approval)/i) do |match|
+      months = match[0].to_i
+      if months > 0 && months <= 24 # Reasonable range
+        expiration_date = reference_date + months.months
+        dates << expiration_date unless dates.include?(expiration_date)
+      end
+    end
+
+    # Pattern 2: "access for X months", "valid for X months" (but not if it was caught by pattern 1)
+    unless dates.any?
+      text.scan(/(?:access|valid)\s+for\s+(\d+)\s+months?/i) do |match|
+        months = match[0].to_i
+        if months > 0 && months <= 24
+          expiration_date = reference_date + months.months
+          dates << expiration_date unless dates.include?(expiration_date)
+        end
+      end
+    end
+
+    # Pattern 3: "X month approval", "X-month access" (only if no other patterns matched)
+    unless dates.any?
+      text.scan(/(\d+)[-\s]months?\s+(?:approval|access|extension)/i) do |match|
+        months = match[0].to_i
+        if months > 0 && months <= 24
+          expiration_date = reference_date + months.months
+          dates << expiration_date unless dates.include?(expiration_date)
+        end
+      end
+    end
+
+    dates.compact.uniq
   end
 
   # Parse various date string formats into Date objects

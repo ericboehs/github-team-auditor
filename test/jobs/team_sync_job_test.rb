@@ -79,4 +79,47 @@ class TeamSyncJobTest < ActiveJob::TestCase
 
     mock_service.verify
   end
+
+  test "handle_team_not_found_error with nil team" do
+    # Test line 61: @team&.update! when @team is nil
+    job = TeamSyncJob.new
+    job.instance_variable_set(:@team, nil)
+
+    error = ActiveRecord::RecordNotFound.new("Team not found")
+
+    # Should not raise error even with nil team
+    assert_nothing_raised do
+      job.send(:handle_team_not_found_error, error)
+    end
+  end
+
+  test "handle_sync_error with nil team" do
+    # Test lines 66 and 69: @team&.update! and broadcast_job_error when @team is nil
+    job = TeamSyncJob.new
+    job.instance_variable_set(:@team, nil)
+
+    error = StandardError.new("Sync error")
+
+    # Should not raise error or broadcast when team is nil
+    assert_nothing_raised do
+      job.send(:handle_sync_error, error)
+    end
+  end
+
+  test "handle_sync_error with valid team broadcasts error" do
+    # Test line 69: broadcast_job_error when @team is present
+    job = TeamSyncJob.new
+    job.instance_variable_set(:@team, @team)
+
+    # Mock the broadcast method to avoid actual broadcasting
+    broadcast_called = false
+    job.define_singleton_method(:broadcast_job_error) { |team, error| broadcast_called = true }
+
+    error = StandardError.new("Sync error")
+
+    job.send(:handle_sync_error, error)
+
+    assert broadcast_called, "broadcast_job_error should be called when team is present"
+    assert_equal "failed", @team.reload.sync_status
+  end
 end

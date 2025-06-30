@@ -239,6 +239,36 @@ class IssueCorrelationFinderJobTest < ActiveJob::TestCase
     end
   end
 
+  test "job raises configuration error without retry" do
+    # Test L9: don't retry on configuration errors
+    job = IssueCorrelationFinderJob.new
+    config_error = Github::GraphqlClient::ConfigurationError.new("Missing token")
+
+    job.define_singleton_method(:setup_job) { |*args| raise config_error }
+
+    # Should not be retried, just raised
+    assert_raises(Github::GraphqlClient::ConfigurationError) do
+      job.perform(@team.id)
+    end
+  end
+
+  test "handle_job_error handles nil team gracefully" do
+    # Test L82: @team&.update! when @team is nil
+    job = IssueCorrelationFinderJob.new
+    job.instance_variable_set(:@team, nil) # Set team to nil
+
+    error = StandardError.new("Test error")
+    error.set_backtrace([ "line1" ])
+
+    # Define minimal broadcast method to avoid errors
+    def job.broadcast_job_error(*args); end
+
+    # Should not raise error even with nil team
+    assert_nothing_raised do
+      job.send(:handle_job_error, error)
+    end
+  end
+
   # Note: Testing retry_on and discard_on behavior is complex in ActiveJob
   # The functionality is tested at the framework level and configured correctly in the job class
 end

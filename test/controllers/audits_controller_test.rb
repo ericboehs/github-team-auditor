@@ -290,6 +290,56 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "new with team_id but no team selection" do
+    sign_in_as(@user)
+    # Test lines 55-56: when team_id provided but most_recent_team is nil
+    team_without_sync = @organization.teams.create!(
+      name: "Team Without Sync",
+      github_slug: "no-sync",
+      sync_completed_at: nil
+    )
+
+    get new_audit_url(team_id: team_without_sync.id)
+    assert_response :success
+    # Should not crash when most_recent_team is nil
+  end
+
+  test "new with single organization but no recently synced teams" do
+    sign_in_as(@user)
+    # Test lines 61-62: when single organization but no teams with sync_completed_at
+    Organization.where.not(id: @organization.id).destroy_all
+    @organization.teams.update_all(sync_completed_at: nil)
+
+    get new_audit_url
+    assert_response :success
+    # Should not crash when most_recent_team is nil
+  end
+
+  test "new with multiple organizations" do
+    sign_in_as(@user)
+    # Test lines 63-65: when multiple organizations exist
+    Organization.create!(name: "Other Org", github_login: "other-org")
+
+    get new_audit_url
+    assert_response :success
+    # Should set @teams to [] when multiple organizations exist
+  end
+
+  test "toggle status to unknown status uses else branch" do
+    sign_in_as(@user)
+    @audit_session.update!(status: "active")
+
+    # Force an unknown status to test line 128
+    @audit_session.update_column(:status, "unknown_status")
+
+    patch toggle_status_audit_path(@audit_session), params: { status: "unknown_status" }
+
+    @audit_session.reload
+    # Should use "marked_active" as the notice key for unknown status
+    assert_redirected_to audit_path(@audit_session)
+    assert_equal I18n.t("flash.audits.marked_active"), flash[:success]
+  end
+
   private
 
   def sign_in_as(user)

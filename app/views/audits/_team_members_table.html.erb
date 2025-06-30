@@ -22,9 +22,6 @@
         <%= team_member_sort_link("first_seen", t('common.first_seen'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5">
-        <%= team_member_sort_link("last_seen", t('common.last_seen'), { id: @audit_session.id }) %>
-      </th>
-      <th scope="col" class="px-3 py-3.5">
         <%= team_member_sort_link("access_expires", t('common.access_expires'), { id: @audit_session.id }) %>
       </th>
       <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6 w-64 sm:w-64 lg:w-80">
@@ -151,29 +148,6 @@
           <% else %>
             <%= member.team_member.first_seen_at.strftime("%b %d, %Y") %>
           <% end %>
-        <% else %>
-          -
-        <% end %>
-      </td>
-      <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 text-center">
-        <% if member.team_member.last_seen_at %>
-          <%
-            months_ago = ((Date.current - member.team_member.last_seen_at.to_date) / 30.44).round
-            highlight_class = if member.validation_status == "pending" && months_ago > 6
-                              "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 px-2 py-1 rounded"
-                            elsif member.validation_status == "pending" && months_ago > 5
-                              "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 px-2 py-1 rounded"
-                            else
-                              ""
-                            end
-          %>
-          <span class="<%= highlight_class %>">
-            <% if member.team_member.last_seen_at.year == Date.current.year %>
-              <%= member.team_member.last_seen_at.strftime("%b %d") %>
-            <% else %>
-              <%= member.team_member.last_seen_at.strftime("%b %d, %Y") %>
-            <% end %>
-          </span>
         <% else %>
           -
         <% end %>
