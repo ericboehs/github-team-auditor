@@ -36,6 +36,7 @@ env:
   secret:
     - RAILS_MASTER_KEY
     - GHTA_GITHUB_TOKEN
+    - SENTRY_DSN
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
@@ -97,15 +98,16 @@ accessories:
   bugsink:
     image: bugsink/bugsink:latest
     host: 198.23.249.132
-    port: 8000
+    port: "8000:8000"
     env:
       clear:
         PORT: 8000
+        BUGSINK_DATABASE_NAME: /data/bugsink.sqlite3
       secret:
+        - SECRET_KEY
         - CREATE_SUPERUSER
-        - BUGSINK_SECRET_KEY
     directories:
-      - bugsink_db:/app/db
+      - bugsink_data:/data
 
 #   db:
 #     image: mysql:8.0
