@@ -6,6 +6,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- Favicon -->
+    <%= favicon_link_tag "/icon.png" %>
+
     <!-- Theme color for iOS Safari status bar -->
     <meta name="theme-color" content="#1c2d4e" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
@@ -19,7 +22,6 @@
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
