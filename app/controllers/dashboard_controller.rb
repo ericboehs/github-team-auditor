@@ -6,4 +6,8 @@ class DashboardController < ApplicationController
     @recent_audits = AuditSession.includes(:team).order(created_at: :desc).limit(5)
     @teams_needing_sync = Team.where("sync_completed_at < ? OR sync_completed_at IS NULL", 7.days.ago).limit(5)
   end
+
+  def test_exception
+    raise StandardError, "This is a test exception for Sentry/Bugsink integration"
+  end
 end

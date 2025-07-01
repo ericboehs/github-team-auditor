@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   end
   resource :user, only: [ :show, :edit, :update ]
   get "dashboard/index"
+  get "dashboard/test_exception"
   resource :session
   resources :passwords, param: :token
   resources :users, only: [ :new, :create ]
