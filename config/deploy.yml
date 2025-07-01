@@ -93,7 +93,20 @@ builder:
 #   user: app
 
 # Use accessory services (secrets come from .kamal/secrets).
-# accessories:
+accessories:
+  bugsink:
+    image: bugsink/bugsink:latest
+    host: 198.23.249.132
+    port: 8000
+    env:
+      clear:
+        PORT: 8000
+      secret:
+        - CREATE_SUPERUSER
+        - BUGSINK_SECRET_KEY
+    directories:
+      - bugsink_db:/app/db
+
 #   db:
 #     image: mysql:8.0
 #     host: 192.168.0.2
