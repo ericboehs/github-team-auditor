@@ -77,38 +77,42 @@ GitHub Team Auditor streamlines the process of conducting security audits on Git
 - Ruby 3.2+
 - Rails 8.0.2+
 - SQLite3
-- GitHub Personal Access Token with appropriate permissions
+- GitHub Personal Access Token (classic) with `repo` and `read:org` scopes
 
 ### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd github-team-auditor
-   ```
+  ```bash
+  git clone <repository-url>
+  cd github-team-auditor
+  ```
 
 2. Install dependencies and set up the database:
-   ```bash
-   bin/setup
-   ```
+  ```bash
+  bin/setup
+  ```
 
-3. Configure your GitHub API credentials:
-   ```bash
-   bin/rails credentials:edit
-   ```
+3. Configure your GitHub API token:
+  ```bash
+  # Using direnv (recommended)
+  echo "export GHTA_GITHUB_TOKEN=your_github_personal_access_token" >> .envrc
+  direnv allow
+  ```
    
-   Add your GitHub configuration:
-   ```yaml
-   github:
-     client_id: your_github_app_client_id
-     client_secret: your_github_app_client_secret
-     personal_access_token: your_personal_access_token
-   ```
+  Or set environment variable directly:
+  ```bash
+  export GHTA_GITHUB_TOKEN=your_github_personal_access_token
+  ```
+   
+  Or add to your `.env` file:
+  ```
+  GHTA_GITHUB_TOKEN=your_github_personal_access_token
+  ```
 
 4. Start the development server:
-   ```bash
-   bin/rails server
-   ```
+  ```bash
+  bin/dev
+  ```
 
 5. Visit `http://localhost:3000` and create your first user account
 
@@ -133,12 +137,12 @@ GitHub Team Auditor streamlines the process of conducting security audits on Git
 ### Conducting the Audit
 
 1. **Review each member** by clicking through the status badges:
-   - **Pending** (yellow) → **Validated** (green) → **Removed** (red)
+  - **Pending** (yellow) → **Validated** (green) → **Removed** (red)
 2. **Add notes** for any members requiring explanation
 3. **Use keyboard shortcuts** for faster navigation:
-   - `Ctrl + h/l` - Navigate left/right between columns
-   - `Ctrl + j/k` - Navigate up/down between rows  
-   - `Ctrl + /` - Show keyboard shortcuts help
+  - `Ctrl + h/l` - Navigate left/right between columns
+  - `Ctrl + j/k` - Navigate up/down between rows  
+  - `Ctrl + /` - Show keyboard shortcuts help
 4. **Track progress** using the stats widgets at the top
 
 ### Team Management
@@ -192,7 +196,7 @@ bin/coverage
 
 ## Documentation
 
-For detailed technical documentation:
+### For Developers
 
 - **[App Components](app/components/README.md)** - ViewComponent architecture and reusable UI components
 - **[Background Jobs](app/jobs/README.md)** - Job architecture, real-time updates, and error handling  
@@ -200,6 +204,19 @@ For detailed technical documentation:
 - **[Development Guide](docs/development.md)** - Complete development setup and workflow
 - **[GitHub API Integration](docs/api_integration.md)** - API client documentation and usage
 - **[Real-time Features](docs/real_time_features.md)** - Turbo Streams, ActionCable, and live UI updates
+- **[Authentication System](docs/authentication.md)** - Session-based auth, security features, and component usage
+- **[Testing Guide](docs/testing.md)** - Test strategy, coverage requirements, and best practices  
+- **[Job Architecture](docs/job_architecture.md)** - Detailed background job implementation and patterns
+
+### For Users & Product Management
+
+- **[User Guide](docs/user_guide.md)** - Complete end-user documentation and workflows
+- **[Product Requirements](docs/PRD.md)** - Feature specifications and product goals
+
+### For Contributors
+
+- **[Developer Tools](bin/README.md)** - CI scripts and development utilities
+- **[Rake Tasks](lib/tasks/README.md)** - Custom management tasks and commands
 
 ## Contributing
 
