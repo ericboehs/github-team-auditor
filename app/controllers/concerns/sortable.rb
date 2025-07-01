@@ -86,18 +86,29 @@ module Sortable
         relation.order(Arel.sql("COALESCE(NULLIF(TRIM(audit_members.notes), ''), NULL) #{direction} #{nulls_position}"))
       end
     when "issue"
-      # Sort by first (lowest/earliest) GitHub issue number
+      # Sort by the GitHub issue number of the most recently updated issue
       direction = sort_direction == "asc" ? "ASC" : "DESC"
       nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
 
       table_ref = "team_members.id"
       relation.joins(
         "LEFT JOIN (
-          SELECT team_member_id, MIN(github_issue_number) as first_issue_number
+          SELECT team_member_id,
+                github_issue_number,
+                ROW_NUMBER() OVER (PARTITION BY team_member_id ORDER BY issue_updated_at DESC) as rn
           FROM issue_correlations
-          GROUP BY team_member_id
-        ) ic_issue_agg ON ic_issue_agg.team_member_id = #{table_ref}"
-      ).order(Arel.sql("ic_issue_agg.first_issue_number #{direction} #{nulls_position}"))
+        ) ic_ranked ON ic_ranked.team_member_id = #{table_ref} AND ic_ranked.rn = 1"
+      ).order(Arel.sql("ic_ranked.github_issue_number #{direction} #{nulls_position}"))
+    when "access_expires"
+      # Sort by access expiration date
+      direction = sort_direction == "asc" ? "ASC" : "DESC"
+      nulls_position = sort_direction == "asc" ? "NULLS FIRST" : "NULLS LAST"
+
+      if is_team_member_direct
+        relation.order(Arel.sql("team_members.access_expires_at #{direction} #{nulls_position}"))
+      else
+        relation.order(Arel.sql("team_members.access_expires_at #{direction} #{nulls_position}"))
+      end
     else
       # Default sorting
       if is_team_member_direct

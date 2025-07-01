@@ -235,4 +235,63 @@ class IssueCorrelationServiceTest < ActiveSupport::TestCase
       Turbo::StreamsChannel.define_singleton_method(:broadcast_replace_to, original_method)
     end
   end
+
+  test "update_correlations_for_member handles access expiration extraction error" do
+    service = IssueCorrelationService.new(
+      @team,
+      search_terms: "access",
+      exclusion_terms: "test",
+      repository: "test/repo"
+    )
+
+    # Mock the team member to raise an error during access expiration extraction
+    @team_member.define_singleton_method(:extract_and_update_access_expires_at!) do
+      raise StandardError, "Extraction failed"
+    end
+
+    # Should not raise the error - should catch and log it
+    assert_nothing_raised do
+      service.send(:update_correlations_for_member, @team_member, [])
+    end
+  end
+
+  test "fetch_comments_for_issues with no correlations returns early" do
+    service = IssueCorrelationService.new(
+      @team,
+      search_terms: "access",
+      exclusion_terms: "test",
+      repository: "test/repo"
+    )
+
+    # Create a team member with no issue correlations
+    empty_member = TeamMember.create!(
+      team: @team,
+      github_login: "empty_user",
+      name: "Empty User"
+    )
+
+    # Should return early without making API calls
+    assert_nothing_raised do
+      service.send(:fetch_comments_for_issues, empty_member)
+    end
+  end
+
+  test "extract_repo_name_from_url handles various URL formats" do
+    service = IssueCorrelationService.new(
+      @team,
+      search_terms: "access",
+      exclusion_terms: "test",
+      repository: "test/repo"
+    )
+
+    # Test valid URL
+    url = "https://github.com/department-of-veterans-affairs/va.gov-team/issues/12345"
+    repo = service.send(:extract_repo_name_from_url, url)
+    assert_equal "va.gov-team", repo
+
+    # Test invalid URL
+    invalid_url = "https://github.com/invalid/url"
+    repo = service.send(:extract_repo_name_from_url, invalid_url)
+    assert_nil repo
+  end
 end

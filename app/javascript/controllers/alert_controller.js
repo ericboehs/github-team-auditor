@@ -34,24 +34,42 @@ export default class extends Controller {
     // Store reference to next focusable element before removal
     const nextFocusElement = this.findNextFocusElement()
 
+    // Determine which element to animate (wrapper or alert itself)
+    const parent = this.element.parentElement
+    const elementToAnimate = (parent && parent.classList.contains('mb-4') && parent.children.length === 1)
+      ? parent
+      : this.element
+
     // Add closing animation
     this.element.style.transition = 'all 0.3s ease-out'
     this.element.style.opacity = '0'
     this.element.style.transform = 'translateY(-10px)'
-    this.element.style.maxHeight = this.element.offsetHeight + 'px'
+
+    // Set initial height for smooth collapse
+    elementToAnimate.style.maxHeight = elementToAnimate.offsetHeight + 'px'
+    elementToAnimate.style.overflow = 'hidden'
+    elementToAnimate.style.transition = 'all 0.3s ease-out'
 
     // Wait a frame then collapse height
     requestAnimationFrame(() => {
-      this.element.style.maxHeight = '0'
-      this.element.style.marginBottom = '0'
-      this.element.style.paddingTop = '0'
-      this.element.style.paddingBottom = '0'
+      elementToAnimate.style.maxHeight = '0'
+      elementToAnimate.style.marginBottom = '0'
+      elementToAnimate.style.paddingTop = '0'
+      elementToAnimate.style.paddingBottom = '0'
     })
 
 
     // Remove element after animation completes and manage focus
     setTimeout(() => {
-      this.element.remove()
+      // Check if parent is a wrapper div with mb-4 class
+      const parent = this.element.parentElement
+      if (parent && parent.classList.contains('mb-4') && parent.children.length === 1) {
+        // Remove the wrapper div instead of just the alert
+        parent.remove()
+      } else {
+        // Fallback to removing just the alert element
+        this.element.remove()
+      }
       // Return focus to next logical element
       if (nextFocusElement) {
         nextFocusElement.focus()

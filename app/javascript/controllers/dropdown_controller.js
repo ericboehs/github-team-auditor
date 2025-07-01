@@ -68,6 +68,25 @@ export default class extends Controller {
     document.removeEventListener("focusout", this.handleFocusOut)
   }
 
+  closeAction(event) {
+    // Close the dropdown when a menu item is clicked
+    this.closeMenu()
+  }
+
+  clearFlashMessages(event) {
+    // Clear flash messages when sync or find issues actions are clicked
+    const flashContainer = document.getElementById('flash-messages')
+    if (flashContainer) {
+      // Remove all child elements including wrapper divs
+      while (flashContainer.firstChild) {
+        flashContainer.firstChild.remove()
+      }
+      // Reset any padding/margin that might be on the container itself
+      flashContainer.style.marginBottom = '0'
+      flashContainer.style.paddingBottom = '0'
+    }
+  }
+
   close(event) {
     // Don't close if date field is currently active
     if (this.dateFieldActive) {

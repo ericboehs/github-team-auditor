@@ -23,8 +23,11 @@
             <th scope="col" class="px-3 py-3.5">
               <%= team_member_sort_link("first_seen", t('common.first_seen'), { id: team.id }) %>
             </th>
-            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
+            <th scope="col" class="px-3 py-3.5">
               <%= team_member_sort_link("last_seen", t('common.last_seen'), { id: team.id }) %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 pr-4 sm:pr-6">
+              <%= team_member_sort_link("access_expires", t('common.access_expires'), { id: team.id }) %>
             </th>
           </tr>
         </thead>
@@ -74,11 +77,41 @@
                   -
                 <% end %>
               </td>
-              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 pr-4 sm:pr-6">
+              <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                 <% if member.last_seen_at %>
                   <%= time_ago_in_words(member.last_seen_at) %> ago
                 <% else %>
                   -
+                <% end %>
+              </td>
+              <td class="px-3 py-4 text-sm whitespace-nowrap pr-4 sm:pr-6">
+                <% if member.access_expires_at %>
+                  <% if member.access_expired? %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
+                      <%= t('status_badges.expired') %>
+                    </span>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <%= t('access_expiration.expired_ago', time: time_ago_in_words(member.access_expires_at)) %>
+                    </div>
+                  <% elsif member.access_expiring_soon? %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
+                      <%= t('status_badges.expiring_soon') %>
+                    </span>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <%= t('access_expiration.expires_in', time: time_ago_in_words(member.access_expires_at)) %>
+                    </div>
+                  <% else %>
+                    <div class="text-sm text-gray-900 dark:text-white">
+                      <%= member.access_expires_at.strftime('%m/%d/%Y') %>
+                    </div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                      <%= t('access_expiration.expires_in', time: time_ago_in_words(member.access_expires_at)) %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <span class="text-gray-400 dark:text-gray-500">
+                    <%= t('access_expiration.no_expiration') %>
+                  </span>
                 <% end %>
               </td>
             </tr>

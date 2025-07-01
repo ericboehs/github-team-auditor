@@ -26,6 +26,10 @@ class AuditsController < ApplicationController
         .includes(:audit_notes, :team_member)
         .joins(:team_member)
 
+    # Set default sort to access_expires if no sort specified
+    params[:sort] ||= "access_expires"
+    params[:direction] ||= "asc"
+
     # Apply sorting for team members
     @team_members = apply_team_member_sorting(@team_members)
 
@@ -44,8 +48,16 @@ class AuditsController < ApplicationController
       @audit_session.organization = @selected_team.organization
       @teams = @selected_team.organization.teams
     else
-      # Auto-select the first organization if there's only one
-      if @organizations.count == 1
+      # Auto-select Department of Veterans Affairs if it exists, otherwise first organization if there's only one
+      dept_of_va = @organizations.find_by(github_login: "department-of-veterans-affairs")
+      if dept_of_va
+        @audit_session.organization = dept_of_va
+        @teams = @audit_session.organization.teams.recently_synced
+
+        # Pre-select the most recently synced team
+        most_recent_team = @teams.where.not(sync_completed_at: nil).first
+        @audit_session.team = most_recent_team if most_recent_team
+      elsif @organizations.count == 1
         @audit_session.organization = @organizations.first
         @teams = @audit_session.organization.teams.recently_synced
 

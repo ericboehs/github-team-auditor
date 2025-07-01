@@ -9,6 +9,9 @@ class IssueCorrelation < ApplicationRecord
   scope :open, -> { where(status: "open") }
   scope :resolved, -> { where(status: "resolved") }
 
+  # Store comment authors as JSON array
+  serialize :comment_authors, type: Array, coder: JSON
+
   def open?
     status == "open"
   end

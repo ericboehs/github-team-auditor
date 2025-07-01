@@ -70,8 +70,8 @@ class IssueCorrelationFinderJob < ApplicationJob
     # Announce completion to screen readers
     broadcast_live_announcement(@team, I18n.t("jobs.issue_correlation.completed_announcement", team_name: @team.name, count: total_issues))
 
-    # Update team members table with new first/last seen data
-    broadcast_team_members_update
+    # Note: Individual member updates (including first/last seen data) are handled
+    # by broadcast_member_issues_update in IssueCorrelationService to preserve table sorting
 
     Rails.logger.info "Broadcasted correlation completion message for team #{@team.id}: #{message}"
     Rails.logger.info "Issue correlation finder completed for team #{@team.name}"

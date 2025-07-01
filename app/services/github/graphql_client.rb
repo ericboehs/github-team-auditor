@@ -93,6 +93,14 @@ module Github
                 author {
                   login
                 }
+                comments(first: 100) {
+                  nodes {
+                    bodyText
+                    author {
+                      login
+                    }
+                  }
+                }
               }
             }
             issueCount
@@ -133,6 +141,14 @@ module Github
                 state
                 author {
                   login
+                }
+                comments(first: 100) {
+                  nodes {
+                    bodyText
+                    author {
+                      login
+                    }
+                  }
                 }
               }
             }
@@ -225,6 +241,11 @@ module Github
     end
 
     def normalize_issue_data_from_graphql(issue)
+      # Extract comments from GraphQL response
+      comments_data = issue.dig(:comments, :nodes) || []
+      comments_text = comments_data.map { |comment| comment[:bodyText] }.join("\n\n---\n\n")
+      comment_authors = comments_data.map { |comment| comment.dig(:author, :login) }
+
       {
         github_issue_number: issue[:number],
         github_issue_url: issue[:url],
@@ -235,7 +256,9 @@ module Github
         updated_at: Time.parse(issue[:updatedAt]),
         user: {
           github_login: issue.dig(:author, :login)
-        }
+        },
+        comments: comments_text,
+        comment_authors: comment_authors
       }
     end
 

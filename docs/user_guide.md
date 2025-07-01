@@ -165,6 +165,62 @@ View historical audits to track:
 - Compliance trends
 - Member validation patterns
 
+## Power User Features
+
+### Keyboard Shortcuts
+
+The GitHub Team Auditor includes powerful keyboard shortcuts for efficient navigation during audit sessions:
+
+#### Navigation Shortcuts
+- **Ctrl + h / Ctrl + l**: Navigate left/right between table columns
+- **Ctrl + j / Ctrl + k**: Navigate up/down between table rows
+- **Ctrl + b / Ctrl + f**: Alternative left/right navigation (Emacs-style)
+- **Ctrl + p / Ctrl + n**: Alternative up/down navigation (Emacs-style)
+
+#### Help and Assistance
+- **Ctrl + / (or Ctrl + ?)**: Show/hide keyboard shortcuts help modal
+
+#### Usage Tips
+- Use keyboard navigation to quickly move through large team member lists
+- The help modal provides a quick reference of all available shortcuts
+- Keyboard navigation works seamlessly with screen readers for accessibility
+
+### Local Timezone Display
+
+All timestamps in the application automatically display in your browser's local timezone:
+
+- **Member Activity**: First seen and last seen dates in tooltips
+- **Audit History**: Created and updated timestamps
+- **Sync Status**: Last synchronization times
+
+#### Tooltip Information
+Hover over any member's access expiration date to see:
+- **First Seen**: When the member first appeared in GitHub issues
+- **Last Seen**: Most recent activity in tracked issues
+- **Local Time Formatting**: Automatically formats dates for current year vs. previous years
+
+### Real-time Updates
+
+The application provides live updates without requiring page refreshes:
+
+- **Audit Progress**: Statistics update immediately as you validate members
+- **Team Sync Status**: Progress bars and completion status update in real-time
+- **Job Monitoring**: Background job progress is displayed with live updates
+
+### Advanced Navigation
+
+#### Issue Correlation
+When viewing team members with linked GitHub issues:
+- **Enter**: Expand/collapse the "+X more" issues list
+- **Tab Navigation**: Keyboard navigation automatically focuses on issue links
+- **Visual Indicators**: Color-coded icons show issue status (open vs. resolved)
+
+#### Audit Status Flow
+Click through status badges in sequence:
+- **Pending** (yellow) → **Validated** (green) → **Removed** (red) → **Pending**
+- Status changes are reflected immediately in progress statistics
+- Notes can be added for any member to document validation decisions
+
 ## Tips and Best Practices
 
 ### Regular Syncing
