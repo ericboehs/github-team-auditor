@@ -105,6 +105,24 @@ class TeamTest < ActiveSupport::TestCase
     assert_empty destroyed_sessions
   end
 
+  test "current_job_status returns issue correlation status when not running" do
+    # Test line 82: issue_correlation_status != "running"
+    @team.update!(issue_correlation_status: "failed")
+
+    assert_equal "failed", @team.current_job_status
+  end
+
+  test "complete_job! with completion_field sets timestamp" do
+    # Test line 99: completion_field branch
+    freeze_time = Time.current
+    Time.stub :current, freeze_time do
+      @team.send(:complete_job!, :sync, completion_field: :sync_completed_at)
+    end
+
+    assert_nil @team.sync_status
+    assert_equal freeze_time, @team.sync_completed_at
+  end
+
   test "should destroy dependent team_members when team is destroyed" do
     team_members_count = @team.team_members.count
     assert team_members_count > 0

@@ -103,6 +103,22 @@ module Github
       nil
     end
 
+    def fetch_issue_comments(repo_name, issue_number)
+      with_rate_limiting do
+        comments = @client.issue_comments("#{@organization.github_login}/#{repo_name}", issue_number)
+        comments.map do |comment|
+          {
+            body: comment.body,
+            author: comment.user.login,
+            created_at: comment.created_at,
+            updated_at: comment.updated_at
+          }
+        end
+      end
+    rescue Octokit::NotFound
+      []
+    end
+
     private
 
     def configure_client

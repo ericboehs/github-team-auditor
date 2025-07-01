@@ -15,7 +15,8 @@ This is a Rails 8.0.2 application called **GitHub Team Auditor** (`GithubTeamAud
 - `bin/watch-ci` - Monitor CI status in real-time during development
 
 ### Standard Rails Commands
-- `bin/rails server` - Start development server
+- `bin/dev` - Start development server (preferred)
+- `bin/rails server` - Alternative development server
 - `bin/rails test` - Run test suite
 - `bin/rails test:system` - Run system tests
 - `bin/setup` - Initial application setup
@@ -58,7 +59,10 @@ The application uses separate SQLite databases:
 ## Key Files & Directories
 
 ### Application Structure
-- `app/` - Standard Rails MVC structure (currently minimal)
+- `app/` - Standard Rails MVC structure with comprehensive audit functionality
+- `app/components/` - ViewComponent-based reusable UI components
+- `app/services/` - Business logic services and GitHub API integration
+- `app/jobs/` - Background job architecture with real-time updates
 - `config/application.rb` - Main application configuration
 - `config/database.yml` - Multi-database SQLite configuration
 
@@ -129,3 +133,59 @@ Coverage configuration in `test/test_helper.rb`:
 5. **Coverage**: Check `bin/coverage` for detailed test coverage analysis
 
 The application emphasizes code quality with automated formatting, comprehensive testing, security scanning, and 95% code coverage requirement integrated into the development workflow.
+
+## GitHub Configuration
+
+The application uses GitHub API for team auditing functionality. Configuration is done via environment variables:
+
+- **Environment Variable**: `GHTA_GITHUB_TOKEN` (required)
+- **Scopes Required**: `repo` and `read:org` 
+- **Token Type**: GitHub Personal Access Token (classic)
+
+### Environment Setup Options
+
+1. **Using direnv** (recommended):
+  ```bash
+  echo "export GHTA_GITHUB_TOKEN=your_token_here" >> .envrc
+  direnv allow
+  ```
+
+2. **Using .env file**:
+  ```bash
+  echo "GHTA_GITHUB_TOKEN=your_token_here" >> .env
+  ```
+
+3. **Direct environment variable**:
+  ```bash
+  export GHTA_GITHUB_TOKEN=your_token_here
+  ```
+
+## Key Features Implemented
+
+### Real-time UI Updates
+- **Turbo Streams**: Server-driven DOM updates for audit progress
+- **ActionCable**: WebSocket connections for live job status
+- **Stimulus Controllers**: Client-side interactivity and keyboard navigation
+
+### Audit Session Management
+- **Interactive Status Toggles**: pending → validated → removed workflow
+- **Progress Tracking**: Real-time completion percentage updates
+- **Keyboard Navigation**: Vim-style (hjkl) and Emacs-style (bfpn) shortcuts
+- **Local Timezone Display**: Browser-based timestamp conversion
+
+### Background Job Architecture
+- **Team Synchronization**: GitHub API integration with rate limiting
+- **Issue Correlation**: Batch GraphQL queries for member activity tracking
+- **Progress Broadcasting**: Real-time status updates via turbo streams
+
+## Architecture Notes
+
+### Turbo Streams vs Turbo Frames
+- **Audit interfaces use Turbo Streams** for multi-target DOM updates
+- **Avoided Turbo Frames** to prevent conflicts with stream-based updates
+- **Regular divs with IDs** as turbo stream targets instead of frame tags
+
+### Component Architecture
+- **ViewComponent-based UI** for maintainable, reusable components
+- **Stimulus controllers** for client-side behavior and keyboard navigation
+- **Service objects** for GitHub API integration and business logic

@@ -31,4 +31,16 @@ class Dropdown::ButtonComponentTest < ViewComponent::TestCase
     assert_selector "button[aria-expanded='false']"
     assert_selector "button[aria-haspopup='true']"
   end
+
+  test "renders success variant button" do
+    render_inline Dropdown::ButtonComponent.new(text: "Success", variant: :success)
+
+    assert_selector "button.bg-vads-success", text: "Success"
+  end
+
+  test "renders unknown variant as default" do
+    render_inline Dropdown::ButtonComponent.new(text: "Unknown", variant: :unknown)
+
+    assert_selector "button.bg-white", text: "Unknown"
+  end
 end

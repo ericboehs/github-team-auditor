@@ -111,6 +111,7 @@ en:
     issues: "Issues"
     first_seen: "First Seen"
     last_seen: "Last Seen"
+    access_expires: "Access Expires"
     validated: "Validated"
     maintainers: "Maintainers"
     total_members: "Members"
@@ -135,6 +136,9 @@ en:
     validated: "Validated"
     removed: "Removed"
     draft: "Draft"
+    expired: "Expired"
+    expiring_soon: "Expiring Soon"
+    no_expiration: "No Expiration"
 
   sync:
     synced_ago: "Synced %{time} ago"
@@ -149,6 +153,15 @@ en:
     edit_due_date: "Edit Due Date"
     set_due_date: "Set Due Date"
     clear_due_date: "Clear"
+
+  access_expiration:
+    expires_label: "Expires:"
+    expired_label: "Expired:"
+    expires_on: "Expires on %{date}"
+    expired_on: "Expired on %{date}"
+    expires_in: "Expires in %{time}"
+    expired_ago: "Expired %{time} ago"
+    no_expiration: "No expiration date"
 
   actions:
     mark_active: "Mark Active"

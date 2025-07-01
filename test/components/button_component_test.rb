@@ -84,4 +84,14 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_selector "button.bg-white"
     assert_selector ".rounded-md" # Should have base classes
   end
+
+  def test_renders_disabled_button
+    component = ButtonComponent.new(text: "Disabled", disabled: true)
+    render_inline(component)
+
+    assert_selector "button[disabled]", text: "Disabled"
+    assert_selector "button.bg-gray-300"
+    assert_selector "button.cursor-not-allowed"
+    assert_selector "button.opacity-60"
+  end
 end

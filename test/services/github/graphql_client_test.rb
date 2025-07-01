@@ -215,6 +215,50 @@ class Github::GraphqlClientTest < ActiveSupport::TestCase
     assert_equal 2, queries.last[:searches].length
   end
 
+  test "normalize_issue_data_from_graphql includes comments and authors" do
+    issue_data = {
+      number: 123,
+      title: "Test Issue",
+      bodyText: "Test body",
+      url: "https://github.com/test/repo/issues/123",
+      createdAt: "2023-01-01T00:00:00Z",
+      updatedAt: "2023-01-02T00:00:00Z",
+      state: "OPEN",
+      author: { login: "test_user" },
+      comments: {
+        nodes: [
+          { bodyText: "First comment", author: { login: "commenter1" } },
+          { bodyText: "Second comment", author: { login: "commenter2" } }
+        ]
+      }
+    }
+
+    result = @client.send(:normalize_issue_data_from_graphql, issue_data)
+
+    assert_equal "First comment\n\n---\n\nSecond comment", result[:comments]
+    assert_equal [ "commenter1", "commenter2" ], result[:comment_authors]
+    assert_equal "test_user", result[:user][:github_login]
+  end
+
+  test "normalize_issue_data_from_graphql handles missing comments" do
+    issue_data = {
+      number: 123,
+      title: "Test Issue",
+      bodyText: "Test body",
+      url: "https://github.com/test/repo/issues/123",
+      createdAt: "2023-01-01T00:00:00Z",
+      updatedAt: "2023-01-02T00:00:00Z",
+      state: "OPEN",
+      author: { login: "test_user" }
+      # No comments field
+    }
+
+    result = @client.send(:normalize_issue_data_from_graphql, issue_data)
+
+    assert_equal "", result[:comments]
+    assert_equal [], result[:comment_authors]
+  end
+
   test "normalize_issue_data_from_graphql handles nil author" do
     issue_data = {
       number: 123,
