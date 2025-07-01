@@ -1,27 +1,73 @@
-# Rails Starter Template
+# GitHub Team Auditor
 
-A Rails 8.0.2 application template with modern tooling and best practices.
+A comprehensive web application for auditing GitHub team memberships and access compliance. Built for organizations that need to regularly review and validate team member access, track member activity, and maintain security compliance.
 
-## Features
+## Overview
 
-- **GitHub Team Auditing** - Comprehensive team member auditing and compliance tracking
-- **Real-time Team Sync** - Background synchronization of team data from GitHub with live UI updates
-- **Issue Correlation** - Automatic correlation of GitHub issues with team members using configurable search terms
-- **User Authentication** - Secure session-based authentication system
-- **Modern Rails Stack** - Built with Rails 8.0.2, SQLite3, and modern asset pipeline
-- **Component-Based UI** - ViewComponent architecture with advanced dropdown components
-- **Real-time Updates** - Turbo Streams and ActionCable for live job progress and notifications
-- **Responsive Design** - Tailwind CSS with dark mode support
-- **Comprehensive Testing** - 95%+ test coverage with SimpleCov
+GitHub Team Auditor streamlines the process of conducting security audits on GitHub teams by:
+
+- **Automated Team Synchronization** - Pulls team member data directly from GitHub API
+- **Interactive Audit Sessions** - Provides guided workflows for reviewing member access
+- **Member Activity Tracking** - Correlates GitHub issues with team members to show activity
+- **Progress Tracking** - Visual progress indicators and completion statistics
+- **Real-time Collaboration** - Multiple auditors can work on the same audit simultaneously
+- **Audit Trail** - Complete history of access decisions and notes
+
+## Key Features
+
+### 🔍 **Comprehensive Team Auditing**
+- Create audit sessions for any GitHub team
+- Review member access with validated/pending/removed status tracking
+- Add detailed notes and comments for each member
+- Track audit progress with real-time statistics
+
+### 🔄 **Real-time Team Synchronization** 
+- Background synchronization of team data from GitHub
+- Live UI updates showing sync progress
+- Automatic detection of new team members and changes
+
+### 🎯 **Issue Correlation & Activity Tracking**
+- Automatically correlates GitHub issues with team members
+- Configurable search terms for finding relevant member activity
+- Visual indicators showing member engagement and activity levels
+- Timeline view of when members were first/last seen in issues
+
+### ⚡ **Modern User Experience**
+- Responsive design that works on desktop and mobile
+- Dark mode support for comfortable viewing
+- Keyboard shortcuts for power users (Ctrl+hjkl navigation, Ctrl+/ for help)
+- Real-time updates without page refreshes using Turbo Streams
+
+### 🛡️ **Security & Compliance**
+- Secure session-based authentication
+- Audit trail of all access decisions
+- Export capabilities for compliance reporting
+- Role-based access controls
+
+## Use Cases
+
+### Security Audits
+- **Quarterly Access Reviews** - Systematically review all team members' continued need for access
+- **Onboarding/Offboarding** - Ensure new hires have appropriate access and departing employees are removed
+- **Compliance Reporting** - Generate reports showing audit completion and decisions
+
+### Team Management
+- **Activity Monitoring** - Identify inactive team members who may no longer need access
+- **Access Validation** - Verify that team membership aligns with current roles and responsibilities
+- **Team Health** - Get insights into team engagement through issue correlation
+
+### Organizational Oversight
+- **Multi-team Audits** - Conduct audits across multiple teams and organizations
+- **Progress Tracking** - Monitor audit completion rates across different teams
+- **Historical Analysis** - Track access decisions and changes over time
 
 ## Tech Stack
 
-- **Rails 8.0.2** with modern asset pipeline (Propshaft)
+- **Rails 8.0.2** with modern asset pipeline (Propsharp)
 - **SQLite3** for all environments including production
-- **ImportMap** for JavaScript (no Node.js bundling required)
-- **Hotwire** (Turbo + Stimulus) for interactive features
-- **Tailwind CSS** via CDN for styling
-- **ViewComponent** for reusable UI components
+- **Hotwire** (Turbo + Stimulus) for real-time interactivity
+- **Tailwind CSS** for responsive, modern UI design
+- **ViewComponent** for maintainable, reusable UI components
 - **Solid Libraries** for database-backed cache, queue, and cable
 
 ## Getting Started
@@ -31,36 +77,75 @@ A Rails 8.0.2 application template with modern tooling and best practices.
 - Ruby 3.2+
 - Rails 8.0.2+
 - SQLite3
+- GitHub Personal Access Token with appropriate permissions
 
-### Using This Template
+### Installation
 
-1. Click "Use this template" button on GitHub to create a new repository
-2. Clone your new repository
-3. Install dependencies:
-  ```bash
-  bin/setup
-  ```
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd github-team-auditor
+   ```
 
-4. Rename the application (this also regenerates credentials for security):
-  ```bash
-  bin/rename-app YourAppName
-  ```
+2. Install dependencies and set up the database:
+   ```bash
+   bin/setup
+   ```
 
-5. Set up your credentials:
-  ```bash
-  bin/rails credentials:edit
-  ```
+3. Configure your GitHub API credentials:
+   ```bash
+   bin/rails credentials:edit
+   ```
+   
+   Add your GitHub configuration:
+   ```yaml
+   github:
+     client_id: your_github_app_client_id
+     client_secret: your_github_app_client_secret
+     personal_access_token: your_personal_access_token
+   ```
 
-6. Customize for your project:
-  - Update `CLAUDE.md` with your project details
-  - Modify this README.md
+4. Start the development server:
+   ```bash
+   bin/rails server
+   ```
 
-7. Start the development server:
-  ```bash
-  bin/rails server
-  ```
+5. Visit `http://localhost:3000` and create your first user account
 
-8. Visit `http://localhost:3000`
+### First Audit Session
+
+1. **Add a Team** - Navigate to Teams and add your GitHub organization/team
+2. **Sync Team Data** - Click "Sync GitHub Team" to pull current member data
+3. **Create Audit Session** - Start a new audit session for the team
+4. **Review Members** - Go through each member and mark them as validated, pending, or removed
+5. **Track Progress** - Monitor completion percentage and add notes as needed
+
+## Usage
+
+### Creating an Audit Session
+
+1. Go to **Audits** → **New Audit Session**
+2. Select the team you want to audit
+3. Give your audit session a descriptive name (e.g., "Q1 2024 Security Review")
+4. Set a due date if needed
+5. Click **Create Audit Session**
+
+### Conducting the Audit
+
+1. **Review each member** by clicking through the status badges:
+   - **Pending** (yellow) → **Validated** (green) → **Removed** (red)
+2. **Add notes** for any members requiring explanation
+3. **Use keyboard shortcuts** for faster navigation:
+   - `Ctrl + h/l` - Navigate left/right between columns
+   - `Ctrl + j/k` - Navigate up/down between rows  
+   - `Ctrl + /` - Show keyboard shortcuts help
+4. **Track progress** using the stats widgets at the top
+
+### Team Management
+
+- **Sync Teams** regularly to get the latest member data from GitHub
+- **Find GitHub Issues** to correlate member activity with team membership
+- **Monitor job progress** through real-time UI updates
 
 ## Development
 
@@ -101,53 +186,19 @@ bin/coverage
 ### Code Standards
 
 - **EditorConfig**: UTF-8, LF line endings, 2-space indentation
-- **RuboCop**: Rails Omakase configuration
+- **RuboCop**: Rails Omakase configuration  
 - **SimpleCov**: 95% minimum coverage requirement
 - **Conventional Commits**: Structured commit messages
 
-## Architecture
+## Documentation
 
-### Database Setup
-
-Multi-database configuration with separate SQLite databases:
-- Primary database for application data
-- Cache database for Solid Cache
-- Queue database for Solid Queue
-- Cable database for Solid Cable
-
-### Component System
-
-The application uses ViewComponent for UI components:
-- `Auth::*` components for authentication flows
-- `AvatarComponent` for user avatars
-- `AlertComponent` for flash messages and errors
-- `UserPageComponent` for profile page layouts
-
-### Rake Tasks
-
-Custom rake tasks for team management:
-
-```bash
-# Clear teams stuck in failed job states
-bin/rails teams:clear_failed_jobs
-
-# Show current job status for all teams
-bin/rails teams:job_status
-```
-
-For full documentation: **[Rake Tasks](lib/tasks/README.md)**
-
-### Detailed Documentation
-
-For comprehensive guides on specific aspects of the application:
+For detailed technical documentation:
 
 - **[App Components](app/components/README.md)** - ViewComponent architecture and reusable UI components
-- **[Background Jobs](app/jobs/README.md)** - Job architecture, real-time updates, and error handling
+- **[Background Jobs](app/jobs/README.md)** - Job architecture, real-time updates, and error handling  
 - **[Services](app/services/README.md)** - Business logic services and GitHub API integration
-- **[Rake Tasks](lib/tasks/README.md)** - Custom rake tasks for application management
 - **[Development Guide](docs/development.md)** - Complete development setup and workflow
-- **[GitHub API Integration](docs/api_integration.md)** - Detailed API client documentation and usage
-- **[Job Architecture](docs/job_architecture.md)** - Background job patterns and shared concerns
+- **[GitHub API Integration](docs/api_integration.md)** - API client documentation and usage
 - **[Real-time Features](docs/real_time_features.md)** - Turbo Streams, ActionCable, and live UI updates
 
 ## Contributing

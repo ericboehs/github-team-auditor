@@ -27,6 +27,11 @@ The application provides real-time updates for background job progress, team syn
 - Team card status updates
 - Job status badges
 
+**Audit Session Updates**
+- Member status changes (pending/validated/removed)
+- Real-time progress statistics updates
+- Audit table refreshes without page reloads
+
 ## Real-time Components
 
 ### 1. Job Progress Indicators
@@ -257,6 +262,56 @@ Turbo::StreamsChannel.broadcast_replace_to(
      data-my-component-target="container">
   <!-- Interactive content -->
 </div>
+```
+
+## Architecture Decisions
+
+### Turbo Streams vs Turbo Frames
+
+**Audit Session Implementation:**
+
+The audit session interface uses **Turbo Streams** instead of Turbo Frames for real-time updates:
+
+```erb
+<!-- Before: Turbo Frames (caused conflicts) -->
+<%= turbo_frame_tag "audit-stats" do %>
+  <!-- Content -->
+<% end %>
+
+<!-- After: Regular divs with IDs for Turbo Streams -->
+<div id="audit-stats">
+  <!-- Content -->
+</div>
+```
+
+**Why this change was necessary:**
+
+- **Turbo Frames** expect frame-based navigation and updates
+- **Turbo Streams** allow multiple simultaneous DOM updates
+- Mixing frames and streams can cause update conflicts
+- Regular divs with IDs work better for multi-target updates
+
+**Controller Implementation:**
+
+```ruby
+# Audit members controller sends turbo streams
+respond_to do |format|
+  format.turbo_stream do
+    render turbo_stream: [
+      turbo_stream.replace("sortable-table", partial: "audits/team_members_table"),
+      turbo_stream.replace("audit-stats", partial: "audits/audit_stats", locals: {...})
+    ]
+  end
+end
+```
+
+**JavaScript Event Handling:**
+
+```javascript
+// Status toggle controller listens for turbo stream events
+document.addEventListener('turbo:before-stream-render', (event) => {
+  // Handle post-update logic like keyboard navigation
+});
 ```
 
 ## Best Practices
