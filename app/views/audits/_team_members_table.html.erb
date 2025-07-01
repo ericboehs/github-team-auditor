@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "sortable-table" do %>
+<div id="sortable-table">
   <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" data-controller="keyboard-navigation status-toggle">
     <caption class="sr-only"><%= t('accessibility.team_members_table', audit_name: @audit_session.name) %></caption>
   <thead>
@@ -54,7 +54,7 @@
         <span tabindex="0" class="cursor-text focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-blue-900 rounded px-1 text-gray-900 dark:text-white" data-controller="text-select" data-action="focus->text-select#focus" data-keyboard-navigation-target="actionable"><%= member.display_name %></span>
       </td>
       <td class="px-3 py-4 text-sm whitespace-nowrap">
-        <%= form_with url: toggle_status_audit_member_path(member, sort: params[:sort], direction: params[:direction]), method: :patch, local: true, data: { turbo_method: :patch, controller: "status-toggle", action: "submit->status-toggle#toggle" }, class: "inline-block" do |form| %>
+        <%= form_with url: toggle_status_audit_member_path(member, sort: params[:sort], direction: params[:direction]), method: :patch, data: { controller: "status-toggle" }, class: "inline-block" do |form| %>
           <%= button_tag type: :submit, class: "cursor-pointer border-0 bg-transparent p-0 hover:opacity-75 hover:scale-105 transition-all duration-150", "data-keyboard-navigation-target": "actionable", "data-status-toggle-target": "button" do %>
             <% if member.removed? %>
               <%= render StatusBadgeComponent.new(status: "removed") %>
@@ -195,12 +195,14 @@
             <div class="text-center">
               <% if member.team_member.first_seen_at %>
                 <div class="font-medium text-xs text-gray-300">First Seen</div>
-                <div class="text-sm">
-                  <% if member.team_member.first_seen_at.year == Date.current.year %>
-                    <%= member.team_member.first_seen_at.strftime("%b %d at %l:%M %p") %>
-                  <% else %>
-                    <%= member.team_member.first_seen_at.strftime("%b %d, %Y") %>
-                  <% end %>
+                <div class="text-sm" data-controller="local-time" data-local-time-datetime-value="<%= member.team_member.first_seen_at.iso8601 %>" data-local-time-format-value="short">
+                  <span data-local-time-target="time">
+                    <% if member.team_member.first_seen_at.year == Date.current.year %>
+                      <%= member.team_member.first_seen_at.strftime("%b %d at %l:%M %p") %>
+                    <% else %>
+                      <%= member.team_member.first_seen_at.strftime("%b %d, %Y") %>
+                    <% end %>
+                  </span>
                 </div>
               <% else %>
                 <div class="text-sm text-gray-400">No first seen date</div>
@@ -208,12 +210,14 @@
 
               <% if member.team_member.last_seen_at %>
                 <div class="font-medium text-xs text-gray-300 mt-2">Last Seen</div>
-                <div class="text-sm">
-                  <% if member.team_member.last_seen_at.year == Date.current.year %>
-                    <%= member.team_member.last_seen_at.strftime("%b %d at %l:%M %p") %>
-                  <% else %>
-                    <%= member.team_member.last_seen_at.strftime("%b %d, %Y") %>
-                  <% end %>
+                <div class="text-sm" data-controller="local-time" data-local-time-datetime-value="<%= member.team_member.last_seen_at.iso8601 %>" data-local-time-format-value="short">
+                  <span data-local-time-target="time">
+                    <% if member.team_member.last_seen_at.year == Date.current.year %>
+                      <%= member.team_member.last_seen_at.strftime("%b %d at %l:%M %p") %>
+                    <% else %>
+                      <%= member.team_member.last_seen_at.strftime("%b %d, %Y") %>
+                    <% end %>
+                  </span>
                 </div>
               <% else %>
                 <div class="text-sm text-gray-400 mt-2">No last seen date</div>
@@ -236,11 +240,15 @@
                   <div class="font-medium"><%= member.notes_updated_by.email_address %></div>
                   <div class="text-xs text-gray-300">
                     <% if member.notes_updated_at %>
-                      <% if member.notes_updated_at.year == Date.current.year %>
-                        <%= member.notes_updated_at.strftime("%b %d at %l:%M %p") %>
-                      <% else %>
-                        <%= member.notes_updated_at.strftime("%b %d, %Y at %l:%M %p") %>
-                      <% end %>
+                      <span data-controller="local-time" data-local-time-datetime-value="<%= member.notes_updated_at.iso8601 %>" data-local-time-format-value="short">
+                        <span data-local-time-target="time">
+                          <% if member.notes_updated_at.year == Date.current.year %>
+                            <%= member.notes_updated_at.strftime("%b %d at %l:%M %p") %>
+                          <% else %>
+                            <%= member.notes_updated_at.strftime("%b %d, %Y at %l:%M %p") %>
+                          <% end %>
+                        </span>
+                      </span>
                     <% end %>
                   </div>
                 </div>
@@ -254,4 +262,4 @@
   <% end %>
   </tbody>
     </table>
-  <% end %>
+  </div>

@@ -5,15 +5,15 @@ export default class extends Controller {
 
   // Much simpler now - Turbo handles the updates!
   connect() {
-    // Just ensure proper focus behavior after Turbo frame updates
-    this.element.addEventListener('turbo:frame-load', this.handleFrameLoad.bind(this))
+    // Listen for turbo stream updates instead of frame loads
+    document.addEventListener('turbo:before-stream-render', this.handleStreamRender.bind(this))
 
     // Listen for form submission to track when status toggle happens
     this.element.addEventListener('submit', this.handleSubmit.bind(this))
   }
 
   disconnect() {
-    this.element.removeEventListener('turbo:frame-load', this.handleFrameLoad.bind(this))
+    document.removeEventListener('turbo:before-stream-render', this.handleStreamRender.bind(this))
     this.element.removeEventListener('submit', this.handleSubmit.bind(this))
   }
 
@@ -28,27 +28,30 @@ export default class extends Controller {
   }
 
 
-  handleFrameLoad(event) {
-    // After Turbo updates the frame, restore focus to maintain keyboard navigation
-    const navController = this.getNavigationController()
+  handleStreamRender(event) {
+    // After Turbo stream updates, restore focus to maintain keyboard navigation
+    // Only handle if the stream is updating the sortable-table
+    if (event.detail.render && event.detail.render.toString().includes('sortable-table')) {
+      const navController = this.getNavigationController()
 
-    if (navController && this.shouldAdvanceToNextRow) {
-      // Auto-advance to next row after status toggle
-      setTimeout(() => {
-        this.advanceToNextRow(navController)
-        this.shouldAdvanceToNextRow = false
-      }, 50)
-    } else if (navController && navController.currentItemIndex !== null) {
-      // Re-initialize the keyboard navigation after the table updates
-      setTimeout(() => {
-        const visibleItems = navController.visibleActionableTargets
-        if (visibleItems.length > 0) {
-          // Focus on the first item or maintain relative position
-          const targetIndex = Math.min(navController.currentItemIndex, visibleItems.length - 1)
-          visibleItems[targetIndex].focus()
-          navController.currentItemIndex = targetIndex
-        }
-      }, 50)
+      if (navController && this.shouldAdvanceToNextRow) {
+        // Auto-advance to next row after status toggle
+        setTimeout(() => {
+          this.advanceToNextRow(navController)
+          this.shouldAdvanceToNextRow = false
+        }, 50)
+      } else if (navController && navController.currentItemIndex !== null) {
+        // Re-initialize the keyboard navigation after the table updates
+        setTimeout(() => {
+          const visibleItems = navController.visibleActionableTargets
+          if (visibleItems.length > 0) {
+            // Focus on the first item or maintain relative position
+            const targetIndex = Math.min(navController.currentItemIndex, visibleItems.length - 1)
+            visibleItems[targetIndex].focus()
+            navController.currentItemIndex = targetIndex
+          }
+        }, 50)
+      }
     }
   }
 

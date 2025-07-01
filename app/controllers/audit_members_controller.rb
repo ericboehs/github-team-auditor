@@ -19,6 +19,7 @@ class AuditMembersController < ApplicationController
       format.turbo_stream do
         # Re-fetch the sorted team members for the audit session
         @audit_session = @audit_member.audit_session
+        @audit_session.reload # Ensure fresh data for progress calculation
         @team_members = @audit_session
           .audit_members
           .includes(:audit_notes, :team_member)

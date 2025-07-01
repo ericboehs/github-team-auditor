@@ -77,7 +77,13 @@ export default class extends Controller {
     // Clear flash messages when sync or find issues actions are clicked
     const flashContainer = document.getElementById('flash-messages')
     if (flashContainer) {
-      flashContainer.innerHTML = ''
+      // Remove all child elements including wrapper divs
+      while (flashContainer.firstChild) {
+        flashContainer.firstChild.remove()
+      }
+      // Reset any padding/margin that might be on the container itself
+      flashContainer.style.marginBottom = '0'
+      flashContainer.style.paddingBottom = '0'
     }
   }
 

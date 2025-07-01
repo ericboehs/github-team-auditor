@@ -37,6 +37,14 @@ export default class extends Controller {
       }
     }
 
+    // Handle Ctrl+/ (or Ctrl+?) for help modal
+    if (event.ctrlKey && (event.key === '/' || event.key === '?')) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.toggleHelpModal()
+      return
+    }
+
     // Only handle other navigation when Ctrl is pressed
     if (!event.ctrlKey) return
 
