@@ -27,6 +27,10 @@ gem "csv"
 # Faraday retry middleware [https://github.com/lostisland/faraday-retry]
 gem "faraday-retry"
 
+# Error tracking with Sentry
+gem "sentry-ruby"
+gem "sentry-rails"
+
 # A framework for building reusable, testable & encapsulated view components
 gem "view_component"
 
